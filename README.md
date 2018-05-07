@@ -2,7 +2,8 @@
 ### Ryan Wiener
 ## Downloading External Libraries
 ### GLFW
-[GLFW download link]("http://www.glfw.org/download.html")
+[GLFW download link](http://www.glfw.org/download.html)
+
 [GLFW download instructions link](http://www.glfw.org/docs/latest/compile.html)
 ### GLAD
 [GLAD download link](http://glad.dav1d.de)
