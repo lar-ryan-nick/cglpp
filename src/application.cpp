@@ -5,7 +5,11 @@ Application::Application() {
 		std::cerr << "Failed to initialize glfw" << std::endl;
 		exit(-1);
 	}
-	GLFWwindow* window = glfwCreateWindow(10, 10, "", NULL, NULL);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "", NULL, NULL);
 	if (window == NULL) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -25,7 +29,6 @@ Application::Application() {
 			if (!it->shouldClose()) {
 				it->processInput();
 				it->render();
-				it->swapBuffers();
 				glfwPollEvents();    
 			} else {
 				it->close();
@@ -39,7 +42,6 @@ Application::Application() {
 
 void Application::onCreate() {
 	Window window1;
-	std::cout << "Hello" << std::endl;
 	Color color1(0.0f, 0.0f, 1.0f, 1.0f);
 	window1.setBackgroundColor(color1);
 	windows.push_back(window1);

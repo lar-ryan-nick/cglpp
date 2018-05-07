@@ -1,10 +1,12 @@
 #include "window.h"
 
 Window::Window(const std::string& windowName, int w, int h, float r, float g, float b, float a) : backgroundColor(r, g, b, a) {
+	/*
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	*/
 	window = glfwCreateWindow(w, h, windowName.c_str(), NULL, NULL);
 	if (window == NULL) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
@@ -13,10 +15,10 @@ Window::Window(const std::string& windowName, int w, int h, float r, float g, fl
 	}
 	glfwMakeContextCurrent(window);
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetCursorPosCallback(window, &mouseCallback);
+	//glfwSetCursorPosCallback(window, &mouseCallback);
 	glfwSetFramebufferSizeCallback(window, &framebufferSizeCallback);
-	View view;
-	//views.push_back(view);
+	View view(10.0f, 10.0f, 100.0f, 100.0f);
+	views.push_back(view);
 }
 
 void Window::processInput() {
@@ -24,13 +26,15 @@ void Window::processInput() {
 
 void Window::render() {
 	glfwMakeContextCurrent(window);
-	Size winSize = getSize();
-	glViewport(0, 0, winSize.getWidth(), winSize.getHeight());
+	int width = 0, height = 0;
+	glfwGetFramebufferSize(window, &width, &height);
+	glViewport(0, 0, width, height);
 	glClearColor(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 	for (std::list<View>::iterator it = views.begin(); it != views.end(); it++) {
-		it->draw();
+		it->draw(0, 0, width, height);
 	}
+	glfwSwapBuffers(window);
 }
 
 Size Window::getSize() {
@@ -49,10 +53,6 @@ void Window::setBackgroundColor(const Color& bc) {
 
 void Window::close() {
 	glfwDestroyWindow(window);
-}
-
-void Window::swapBuffers() {
-	glfwSwapBuffers(window);
 }
 
 bool Window::shouldClose() {

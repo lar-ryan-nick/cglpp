@@ -21,7 +21,6 @@ class Window {
 		Size getSize();
 		void setBackgroundColor(const Color& color);
 		Color getBackgroundColor();
-		void swapBuffers();
 		bool shouldClose();
 		void close();
 };

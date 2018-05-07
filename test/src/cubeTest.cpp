@@ -39,8 +39,8 @@ int main() {
 		return -1;
 	}
 	glViewport(0, 0, 800, 600);
-	glEnable(GL_DEPTH_TEST);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glEnable(GL_DEPTH_TEST);
 	Shader shader("res/glsl/cubeTestVertexShader.glsl", "res/glsl/cubeTestFragmentShader.glsl");
 	Texture texture("res/img/container.jpg");
 	Cube cube;
