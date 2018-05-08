@@ -18,7 +18,7 @@ View::View(float x, float y, float width, float height) : shader("res/glsl/viewV
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_STREAM_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 }
@@ -41,12 +41,19 @@ void View::setBackgroundColor(const Color& bc) {
 void View::draw(float parentX, float parentY, float parentWidth, float parentHeight) {
 	shader.use();
 	shader.setUniform("model", 1, false, glm::value_ptr(model));
-	glm::mat4 projection = glm::ortho(0.0f, parentX + parentWidth, parentY + parentHeight, 0.0f, -0.1f, 0.1f);
+	glm::mat4 projection = glm::ortho(-parentX, parentWidth - parentX, parentHeight - parentY, -parentY, -0.1f, 0.1f);
 	shader.setUniform("projection", 1, false, glm::value_ptr(projection));
 	shader.setUniform("backgroundColor", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 	Rectangle bounds = getBounds();
-	setBounds(bounds.getX() + parentX, bounds.getY() + parentY, bounds.getWidth(), bounds.getHeight());
+	//setBounds(bounds.getX() + parentX, bounds.getY() + parentY, bounds.getWidth(), bounds.getHeight());
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	setBounds(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+	for (std::list<View>::iterator it = subviews.begin(); it != subviews.end(); it++) {
+		it->draw(bounds.getX() + parentX, bounds.getY() + parentY, parentWidth, parentHeight);
+	}
+	//setBounds(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+}
+
+void View::addSubview(const View& view) {
+	subviews.push_back(view);
 }

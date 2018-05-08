@@ -17,7 +17,10 @@ Window::Window(const std::string& windowName, int w, int h, float r, float g, fl
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	//glfwSetCursorPosCallback(window, &mouseCallback);
 	glfwSetFramebufferSizeCallback(window, &framebufferSizeCallback);
-	View view(10.0f, 10.0f, 100.0f, 100.0f);
+	View view(100.0f, 100.0f, 100.0f, 100.0f);
+	View subview(50.0f, 50.0f, 100.0f, 100.0f);
+	subview.setBackgroundColor(Color(0.0f, 0.0f, 0.0f, 1.0f));
+	view.addSubview(subview);
 	views.push_back(view);
 }
 

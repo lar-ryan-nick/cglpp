@@ -32,7 +32,8 @@ Application::Application() {
 				glfwPollEvents();    
 			} else {
 				it->close();
-				windows.erase(it);
+				it = windows.erase(it);
+				it--;
 			}
 		}
 	}
