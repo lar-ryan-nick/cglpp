@@ -11,6 +11,7 @@
 #include "color.h"
 #include "view.h"
 #include "scrollView.h"
+#include "imageView.h"
 
 class Window {
 	GLFWwindow* window;

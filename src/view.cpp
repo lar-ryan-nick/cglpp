@@ -1,6 +1,12 @@
 #include "view.h"
 
-View::View(float x, float y, float width, float height) : shader("res/glsl/viewVertexShader.glsl", "res/glsl/viewFragmentShader.glsl"), backgroundColor(1.0f, 1.0f, 1.0f, 1.0f), clipSubviews(false), clipToParent(false), isScrollable(false) {
+Shader* View::viewShader = NULL;
+
+View::View(float x, float y, float width, float height) : backgroundColor(0.0f, 0.0f, 0.0f, 0.0f), clipSubviews(false), clipToParent(false), isScrollable(false) {
+	if (viewShader == NULL) {
+		viewShader = new Shader("res/glsl/viewVertexShader.glsl", "res/glsl/viewFragmentShader.glsl");
+	}
+	shader = viewShader;
 	verticies[0] = verticies[6] = x;
 	verticies[1] = verticies[3] = y;
 	verticies[2] = verticies[4] = x + width;
@@ -9,21 +15,32 @@ View::View(float x, float y, float width, float height) : shader("res/glsl/viewV
 		0, 1, 2,
 		0, 2, 3
 	};
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
+	unsigned int VBO[2];
+	glGenBuffers(2, VBO);
 	unsigned int EBO;
 	glGenBuffers(1, &EBO);
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	float textureCoordinates[] = {
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		1.0f, 0.0f,
+		0.0f, 0.0f
+	};
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(textureCoordinates), textureCoordinates, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
 }
 
-View::View(const View& view) : shader("res/glsl/viewVertexShader.glsl", "res/glsl/viewFragmentShader.glsl"), vao(view.vao), backgroundColor(view.backgroundColor), model(view.model), subviews(view.subviews), clipSubviews(view.clipSubviews), clipToParent(view.clipToParent), isScrollable(view.isScrollable), offsetPosition(view.offsetPosition) {
+View::View(const View& view) : vao(view.vao), backgroundColor(view.backgroundColor), model(view.model), subviews(view.subviews), clipSubviews(view.clipSubviews), clipToParent(view.clipToParent), isScrollable(view.isScrollable), offsetPosition(view.offsetPosition) {
+	viewShader = view.viewShader;
 	for (int i = 0; i < 8; i++) {
 		verticies[i] = view.verticies[i];
 	}
@@ -51,14 +68,14 @@ void View::setBackgroundColor(const Color& bc) {
 }
 
 void View::draw(float parentX, float parentY, float parentWidth, float parentHeight) {
-	shader.use();
-	shader.setUniform("model", 1, false, glm::value_ptr(model));
+	shader->use();
+	shader->setUniform("model", 1, false, glm::value_ptr(model));
 	glm::mat4 projection = glm::ortho(-parentX, parentWidth - parentX, parentHeight - parentY, -parentY, -0.1f, 0.1f);
-	shader.setUniform("projection", 1, false, glm::value_ptr(projection));
-	shader.setUniform("backgroundColor", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
-	Rectangle bounds = getBounds();
+	shader->setUniform("projection", 1, false, glm::value_ptr(projection));
+	shader->setUniform("backgroundColor", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	Rectangle bounds = getBounds();
 	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
 		View* view = *it;
 		if (view->getClipToParent() || clipSubviews) {

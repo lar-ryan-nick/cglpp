@@ -16,7 +16,7 @@ Window::Window(const std::string& windowName, int w, int h, float r, float g, fl
 	ScrollView* scrollView = new ScrollView(100, 100, 650, 450);
 	scrollView->setBackgroundColor(Color(0.0f, 0.0f, 1.0f, 1.0f));
 	scrollView->setContentSize(1000, 1000);
-	View* subview = new View(250, 250, 500, 500);
+	ImageView* subview = new ImageView("res/img/container.jpg", 250, 250, 500, 500);
 	subview->setBackgroundColor(Color(0.0f, 1.0f, 0.0f, 1.0f));
 	scrollView->addSubview(subview);
 	view->addSubview(scrollView);
@@ -73,7 +73,7 @@ void Window::framebufferSizeCallback(GLFWwindow* window, int w, int h) {
 
 void Window::scrollCallback(GLFWwindow* w, double xOffset, double yOffset) {
 	View* view = static_cast<View*>(glfwGetWindowUserPointer(w));
-	view->scroll(xOffset, yOffset);
+	view->scroll(-xOffset, -yOffset);
 }
 
 void Window::mouseCallback(GLFWwindow* window, double xpos, double ypos) {

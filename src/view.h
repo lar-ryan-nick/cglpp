@@ -13,7 +13,7 @@
 #include "camera.h"
 
 class View {
-	Shader shader;
+	static Shader* viewShader;
 	float verticies[8];
 	unsigned int vao;
 	Color backgroundColor;
@@ -42,6 +42,7 @@ class View {
 	protected:
 		void setOffsetPosition(const Position& offset);
 		virtual void onScroll(double xOffset, double yOffset);
+		Shader* shader;
 };
 
 #endif

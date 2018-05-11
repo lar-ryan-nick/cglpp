@@ -7,10 +7,10 @@
 
 class Texture {
 	unsigned int id;
+	void init();
 	public:
 		Texture();
 		Texture(const std::string& textureSource);
-		void init();
 		void setTexture(const std::string& textureSource);
 		void bind() const;
 };
