@@ -1,14 +1,22 @@
 #include "size.h"
 
-Size::Size(int w, int h) {
+Size::Size(float w, float h) {
 	width = w;
 	height = h;
 }
 
-int Size::getWidth() {
+float Size::getWidth() const {
 	return width;
 }
 
-int Size::getHeight() {
+float Size::getHeight() const {
 	return height;
+}
+
+void Size::setWidth(float w) {
+	width = w;
+}
+
+void Size::setHeight(float h) {
+	height = h;
 }

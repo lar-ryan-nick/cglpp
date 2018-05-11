@@ -8,9 +8,10 @@
 #include "window.h"
 
 class Application {
-	std::list<Window> windows;
+	std::list<Window*> windows;
 	public:
 		Application();
+		virtual ~Application();
 	protected:
 		virtual void onCreate();
 		virtual void onTerminate();

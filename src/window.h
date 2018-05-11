@@ -4,28 +4,35 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <list>
+#include <unordered_map>
+#include <utility>
 #include <string>
 #include "size.h"
 #include "color.h"
 #include "view.h"
+#include "scrollView.h"
 
 class Window {
 	GLFWwindow* window;
 	Color backgroundColor;
-	std::list<View> views;
+	View* view;
+	static void framebufferSizeCallback(GLFWwindow* window, int w, int h);
+	static void scrollCallback(GLFWwindow* w, double xOffset, double yOffset);
+	static void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 	public:
 		Window(const std::string& windowName = "Application", int w = 1280, int h = 720, float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f);
+		virtual ~Window();
 		void processInput();
 		virtual void render();
-		Size getSize();
+		Size getSize() const;
+		View& getView();
 		void setBackgroundColor(const Color& color);
 		Color getBackgroundColor();
+		//void scroll(double xOffset, double yOffset);
 		bool shouldClose();
 		void close();
+	protected:
+		//virtual void onScroll(double xOffset, double yOffset);
 };
-
-void framebufferSizeCallback(GLFWwindow* window, int w, int h);
-void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 
 #endif

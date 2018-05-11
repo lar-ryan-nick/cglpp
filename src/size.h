@@ -2,12 +2,14 @@
 #define SIZE_H
 
 class Size {
-	int width;
-	int height;
+	float width;
+	float height;
 	public:
-		Size(int w = 0, int h = 0);
-		int getWidth();
-		int getHeight();
+		Size(float w = 0, float h = 0);
+		float getWidth() const;
+		float getHeight() const;
+		void setWidth(float w);
+		void setHeight(float h);
 };
 
 #endif

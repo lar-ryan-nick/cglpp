@@ -1,12 +1,6 @@
 #include "window.h"
 
 Window::Window(const std::string& windowName, int w, int h, float r, float g, float b, float a) : backgroundColor(r, g, b, a) {
-	/*
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	*/
 	window = glfwCreateWindow(w, h, windowName.c_str(), NULL, NULL);
 	if (window == NULL) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
@@ -14,14 +8,27 @@ Window::Window(const std::string& windowName, int w, int h, float r, float g, fl
 		exit(-1);
 	}
 	glfwMakeContextCurrent(window);
+
+	int width = 0, height = 0;
+	glfwGetFramebufferSize(window, &width, &height);
+	view = new View(0, 0, width, height);
+	view->setBackgroundColor(Color(1.0f, 0.0f, 0.0f, 1.0f));
+	ScrollView* scrollView = new ScrollView(100, 100, 650, 450);
+	scrollView->setBackgroundColor(Color(0.0f, 0.0f, 1.0f, 1.0f));
+	scrollView->setContentSize(1000, 1000);
+	View* subview = new View(250, 250, 500, 500);
+	subview->setBackgroundColor(Color(0.0f, 1.0f, 0.0f, 1.0f));
+	scrollView->addSubview(subview);
+	view->addSubview(scrollView);
+
+	glfwSetWindowUserPointer(window, view);
+	glfwSetScrollCallback(window, scrollCallback);
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	//glfwSetCursorPosCallback(window, &mouseCallback);
-	glfwSetFramebufferSizeCallback(window, &framebufferSizeCallback);
-	View view(100.0f, 100.0f, 100.0f, 100.0f);
-	View subview(50.0f, 50.0f, 100.0f, 100.0f);
-	subview.setBackgroundColor(Color(0.0f, 0.0f, 0.0f, 1.0f));
-	view.addSubview(subview);
-	views.push_back(view);
+}
+
+Window::~Window() {
+	delete view;
 }
 
 void Window::processInput() {
@@ -34,13 +41,11 @@ void Window::render() {
 	glViewport(0, 0, width, height);
 	glClearColor(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 	glClear(GL_COLOR_BUFFER_BIT);
-	for (std::list<View>::iterator it = views.begin(); it != views.end(); it++) {
-		it->draw(0, 0, width, height);
-	}
+	view->draw(0, 0, width, height);
 	glfwSwapBuffers(window);
 }
 
-Size Window::getSize() {
+Size Window::getSize() const {
 	int width = 0, height = 0;
 	glfwGetWindowSize(window, &width, &height);
 	return Size(width, height);
@@ -62,11 +67,16 @@ bool Window::shouldClose() {
 	return glfwWindowShouldClose(window);
 }
 
-void framebufferSizeCallback(GLFWwindow* window, int w, int h) {
+void Window::framebufferSizeCallback(GLFWwindow* window, int w, int h) {
 	glViewport(0, 0, w, h);
 }
 
-void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
+void Window::scrollCallback(GLFWwindow* w, double xOffset, double yOffset) {
+	View* view = static_cast<View*>(glfwGetWindowUserPointer(w));
+	view->scroll(xOffset, yOffset);
+}
+
+void Window::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 	static bool firstCall = true;
 	static float lastX = xpos;
 	static float lastY = ypos;
