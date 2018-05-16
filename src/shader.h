@@ -17,6 +17,7 @@ class Shader {
 		Shader(const std::string& vertexSourcePath, const std::string& fragmentSourcePath);
 		unsigned int getId();
 		void use();
+		void finish();
 		void setUniform(const std::string& name, float value);
 		void setUniform(const std::string& name, float value1, float value2);
 		void setUniform(const std::string& name, float value1, float value2, float value3);

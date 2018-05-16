@@ -50,6 +50,10 @@ void Shader::use() {
 	glUseProgram(id);
 }
 
+void Shader::finish() {
+	glUseProgram(0);
+}
+
 void Shader::setUniform(const std::string& name, float value) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform1f(location, value);

@@ -17,7 +17,9 @@ class View {
 	float verticies[8];
 	unsigned int vao;
 	Color backgroundColor;
-	glm::mat4 model;
+	float rotation;
+	glm::vec3 translation;
+	glm::vec3 scalar;
 	std::list<View*> subviews;
 	bool clipSubviews;
 	bool clipToParent;
@@ -38,6 +40,12 @@ class View {
 		void setIsScrollable(bool s);
 		bool getIsScrollable() const;
 		void scroll(double xOffset, double yOffset);
+		void translate(float x, float y);
+		void setTranslation(float x, float y);
+		void rotate(float radians);
+		void setRotation(float radians);
+		void scale(float x, float y);
+		void setScalar(float x, float y);
 		Position getOffsetPosition() const;
 	protected:
 		void setOffsetPosition(const Position& offset);

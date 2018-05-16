@@ -1,5 +1,7 @@
 #include "window.h"
 
+ImageView* subview;
+
 Window::Window(const std::string& windowName, int w, int h, float r, float g, float b, float a) : backgroundColor(r, g, b, a) {
 	window = glfwCreateWindow(w, h, windowName.c_str(), NULL, NULL);
 	if (window == NULL) {
@@ -16,8 +18,10 @@ Window::Window(const std::string& windowName, int w, int h, float r, float g, fl
 	ScrollView* scrollView = new ScrollView(100, 100, 650, 450);
 	scrollView->setBackgroundColor(Color(0.0f, 0.0f, 1.0f, 1.0f));
 	scrollView->setContentSize(1000, 1000);
-	ImageView* subview = new ImageView("res/img/container.jpg", 250, 250, 500, 500);
+	subview = new ImageView("res/img/container.jpg", 250, 250, 500, 500);
 	subview->setBackgroundColor(Color(0.0f, 1.0f, 0.0f, 1.0f));
+	//subview->rotate((float) glfwGetTime());
+	subview->scale(2, 2);
 	scrollView->addSubview(subview);
 	view->addSubview(scrollView);
 
@@ -41,6 +45,7 @@ void Window::render() {
 	glViewport(0, 0, width, height);
 	glClearColor(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 	glClear(GL_COLOR_BUFFER_BIT);
+	subview->setRotation((float)glfwGetTime());
 	view->draw(0, 0, width, height);
 	glfwSwapBuffers(window);
 }
