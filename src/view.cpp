@@ -92,10 +92,6 @@ void View::draw(float parentX, float parentY, float parentWidth, float parentHei
 	glGetFloatv(GL_VIEWPORT, viewport);
 	glm::mat4 projection = glm::ortho(0.0f, viewport[2], viewport[3], 0.0f, -0.1f, 0.1f);
 	shader->use();
-	glEnable(GL_CLIP_DISTANCE0);
-	glEnable(GL_CLIP_DISTANCE1);
-	glEnable(GL_CLIP_DISTANCE2);
-	glEnable(GL_CLIP_DISTANCE3);
 	shader->setUniform("clipRect", minX, minY, maxX, maxY);
 
 	shader->setUniform("model", 1, false, glm::value_ptr(model));
@@ -109,9 +105,10 @@ void View::draw(float parentX, float parentY, float parentWidth, float parentHei
 		View* view = *it;
 		view->translate(bounds.getX() - offsetPosition.getX(), bounds.getY() - offsetPosition.getY());
 		if (view->getClipToParent() || clipSubviews) {
+			view->draw(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), parentModel * model);
 		} else {
+			view->draw(parentX, parentY, parentWidth, parentHeight, parentModel * model);
 		}
-		view->draw(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), parentModel * model);
 		view->translate(offsetPosition.getX() - bounds.getX(), offsetPosition.getY() - bounds.getY());
 	}
 }
@@ -151,9 +148,13 @@ void View::scroll(double xOffset, double yOffset, float mouseX, float mouseY) {
 		model = glm::rotate(model, -view->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::translate(model, glm::vec3(-subBounds.getX() - subBounds.getWidth() / 2, -subBounds.getY() - subBounds.getHeight() / 2, 0.0f));
 		model = glm::translate(model, -view->translation);
-		glm::vec3 pos = model * glm::vec4(mouseX - bounds.getX(), mouseY - bounds.getY(), 0.0f, 1.0f);
+		glm::vec4 pos = model * glm::vec4(mouseX - bounds.getX(), mouseY - bounds.getY(), 0.0f, 1.0f);
 		if (subBounds.contains(Position(pos.x, pos.y))) {
-			view->scroll(xOffset, yOffset, mouseX - bounds.getX(), mouseY - bounds.getY());
+			model = glm::mat4();
+			model = glm::rotate(model, -view->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+			glm::vec4 rot = model * glm::vec4(xOffset, yOffset, 0.0f, 1.0f);
+			view->scroll(rot.x, rot.y, pos.x, pos.y);
+			//view->scroll(xOffset, yOffset, pos.x, pos.y);
 		}
 	}
 	if (isScrollable) {
