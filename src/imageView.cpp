@@ -24,10 +24,10 @@ void ImageView::setTexture(const std::string& textureFilename) {
 	texture = Texture(textureFilename);
 }
 
-void ImageView::draw(float parentX, float parentY, float parentWidth, float parentHeight) {
+void ImageView::draw(float parentX, float parentY, float parentWidth, float parentHeight, const glm::mat4& parentModel) {
 	shader->use();
 	glActiveTexture(GL_TEXTURE0);
 	texture.bind();
 	shader->setUniform("image", 0);
-	View::draw(parentX, parentY, parentWidth, parentHeight);
+	View::draw(parentX, parentY, parentWidth, parentHeight, parentModel);
 }

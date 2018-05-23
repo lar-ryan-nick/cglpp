@@ -15,16 +15,15 @@ View::View(float x, float y, float width, float height) : backgroundColor(0.0f, 
 		0, 1, 2,
 		0, 2, 3
 	};
-	unsigned int VBO[2];
-	glGenBuffers(2, VBO);
+	glGenBuffers(2, vbo);
 	unsigned int EBO;
 	glGenBuffers(1, &EBO);
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	float textureCoordinates[] = {
@@ -33,23 +32,24 @@ View::View(float x, float y, float width, float height) : backgroundColor(0.0f, 
 		1.0f, 0.0f,
 		0.0f, 0.0f
 	};
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(textureCoordinates), textureCoordinates, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
 }
-
+/* fix later
 View::View(const View& view) : vao(view.vao), backgroundColor(view.backgroundColor), rotation(view.rotation), translation(view.translation), scalar(view.scalar), subviews(view.subviews), clipSubviews(view.clipSubviews), clipToParent(view.clipToParent), isScrollable(view.isScrollable), offsetPosition(view.offsetPosition) {
 	viewShader = view.viewShader;
 	for (int i = 0; i < 8; i++) {
 		verticies[i] = view.verticies[i];
 	}
 }
-
+*/
 View::~View() {
 	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
 		delete *it;
 	}
+	// add buffer data deletion
 }
 
 void View::setBounds(float x, float y, float width, float height) {
@@ -57,6 +57,9 @@ void View::setBounds(float x, float y, float width, float height) {
 	verticies[1] = verticies[3] = y;
 	verticies[2] = verticies[4] = x + width;
 	verticies[5] = verticies[7] = y + height;
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verticies), verticies);
 }
 
 Rectangle View::getBounds() const {
@@ -67,49 +70,50 @@ void View::setBackgroundColor(const Color& bc) {
 	backgroundColor = bc;
 }
 
-void View::draw(float parentX, float parentY, float parentWidth, float parentHeight) {
-	shader->use();
+void View::draw(float parentX, float parentY, float parentWidth, float parentHeight, const glm::mat4& parentModel) {
 	Rectangle bounds = getBounds();
 	glm::mat4 model;
-	model = glm::translate(model, glm::vec3(bounds.getX(), bounds.getY(), 0.0f));
-	model = glm::scale(model, scalar);
-	model = glm::translate(model, glm::vec3(bounds.getWidth() / 2, bounds.getHeight() / 2, 0.0f));
-	model = glm::rotate(model, rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::translate(model, glm::vec3(-bounds.getX() - bounds.getWidth() / 2, -bounds.getY() - bounds.getHeight() / 2, 0.0f));
 	model = glm::translate(model, translation);
+	model = glm::translate(model, glm::vec3(bounds.getX() + bounds.getWidth() / 2, bounds.getY() + bounds.getHeight() / 2, 0.0f));
+	model = glm::rotate(model, rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+	model = glm::scale(model, scalar);
+	model = glm::translate(model, glm::vec3(-bounds.getX() - bounds.getWidth() / 2, -bounds.getY() - bounds.getHeight() / 2, 0.0f));
+	float minX = parentX;
+	float maxX = parentX + parentWidth;
+	if (parentWidth < 0) {
+		std::swap(minX, maxX);
+	}
+	float minY = parentY;
+	float maxY = parentY + parentHeight;
+	if (parentHeight < 0) {
+		std::swap(minY, maxY);
+	}
+	float viewport[4];
+	glGetFloatv(GL_VIEWPORT, viewport);
+	glm::mat4 projection = glm::ortho(0.0f, viewport[2], viewport[3], 0.0f, -0.1f, 0.1f);
+	shader->use();
+	glEnable(GL_CLIP_DISTANCE0);
+	glEnable(GL_CLIP_DISTANCE1);
+	glEnable(GL_CLIP_DISTANCE2);
+	glEnable(GL_CLIP_DISTANCE3);
+	shader->setUniform("clipRect", minX, minY, maxX, maxY);
+
 	shader->setUniform("model", 1, false, glm::value_ptr(model));
-	glm::mat4 projection = glm::ortho(-parentX, parentWidth - parentX, parentHeight - parentY, -parentY, -0.1f, 0.1f);
+	shader->setUniform("parentModel", 1, false, glm::value_ptr(parentModel));
 	shader->setUniform("projection", 1, false, glm::value_ptr(projection));
 	shader->setUniform("backgroundColor", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	shader->finish();
 	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
 		View* view = *it;
+		view->translate(bounds.getX() - offsetPosition.getX(), bounds.getY() - offsetPosition.getY());
 		if (view->getClipToParent() || clipSubviews) {
-			float viewport[4];
-			glGetFloatv(GL_VIEWPORT, viewport);
-			float viewWidth = bounds.getWidth();
-			if (parentX + bounds.getX() + viewWidth > parentWidth) {
-				viewWidth -= parentWidth;
-				if (viewWidth < 0) {
-					viewWidth = 0;
-				}
-			}
-			float viewHeight = bounds.getHeight();
-			if (parentY + bounds.getY() + viewHeight > parentHeight) {
-				viewHeight -= parentHeight;
-				if (viewHeight < 0) {
-					viewHeight = 0;
-				}
-			}
-			glViewport(parentX + bounds.getX(), parentHeight - bounds.getY() - bounds.getHeight(), viewWidth, viewHeight);
-			view->draw(-offsetPosition.getX(), -offsetPosition.getY(), viewWidth, viewHeight);
-			glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		} else {
-			view->draw(bounds.getX() + parentX, bounds.getY() + parentY, parentWidth, parentHeight);
 		}
+		view->draw(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), parentModel * model);
+		view->translate(offsetPosition.getX() - bounds.getX(), offsetPosition.getY() - bounds.getY());
 	}
-	shader->finish();
 }
 
 void View::addSubview(View* view) {
@@ -136,10 +140,21 @@ bool View::getIsScrollable() const {
 	return isScrollable;
 }
 
-void View::scroll(double xOffset, double yOffset) {
+void View::scroll(double xOffset, double yOffset, float mouseX, float mouseY) {
+	Rectangle bounds = getBounds();
 	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
 		View* view = *it;
-		view->scroll(xOffset, yOffset);
+		Rectangle subBounds = view->getBounds();
+		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(subBounds.getX() + subBounds.getWidth() / 2, subBounds.getY() + subBounds.getHeight() / 2, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f / view->scalar.x, 1.0f / view->scalar.y, 1.0f));
+		model = glm::rotate(model, -view->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::translate(model, glm::vec3(-subBounds.getX() - subBounds.getWidth() / 2, -subBounds.getY() - subBounds.getHeight() / 2, 0.0f));
+		model = glm::translate(model, -view->translation);
+		glm::vec3 pos = model * glm::vec4(mouseX - bounds.getX(), mouseY - bounds.getY(), 0.0f, 1.0f);
+		if (subBounds.contains(Position(pos.x, pos.y))) {
+			view->scroll(xOffset, yOffset, mouseX - bounds.getX(), mouseY - bounds.getY());
+		}
 	}
 	if (isScrollable) {
 		onScroll(xOffset, yOffset);
@@ -166,7 +181,7 @@ void View::setRotation(float radians) {
 }
 
 void View::scale(float x, float y) {
-	scalar += glm::vec3(x, y, 0.0f);
+	scalar *= glm::vec3(x, y, 0.0f);
 }
 
 void View::setScalar(float x, float y) {

@@ -16,6 +16,7 @@ class View {
 	static Shader* viewShader;
 	float verticies[8];
 	unsigned int vao;
+	unsigned int vbo[2];
 	Color backgroundColor;
 	float rotation;
 	glm::vec3 translation;
@@ -32,14 +33,14 @@ class View {
 		void setBounds(float x, float y, float width, float height);
 		Rectangle getBounds() const;
 		void setBackgroundColor(const Color& bc);
-		void draw(float parentX, float parentY, float parentWidth, float ParentHeight);
+		void draw(float parentX, float parentY, float parentWidth, float ParentHeight, const glm::mat4& parentModel);
 		void addSubview(View* view);
 		void setClipSubviews(bool clipSub);
 		void setClipToParent(bool clipToP);
 		bool getClipToParent() const;
 		void setIsScrollable(bool s);
 		bool getIsScrollable() const;
-		void scroll(double xOffset, double yOffset);
+		void scroll(double xOffset, double yOffset, float mouseX, float mouseY);
 		void translate(float x, float y);
 		void setTranslation(float x, float y);
 		void rotate(float radians);

@@ -2,22 +2,14 @@
 #define RECTANGLE_H
 
 #include <glad/glad.h>
+#include "position.h"
+#include "size.h"
 
-class Rectangle {
-	float x;
-	float y;
-	float width;
-	float height;
+class Rectangle : public Position, public Size {
+	bool isInbetween(float min, float max, float val) const;
 	public:
-		Rectangle(float xpos = 0.0f, float ypos = 0.0f, float w = 100.0f, float h = 100.0f);
-		float getX() const;
-		float getY() const;
-		float getWidth() const;
-		float getHeight() const;
-		void setX(float xpos);
-		void setY(float ypos);
-		void setWidth(float w);
-		void setHeight(float h);
+		Rectangle(float xpos = 0.0f, float ypos = 0.0f, float w = 1.0f, float h = 1.0f);
+		bool contains(Position p) const;
 };
 
 #endif
