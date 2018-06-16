@@ -13,8 +13,8 @@ class ScrollView : public View {
 	public:
 		ScrollView(float x = 0.0f, float y = 0.0f, float width = 0.0f, float height = 0.0f);
 		void setContentSize(float width, float height);
-	//protected:
-		virtual void onScroll(double xOffset, double yOffset);
+	protected:
+		virtual bool onScroll(double xOffset, double yOffset);
 };
 
 #endif

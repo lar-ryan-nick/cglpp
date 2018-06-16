@@ -23,3 +23,11 @@ void Position::move(float xOffset, float yOffset) {
 	x += xOffset;
 	y += yOffset;
 }
+
+bool Position::operator==(const Position& p) const {
+	return x == p.x && y == p.y;
+}
+
+size_t std::hash<Position>::operator()(const Position& p) const {
+	return hash<float>()(p.getX()) ^ hash<float>()(p.getY());
+}

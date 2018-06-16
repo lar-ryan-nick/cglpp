@@ -80,20 +80,13 @@ void View::draw(float parentX, float parentY, float parentWidth, float parentHei
 	model = glm::translate(model, glm::vec3(-bounds.getX() - bounds.getWidth() / 2, -bounds.getY() - bounds.getHeight() / 2, 0.0f));
 	float minX = parentX;
 	float maxX = parentX + parentWidth;
-	if (parentWidth < 0) {
-		std::swap(minX, maxX);
-	}
 	float minY = parentY;
 	float maxY = parentY + parentHeight;
-	if (parentHeight < 0) {
-		std::swap(minY, maxY);
-	}
 	float viewport[4];
 	glGetFloatv(GL_VIEWPORT, viewport);
 	glm::mat4 projection = glm::ortho(0.0f, viewport[2], viewport[3], 0.0f, -0.1f, 0.1f);
 	shader->use();
 	shader->setUniform("clipRect", minX, minY, maxX, maxY);
-
 	shader->setUniform("model", 1, false, glm::value_ptr(model));
 	shader->setUniform("parentModel", 1, false, glm::value_ptr(parentModel));
 	shader->setUniform("projection", 1, false, glm::value_ptr(projection));
@@ -105,6 +98,11 @@ void View::draw(float parentX, float parentY, float parentWidth, float parentHei
 		View* view = *it;
 		view->translate(bounds.getX() - offsetPosition.getX(), bounds.getY() - offsetPosition.getY());
 		if (view->getClipToParent() || clipSubviews) {
+			/*
+			if (parWidth > 0 && parHeight > 0) {
+				view->draw(parX, parY, parWidth, parHeight, parentModel * model);
+			}
+			*/
 			view->draw(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), parentModel * model);
 		} else {
 			view->draw(parentX, parentY, parentWidth, parentHeight, parentModel * model);
@@ -137,7 +135,7 @@ bool View::getIsScrollable() const {
 	return isScrollable;
 }
 
-void View::scroll(double xOffset, double yOffset, float mouseX, float mouseY) {
+bool View::scroll(double xOffset, double yOffset, float mouseX, float mouseY) {
 	Rectangle bounds = getBounds();
 	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
 		View* view = *it;
@@ -148,21 +146,25 @@ void View::scroll(double xOffset, double yOffset, float mouseX, float mouseY) {
 		model = glm::rotate(model, -view->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::translate(model, glm::vec3(-subBounds.getX() - subBounds.getWidth() / 2, -subBounds.getY() - subBounds.getHeight() / 2, 0.0f));
 		model = glm::translate(model, -view->translation);
-		glm::vec4 pos = model * glm::vec4(mouseX - bounds.getX(), mouseY - bounds.getY(), 0.0f, 1.0f);
+		glm::vec4 pos = model * glm::vec4(mouseX - bounds.getX() + offsetPosition.getX(), mouseY - bounds.getY() + offsetPosition.getY(), 0.0f, 1.0f);
 		if (subBounds.contains(Position(pos.x, pos.y))) {
 			model = glm::mat4();
 			model = glm::rotate(model, -view->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
 			glm::vec4 rot = model * glm::vec4(xOffset, yOffset, 0.0f, 1.0f);
-			view->scroll(rot.x, rot.y, pos.x, pos.y);
-			//view->scroll(xOffset, yOffset, pos.x, pos.y);
+			if (view->scroll(rot.x, rot.y, pos.x, pos.y)) {
+				return true;
+			}
 		}
 	}
 	if (isScrollable) {
-		onScroll(xOffset, yOffset);
+		return onScroll(xOffset, yOffset);
+	} else {
+		return false;
 	}
 }
 
-void View::onScroll(double xOffset, double yOffset) {
+bool View::onScroll(double xOffset, double yOffset) {
+	return false;
 }
 
 void View::translate(float x, float y) {

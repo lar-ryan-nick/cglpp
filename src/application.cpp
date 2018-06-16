@@ -23,7 +23,14 @@ Application::Application() {
 	}
 	glfwDestroyWindow(w);
 	glfwMakeContextCurrent(NULL);
+}
+
+void Application::run() {
 	onCreate();
+	glEnable(GL_CLIP_DISTANCE0);
+	glEnable(GL_CLIP_DISTANCE1);
+	glEnable(GL_CLIP_DISTANCE2);
+	glEnable(GL_CLIP_DISTANCE3);
 	while (!windows.empty()) {
 		for (std::list<Window*>::iterator it = windows.begin(); it != windows.end(); it++) {
 			Window* window = *it;
@@ -43,20 +50,14 @@ Application::Application() {
 	glfwTerminate();
 }
 
-Application::~Application() {
+void Application::onTerminate() {
 	for (std::list<Window*>::iterator it = windows.begin(); it != windows.end(); it++) {
 		delete *it;
 	}
 }
 
-void Application::onCreate() {
-	Window* window = new Window();
-	Color color(1.0f, 1.0f, 1.0f, 1.0f);
-	window->setBackgroundColor(color);
+void Application::addWindow(Window* window) {
 	windows.push_back(window);
-}
-
-void Application::onTerminate() {
 }
 
 void errorCallback(int error, const char* description) {

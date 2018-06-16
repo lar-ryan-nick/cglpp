@@ -10,7 +10,6 @@
 #include "position.h"
 #include "shader.h"
 #include "color.h"
-#include "camera.h"
 
 class View {
 	static Shader* viewShader;
@@ -40,7 +39,7 @@ class View {
 		bool getClipToParent() const;
 		void setIsScrollable(bool s);
 		bool getIsScrollable() const;
-		void scroll(double xOffset, double yOffset, float mouseX, float mouseY);
+		bool scroll(double xOffset, double yOffset, float mouseX, float mouseY);
 		void translate(float x, float y);
 		void setTranslation(float x, float y);
 		void rotate(float radians);
@@ -50,7 +49,7 @@ class View {
 		Position getOffsetPosition() const;
 	protected:
 		void setOffsetPosition(const Position& offset);
-		virtual void onScroll(double xOffset, double yOffset);
+		virtual bool onScroll(double xOffset, double yOffset);
 		Shader* shader;
 };
 

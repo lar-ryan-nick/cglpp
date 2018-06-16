@@ -11,10 +11,11 @@ class Application {
 	std::list<Window*> windows;
 	public:
 		Application();
-		virtual ~Application();
+		void run();
 	protected:
-		virtual void onCreate();
+		virtual void onCreate() = 0;
 		virtual void onTerminate();
+		void addWindow(Window* window);
 };
 
 void errorCallback(int error, const char* description);

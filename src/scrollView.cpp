@@ -17,7 +17,7 @@ void ScrollView::setContentSize(float width, float height) {
 	contentSize.setHeight(height);
 }
 
-void ScrollView::onScroll(double xOffset, double yOffset) {
+bool ScrollView::onScroll(double xOffset, double yOffset) {
 	Position offsetPosition = getOffsetPosition();
 	offsetPosition.move(xOffset, yOffset);
 	Rectangle bounds = getBounds();
@@ -32,4 +32,5 @@ void ScrollView::onScroll(double xOffset, double yOffset) {
 		offsetPosition.setY(0);
 	}
 	setOffsetPosition(offsetPosition);
+	return true;
 }

@@ -1,7 +1,5 @@
 #include "window.h"
 
-ImageView* subview;
-
 Window::Window(const std::string& windowName, int w, int h, float r, float g, float b, float a) : backgroundColor(r, g, b, a) {
 	window = glfwCreateWindow(w, h, windowName.c_str(), NULL, NULL);
 	if (window == NULL) {
@@ -10,20 +8,9 @@ Window::Window(const std::string& windowName, int w, int h, float r, float g, fl
 		exit(-1);
 	}
 	glfwMakeContextCurrent(window);
-
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);
 	view = new View(0, 0, width, height);
-	view->setBackgroundColor(Color(1.0f, 0.0f, 0.0f, 1.0f));
-	ScrollView* scrollView = new ScrollView(100, 100, 650, 450);
-	scrollView->setBackgroundColor(Color(0.0f, 0.0f, 1.0f, 1.0f));
-	scrollView->setContentSize(1000, 1000);
-	scrollView->rotate(1);
-	subview = new ImageView("res/img/container.jpg", 250, 250, 500, 500);
-	//subview->setBackgroundColor(Color(0.0f, 1.0f, 0.0f, 1.0f));
-	scrollView->addSubview(subview);
-	view->addSubview(scrollView);
-
 	glfwSetWindowUserPointer(window, view);
 	glfwSetScrollCallback(window, scrollCallback);
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -34,6 +21,10 @@ Window::~Window() {
 	delete view;
 }
 
+View& Window::getView() {
+	return *view;
+}
+
 void Window::processInput() {
 }
 
@@ -42,13 +33,8 @@ void Window::render() {
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
-	glEnable(GL_CLIP_DISTANCE0);
-	glEnable(GL_CLIP_DISTANCE1);
-	glEnable(GL_CLIP_DISTANCE2);
-	glEnable(GL_CLIP_DISTANCE3);
 	glClearColor(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 	glClear(GL_COLOR_BUFFER_BIT);
-	subview->setRotation((float)glfwGetTime());
 	view->draw(0, 0, width, height, glm::mat4());
 	glfwSwapBuffers(window);
 }
