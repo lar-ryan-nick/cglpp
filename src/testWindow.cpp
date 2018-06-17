@@ -1,6 +1,7 @@
 #include "testWindow.h"
 
 TestWindow::TestWindow() {
+	setBackgroundColor(Color(0.5f, 0.5f, 0.5f, 1.0f));
 	getView().setBackgroundColor(Color(1.0f, 0.0f, 0.0f, 1.0f));
 	ScrollView* scrollView = new ScrollView(100, 100, 650, 450);
 	scrollView->setBackgroundColor(Color(0.0f, 0.0f, 1.0f, 1.0f));

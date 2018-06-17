@@ -35,7 +35,7 @@ void Window::render() {
 	glViewport(0, 0, width, height);
 	glClearColor(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 	glClear(GL_COLOR_BUFFER_BIT);
-	view->draw(0, 0, width, height, glm::mat4());
+	view->draw(0, 0, width, height, glm::mat4(), Polygon());
 	glfwSwapBuffers(window);
 }
 

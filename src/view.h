@@ -10,12 +10,15 @@
 #include "position.h"
 #include "shader.h"
 #include "color.h"
+#include "polygon.h"
 
 class View {
 	static Shader* viewShader;
-	float verticies[8];
+	//float verticies[8];
+	Rectangle bounds;
 	unsigned int vao;
 	unsigned int vbo[2];
+	unsigned int ebo;
 	Color backgroundColor;
 	float rotation;
 	glm::vec3 translation;
@@ -32,7 +35,7 @@ class View {
 		void setBounds(float x, float y, float width, float height);
 		Rectangle getBounds() const;
 		void setBackgroundColor(const Color& bc);
-		void draw(float parentX, float parentY, float parentWidth, float ParentHeight, const glm::mat4& parentModel);
+		void draw(float parentX, float parentY, float parentWidth, float ParentHeight, const glm::mat4& parentModel, const Polygon& p);
 		void addSubview(View* view);
 		void setClipSubviews(bool clipSub);
 		void setClipToParent(bool clipToP);
