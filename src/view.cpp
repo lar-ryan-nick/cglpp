@@ -215,7 +215,7 @@ bool View::scroll(double xOffset, double yOffset, float mouseX, float mouseY) {
 			model = glm::mat4();
 			model = glm::rotate(model, -view->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
 			glm::vec4 rot = model * glm::vec4(xOffset, yOffset, 0.0f, 1.0f);
-			if (view->scroll(xOffset, yOffset, pos.x, pos.y)) {
+			if (view->scroll(rot.x, rot.y, pos.x, pos.y)) {
 				return true;
 			}
 		}
