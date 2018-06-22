@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <list>
-#include "Position.h"
+#include "position.h"
 
 class Polygon {
 	std::list<glm::vec2> verticies;
