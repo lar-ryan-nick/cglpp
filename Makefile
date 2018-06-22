@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -g -Wall
-LFLAGS = -Llib -lglfw -lglad
+LFLAGS = -Llib -lglfw -lglad -ldl
 IFLAGS = -Iinclude
 OBJFLAGS = $(CFLAGS) $(IFLAGS)
 EXECFLAGS = $(CFLAGS) $(LFLAGS)
@@ -13,7 +13,7 @@ TESTEXECS = $(TESTOBJS:test/build/%.o=test/bin/%)
 default: $(TESTEXECS)
 
 $(TESTEXECS): test/bin/%: test/build/%.o $(OBJS) test/bin/
-	$(CC) $(EXECFLAGS) $(OBJS) $< -o $@
+	$(CC) $(OBJS) $< -o $@ $(EXECFLAGS)
 
 $(TESTOBJS): test/build/%.o: test/src/%.cpp test/build/
 	$(CC) $(OBJFLAGS) -c $< -o $@

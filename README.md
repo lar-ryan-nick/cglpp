@@ -1,4 +1,4 @@
-# CPPGL
+# CGLPP
 ### Ryan Wiener
 ## Downloading External Libraries
 ### GLFW
