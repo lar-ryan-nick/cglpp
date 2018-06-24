@@ -27,6 +27,8 @@ Application::Application() {
 
 void Application::run() {
 	onCreate();
+	// To enter wirefram mode
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	/*
 	glEnable(GL_CLIP_DISTANCE0);
 	glEnable(GL_CLIP_DISTANCE1);

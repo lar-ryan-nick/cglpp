@@ -14,6 +14,7 @@
 
 class View {
 	static Shader* viewShader;
+	const static int MAX_VERTICIES;
 	//float verticies[8];
 	Rectangle bounds;
 	unsigned int vao;

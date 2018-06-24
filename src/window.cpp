@@ -35,7 +35,12 @@ void Window::render() {
 	glViewport(0, 0, width, height);
 	glClearColor(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 	glClear(GL_COLOR_BUFFER_BIT);
-	view->draw(0, 0, width, height, glm::mat4(), Polygon());
+	Polygon maxPolygon;
+	maxPolygon.addVertex(glm::vec2(-1.0f, 1.0f));
+	maxPolygon.addVertex(glm::vec2(1.0f, 1.0f));
+	maxPolygon.addVertex(glm::vec2(1.0f, -1.0f));
+	maxPolygon.addVertex(glm::vec2(-1.0f, -1.0f));
+	view->draw(0.0f, 0.0f, width, height, glm::mat4(), Polygon());
 	glfwSwapBuffers(window);
 }
 
