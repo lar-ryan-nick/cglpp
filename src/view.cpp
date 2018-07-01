@@ -82,12 +82,6 @@ void View::draw(float parentX, float parentY, float parentWidth, float parentHei
 	model = glm::rotate(model, rotation, glm::vec3(0.0f, 0.0f, 1.0f));
 	model = glm::scale(model, scalar);
 	model = glm::translate(model, glm::vec3(-bounds.getX() - bounds.getWidth() / 2, -bounds.getY() - bounds.getHeight() / 2, 0.0f));
-	/*
-	float minX = parentX;
-	float maxX = parentX + parentWidth;
-	float minY = parentY;
-	float maxY = parentY + parentHeight;
-	*/
 	model = parentModel * model;
 	float viewport[4];
 	glGetFloatv(GL_VIEWPORT, viewport);
@@ -100,40 +94,6 @@ void View::draw(float parentX, float parentY, float parentWidth, float parentHei
 		verticies[i + 1] = transformed.y;
 		p.addVertex(glm::vec2(transformed.x, transformed.y));
 	}
-	/*
-	float deltaX = verticies[6] - verticies[4];
-	float deltaY = verticies[7] - verticies[5];
-	float mappedWidth = sqrt(pow(deltaX, 2) + pow(deltaY, 2));
-	float mappedHeight = sqrt(pow(verticies[6] - verticies[0], 2) + pow(verticies[7] - verticies[1], 2));
-	float rot;
-	if (deltaX > 0 && deltaY >= 0) {
-		rot = atan(deltaY / deltaX) - 180;
-	} else if (deltaX > 0 && deltaY < 0) {
-		rot = 180 - atan(deltaY / deltaX);
-	} else if (deltaX < 0 && deltaY >= 0) {
-		rot = -atan(deltaY / deltaX);
-	} else if (deltaX < 0 && deltaY < 0) {
-		rot = atan(deltaY / deltaX);
-	} else if (deltaY > 0) {
-		rot = -M_PI / 2.0;
-	} else {
-		rot = M_PI / 2.0;
-	}
-	glm::mat4 textureMapper;
-	textureMapper = glm::scale(textureMapper, glm::vec3(1.0f / mappedWidth, 1.0f / mappedHeight, 1.0f));
-	textureMapper = glm::rotate(textureMapper, rot, glm::vec3(0.0f, 0.0f, 1.0f));
-	textureMapper = glm::translate(textureMapper, glm::vec3(-verticies[6], -verticies[7], 0.0f));
-	int index = 0;
-	std::list<glm::vec2> temp = p.getVerticies();
-	for (std::list<glm::vec2>::iterator it = temp.begin(); it != temp.end(); it++) {
-		glm::vec4 result = textureMapper * glm::vec4(*it, 0.0f, 1.0f);
-		std::cout << it->x << ", " << it->y << " -> " << result.x << ", " << result.y << std::endl;
-		verticies[index] = result.x;
-		verticies[index + 1] = result.y;
-		index += 2;
-	}
-	std::cout << std::endl;
-	*/
 	float a = (1 + (verticies[1] - verticies[5]) / (verticies[3] - verticies[1])) / (verticies[4] - verticies[0] + (verticies[5] - verticies[1]) * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]));
 	float b = (1 + a * (verticies[0] - verticies[2])) / (verticies[3] - verticies[1]);
 	float d = -a * verticies[0] - b * verticies[1];

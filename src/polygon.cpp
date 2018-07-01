@@ -17,7 +17,7 @@ bool Polygon::isInside(const glm::vec2& v) const {
 	glm::vec3 diff = glm::vec3(*it - verticies.back(), 0.0f);
 	glm::vec3 insideCross = glm::cross(insidePoint - glm::vec3(verticies.back(), 0.0f), diff);
 	glm::vec3 queryCross = glm::cross(queryPoint - glm::vec3(verticies.back(), 0.0f), diff);
-	if (insideCross.z * queryCross.z < -0.00001) {
+	if (insideCross.z * queryCross.z < 0) {
 		return false;
 	}
 	it++;
@@ -25,7 +25,7 @@ bool Polygon::isInside(const glm::vec2& v) const {
 		diff = glm::vec3(*it - *(std::next(it, -1)), 0.0f);
 		insideCross = glm::cross(insidePoint - glm::vec3(*(std::next(it, -1)), 0.0f), diff);
 		queryCross = glm::cross(queryPoint - glm::vec3(*(std::next(it, -1)), 0.0f), diff);
-		if (insideCross.z * queryCross.z < -0.00001) {
+		if (insideCross.z * queryCross.z < 0) {
 			return false;
 		}
 		it++;
@@ -199,36 +199,31 @@ std::list<Polygon> Polygon::mapTo(const Polygon& p) const {
 			}
 			mappedPolygons.push_back(mappedPolygon);
 		}
-		/*
 		// cleanup
-		VertexNode* iterator1 = originalNodes[0];
-		VertexNode* iterator2 = originalNodes[0];
-		int deleteCount = 0;
-		VertexNode* previous1 = NULL;
-		VertexNode* previous2 = NULL;
-		while (deleteCount < originalNodes.size()) {
-			if (iterator1->next2 != NULL) {
-				iterator2 = iterator1->next2;
-				while (iterator1->next2 != NULL || deleteCount < originalNodes.size()) {
-					previous1 = iterator1;
-					iterator1 = iterator1->next1;
-					delete previous1;
-					deleteCount++;
-				}
-				while (iterator2 != iterator1 || deleteCount < originalNodes.size()) {
-					previous2 = iterator2;
-					iterator2 = iterator2->next1;
-					delete previous2;
-					deleteCount++;
-				}
-			} else {
-				previous1 = iterator1;
-				iterator1 = iterator1->next1;
-				delete previous1;
-				deleteCount++;
+		int intersectionDeleteCount = 0;
+		iterator = intersectionPoints.front();
+		first = true;
+		while (intersectionDeleteCount < numIntersections - 1) {
+			current = iterator->next1;
+			while (current->next2 == NULL) {
+				VertexNode* previous = current;
+				current = current->next1;
+				delete previous;
 			}
+			current = iterator->next2;
+			while (current->next2 == NULL) {
+				VertexNode* previous = current;
+				current = current->next1;
+				delete previous;
+			}
+			if (!first) {
+				delete iterator;
+				intersectionDeleteCount++;
+			}
+			iterator = current;
+			first = false;
 		}
-		*/
+		delete iterator;
 	} else {
 		bool allInside = true;
 		for (std::list<glm::vec2>::const_iterator it = verticies.cbegin(); it != verticies.cend(); it++) {
