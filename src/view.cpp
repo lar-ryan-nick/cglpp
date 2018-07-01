@@ -15,12 +15,6 @@ View::View(float x, float y, float width, float height) : backgroundColor(0.0f, 
 		indicies[i + 1] = i / 3 + 1;
 		indicies[i + 2] = i / 3 + 2;
 	}
-	float textureCoordinates[] = {
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f,
-		0.0f, 0.0f
-	};
 	glGenBuffers(2, vbo);
 	glGenBuffers(1, &ebo);
 	glGenVertexArrays(1, &vao);
@@ -32,7 +26,7 @@ View::View(float x, float y, float width, float height) : backgroundColor(0.0f, 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(textureCoordinates), textureCoordinates, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * MAX_VERTICIES, NULL, GL_STREAM_DRAW);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
 }
@@ -48,7 +42,7 @@ View::~View() {
 	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
 		delete *it;
 	}
-	// add buffer data deletion
+	// buffer data deletion
 	glDeleteBuffers(2, vbo);
 	glDeleteBuffers(1, &ebo);
 	glDeleteVertexArrays(1, &vao);
@@ -102,10 +96,52 @@ void View::draw(float parentX, float parentY, float parentWidth, float parentHei
 	for (int i = 0; i < 8; i += 2) {
 		glm::vec4 ver(verticies[i], verticies[i + 1], 0.0f, 1.0f);
 		glm::vec4 transformed = projection * model * ver;
+		verticies[i] = transformed.x;
+		verticies[i + 1] = transformed.y;
 		p.addVertex(glm::vec2(transformed.x, transformed.y));
 	}
+	/*
+	float deltaX = verticies[6] - verticies[4];
+	float deltaY = verticies[7] - verticies[5];
+	float mappedWidth = sqrt(pow(deltaX, 2) + pow(deltaY, 2));
+	float mappedHeight = sqrt(pow(verticies[6] - verticies[0], 2) + pow(verticies[7] - verticies[1], 2));
+	float rot;
+	if (deltaX > 0 && deltaY >= 0) {
+		rot = atan(deltaY / deltaX) - 180;
+	} else if (deltaX > 0 && deltaY < 0) {
+		rot = 180 - atan(deltaY / deltaX);
+	} else if (deltaX < 0 && deltaY >= 0) {
+		rot = -atan(deltaY / deltaX);
+	} else if (deltaX < 0 && deltaY < 0) {
+		rot = atan(deltaY / deltaX);
+	} else if (deltaY > 0) {
+		rot = -M_PI / 2.0;
+	} else {
+		rot = M_PI / 2.0;
+	}
+	glm::mat4 textureMapper;
+	textureMapper = glm::scale(textureMapper, glm::vec3(1.0f / mappedWidth, 1.0f / mappedHeight, 1.0f));
+	textureMapper = glm::rotate(textureMapper, rot, glm::vec3(0.0f, 0.0f, 1.0f));
+	textureMapper = glm::translate(textureMapper, glm::vec3(-verticies[6], -verticies[7], 0.0f));
+	int index = 0;
+	std::list<glm::vec2> temp = p.getVerticies();
+	for (std::list<glm::vec2>::iterator it = temp.begin(); it != temp.end(); it++) {
+		glm::vec4 result = textureMapper * glm::vec4(*it, 0.0f, 1.0f);
+		std::cout << it->x << ", " << it->y << " -> " << result.x << ", " << result.y << std::endl;
+		verticies[index] = result.x;
+		verticies[index + 1] = result.y;
+		index += 2;
+	}
+	std::cout << std::endl;
+	*/
+	float a = (1 + (verticies[1] - verticies[5]) / (verticies[3] - verticies[1])) / (verticies[4] - verticies[0] + (verticies[5] - verticies[1]) * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]));
+	float b = (1 + a * (verticies[0] - verticies[2])) / (verticies[3] - verticies[1]);
+	float d = -a * verticies[0] - b * verticies[1];
+	float e = -1 / (verticies[4] - verticies[0] + (verticies[5] - verticies[1]) * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]));
+	float f = e * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]);
+	float h = 1 - e * verticies[0] - f * verticies[1];
+	glm::mat4 textureMapper(a, e, 0.0f, 0.0f, b, f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, d, h, 0.0f, 0.0f);
 	std::list<Polygon> clippedPolygons = p.mapTo(poly);
-	std::cout << clippedPolygons.size() << std::endl;
 	for (std::list<Polygon>::iterator it = clippedPolygons.begin(); it != clippedPolygons.end(); it++) {
 		Polygon clippedPolygon = *it;
 		std::list<glm::vec2> vert = clippedPolygon.getVerticies();
@@ -113,36 +149,34 @@ void View::draw(float parentX, float parentY, float parentWidth, float parentHei
 			continue;
 		}
 		float* v = new float[vert.size() * 2];
+		float* t = new float[vert.size() * 2];
 		int index = 0;
 		for (std::list<glm::vec2>::iterator it = vert.begin(); it != vert.end(); it++) {
-			//std::cout << it->x << ' ' << it->y << std::endl;
 			v[index] = it->x;
 			v[index + 1] = it->y;
+			glm::vec4 textureTransform = textureMapper * glm::vec4(v[index], v[index + 1], 0.0f, 1.0f);
+			t[index] = textureTransform.x;
+			t[index + 1] = textureTransform.y;
 			index += 2;
 		}
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 2 * vert.size(), v);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 2 * vert.size(), t);
+		delete[] v;
+		delete[] t;
 		shader->use();
 		shader->setUniform("backgroundColor", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 		glDrawElements(GL_TRIANGLES, (vert.size() - 2) * 3, GL_UNSIGNED_INT, 0);
 		shader->finish();
-		delete[] v;
 		for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
 			View* view = *it;
-			if (view->subviews.size() == 1) {
-				continue;
-			}
 			view->translate(bounds.getX() - offsetPosition.getX(), bounds.getY() - offsetPosition.getY());
 			if (view->getClipToParent() || clipSubviews) {
-				/*
-				if (parWidth > 0 && parHeight > 0) {
-					view->draw(parX, parY, parWidth, parHeight, parentModel * model);
-				}
-				*/
 				view->draw(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), model, clippedPolygon);
 			} else {
-				view->draw(parentX, parentY, parentWidth, parentHeight, model, clippedPolygon);
+				view->draw(parentX, parentY, parentWidth, parentHeight, model, p);
 			}
 			view->translate(offsetPosition.getX() - bounds.getX(), offsetPosition.getY() - bounds.getY());
 		}

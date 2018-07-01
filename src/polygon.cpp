@@ -34,17 +34,56 @@ bool Polygon::isInside(const glm::vec2& v) const {
 }
 
 std::list<Polygon> Polygon::mapTo(const Polygon& p) const {
-	VertexNode* clippingHead = NULL;
-	std::vector<VertexNode*> originalNodes;
-	int numIntersections = 0;
-	for (std::list<glm::vec2>::const_iterator it = verticies.cbegin(); it != verticies.cend(); it++) {
-		originalNodes.push_back(new VertexNode(*it));
-	}
-	for (int i = 0; i < originalNodes.size(); i++) {
-		originalNodes[i]->next1 = originalNodes[(i + 1) % originalNodes.size()];
-	}
-	VertexNode* current = new VertexNode(p.verticies.front());
+	std::list<VertexNode*> intersectionPoints;
+	VertexNode* clippingHead = new VertexNode(p.verticies.front());
+	VertexNode* current = clippingHead;
 	for (std::list<glm::vec2>::const_iterator it1 = p.verticies.cbegin(); it1 != p.verticies.cend(); it1++) {
+		std::list<glm::vec2>::const_iterator it2 = std::next(it1);
+		if (it2 == p.verticies.cend()) {
+			it2 = p.verticies.cbegin();
+		}
+		glm::vec2 side[2];
+		side[0] = *it1;
+		side[1] = *it2;
+		std::list<VertexNode*> points;
+		for (std::list<glm::vec2>::const_iterator it3 = verticies.cbegin(); it3 != verticies.cend(); it3++) {
+			std::list<glm::vec2>::const_iterator it4 = std::next(it3);
+			if (it4 == verticies.cend()) {
+				it4 = verticies.cbegin();
+			}
+			glm::vec2 edge[2];
+			edge[0] = *it3;
+			edge[1] = *it4;
+			glm::vec2 intersectionPoint = intersect(side, edge);
+			if (intersectionPoint != glm::vec2(-1000000000, -1000000000)) {
+				VertexNode* node = new VertexNode(intersectionPoint);
+				intersectionPoints.push_back(node);
+				float distance = sqrt(pow(intersectionPoint.x - it1->x, 2) + pow(intersectionPoint.y - it1->y, 2));
+				bool added = false;
+				for (std::list<VertexNode*>::iterator it5 = points.begin(); it5 != points.end(); it5++) {
+					VertexNode* n = *it5;
+					float tempDistance = sqrt(pow(n->vertex.x - it1->x, 2) + pow(n->vertex.y - it1->y, 2));
+					if (distance < tempDistance) {
+						points.insert(it5, node);
+						added = true;
+						break;
+					}
+				}
+				if (!added) {
+					points.push_back(node);
+				}
+			}
+		}
+		for (std::list<VertexNode*>::iterator it3 = points.begin(); it3 != points.end(); it3++) {
+			current->next1 = *it3;
+			current = current->next1;
+		}
+		current->next1 = new VertexNode(*it2, clippingHead);
+		current = current->next1;
+	}
+	clippingHead = new VertexNode(verticies.front());
+	current = clippingHead;
+	for (std::list<glm::vec2>::const_iterator it1 = verticies.cbegin(); it1 != verticies.cend(); it1++) {
 		std::list<glm::vec2>::const_iterator it2 = std::next(it1);
 		if (it2 == verticies.cend()) {
 			it2 = verticies.cbegin();
@@ -52,79 +91,95 @@ std::list<Polygon> Polygon::mapTo(const Polygon& p) const {
 		glm::vec2 side[2];
 		side[0] = *it1;
 		side[1] = *it2;
-		std::list<VertexNode*> intersectionPoints;
-		for (int i = 0; i < originalNodes.size(); i++) {
+		std::list<VertexNode*> points;
+		for (std::list<glm::vec2>::const_iterator it3 = p.verticies.cbegin(); it3 != p.verticies.cend(); it3++) {
+			std::list<glm::vec2>::const_iterator it4 = std::next(it3);
+			if (it4 == p.verticies.cend()) {
+				it4 = p.verticies.cbegin();
+			}
 			glm::vec2 edge[2];
-			edge[0] = originalNodes[i]->vertex;
-			edge[1] = originalNodes[(i + 1) % originalNodes.size()]->vertex;
+			edge[0] = *it3;
+			edge[1] = *it4;
 			glm::vec2 intersectionPoint = intersect(side, edge);
 			if (intersectionPoint != glm::vec2(-1000000000, -1000000000)) {
-				numIntersections++;
-				VertexNode* node = new VertexNode(intersectionPoint, NULL, originalNodes[(i + 1) % originalNodes.size()]);
-				originalNodes[i]->next1 = node;
+				VertexNode* node = NULL;
+				for (std::list<VertexNode*>::iterator it5 = intersectionPoints.begin(); it5 != intersectionPoints.end(); it5++) {
+					VertexNode* interPoint = *it5;
+					if (std::abs(interPoint->vertex.x - intersectionPoint.x) < 0.00001 && std::abs(interPoint->vertex.y - intersectionPoint.y) < 0.00001) {
+						node = interPoint;
+						break;
+					}
+				}
 				float distance = sqrt(pow(intersectionPoint.x - it1->x, 2) + pow(intersectionPoint.y - it1->y, 2));
 				bool added = false;
-				for (std::list<VertexNode*>::iterator it3 = intersectionPoints.begin(); it3 != intersectionPoints.end(); it3++) {
-					VertexNode* n = *it3;
+				for (std::list<VertexNode*>::iterator it5 = points.begin(); it5 != points.end(); it5++) {
+					VertexNode* n = *it5;
 					float tempDistance = sqrt(pow(n->vertex.x - it1->x, 2) + pow(n->vertex.y - it1->y, 2));
 					if (distance < tempDistance) {
-						intersectionPoints.insert(it3, node);
+						points.insert(it5, node);
 						added = true;
 						break;
 					}
 				}
 				if (!added) {
-					intersectionPoints.push_back(node);
+					points.push_back(node);
 				}
 			}
 		}
-		if (clippingHead == NULL) {
-			clippingHead = current;
+		for (std::list<VertexNode*>::iterator it3 = points.begin(); it3 != points.end(); it3++) {
+			if (current->next1 == NULL || current->next1 == clippingHead) {
+				current->next1 = *it3;
+				current = current->next1;
+			} else {
+				current->next2 = *it3;
+				current = current->next2;
+			}
 		}
-		for (std::list<VertexNode*>::iterator it3 = intersectionPoints.begin(); it3 != intersectionPoints.end(); it3++) {
-			current->next1 = *it3;
+		if (current->next1 == NULL || current->next1 == clippingHead) {
+			current->next1 = new VertexNode(*it2, clippingHead);
 			current = current->next1;
+		} else {
+			current->next2 = new VertexNode(*it2, clippingHead);
+			current = current->next2;
 		}
-		current->next1 = new VertexNode(*it2, clippingHead);
-		current = current->next1;
 	}
+	int numIntersections = intersectionPoints.size();
 	std::list<Polygon> mappedPolygons;
 	if (numIntersections > 0) {
-		VertexNode* iterator = originalNodes[0];
-		while (iterator->next2 == NULL) {
-			iterator = iterator->next1;
-		}
-		bool adding = false;
-		int intersectionCount = 0;
+		VertexNode* iterator = intersectionPoints.front();
+		bool adding = false, first = true;
 		Polygon mappedPolygon;
-		while (intersectionCount <= numIntersections) {
-			bool option1 = iterator->next2 != NULL;
-			bool option2;
+		while (first || iterator != intersectionPoints.front()) {
+			first = false;
+			bool option1 = iterator->next2 != NULL; // is an intersection point
+			bool option2 = p.isInside(iterator->vertex) && isInside(iterator->vertex);
+			/*
 			if (std::find(originalNodes.begin(), originalNodes.end(), iterator) != originalNodes.end()) {
-				option2 = p.isInside(iterator->vertex);
+				option2 = p.isInside(iterator->vertex); // is vertex of this and inside clipping region
 			} else {
-				option2 = isInside(iterator->vertex);
+				option2 = isInside(iterator->vertex); // is vertex of clipping region and inside this
 			}
+			*/
 			if (option1 || option2) {
-				if (option1) {
-					intersectionCount++;
-				}
 				mappedPolygon.addVertex(iterator->vertex);
 				adding = true;
 			} else {
 				if (adding) {
 					adding = false;
+					mappedPolygons.push_back(mappedPolygon);
+					mappedPolygon = Polygon();
 				}
-				mappedPolygons.push_back(mappedPolygon);
-				mappedPolygon = Polygon();
 			}
-			if (iterator->next2 != NULL) {
+			if (iterator->next2 != NULL) { // && iterator->next2->next2 == NULL) {
 				option1 = iterator->next2->next2 != NULL;
+				option2 = p.isInside(iterator->next2->vertex) && isInside(iterator->next2->vertex);
+				/*
 				if (std::find(originalNodes.begin(), originalNodes.end(), iterator->next2) != originalNodes.end()) {
 					option2 = p.isInside(iterator->next2->vertex);
 				} else {
 					option2 = isInside(iterator->next2->vertex);
 				}
+				*/
 				if (option1 || option2) {
 					iterator = iterator->next2;
 				} else {
@@ -144,28 +199,36 @@ std::list<Polygon> Polygon::mapTo(const Polygon& p) const {
 			}
 			mappedPolygons.push_back(mappedPolygon);
 		}
+		/*
 		// cleanup
-		iterator = originalNodes[0];
+		VertexNode* iterator1 = originalNodes[0];
+		VertexNode* iterator2 = originalNodes[0];
 		int deleteCount = 0;
-		VertexNode* previous = NULL;
+		VertexNode* previous1 = NULL;
+		VertexNode* previous2 = NULL;
 		while (deleteCount < originalNodes.size()) {
-			previous = iterator;
-			if (iterator->next2 != NULL) {
-				iterator = iterator->next2;
+			if (iterator1->next2 != NULL) {
+				iterator2 = iterator1->next2;
+				while (iterator1->next2 != NULL || deleteCount < originalNodes.size()) {
+					previous1 = iterator1;
+					iterator1 = iterator1->next1;
+					delete previous1;
+					deleteCount++;
+				}
+				while (iterator2 != iterator1 || deleteCount < originalNodes.size()) {
+					previous2 = iterator2;
+					iterator2 = iterator2->next1;
+					delete previous2;
+					deleteCount++;
+				}
 			} else {
-				iterator = iterator->next1;
-				delete previous;
+				previous1 = iterator1;
+				iterator1 = iterator1->next1;
+				delete previous1;
 				deleteCount++;
 			}
 		}
-		iterator = clippingHead;
-		deleteCount = 0;
-		while (deleteCount < p.verticies.size() + numIntersections) {
-			previous = iterator;
-			iterator = iterator->next1;
-			delete previous;
-			deleteCount++;
-		}
+		*/
 	} else {
 		bool allInside = true;
 		for (std::list<glm::vec2>::const_iterator it = verticies.cbegin(); it != verticies.cend(); it++) {
@@ -189,7 +252,7 @@ std::list<Polygon> Polygon::mapTo(const Polygon& p) const {
 				}
 			}
 			if (allInside) {
-			Polygon mappedPolygon;
+				Polygon mappedPolygon;
 				for (std::list<glm::vec2>::const_iterator it = p.verticies.cbegin(); it != p.verticies.cend(); it++) {
 					mappedPolygon.addVertex(*it);
 				}
@@ -214,7 +277,7 @@ bool Polygon::isInside(float x, float y) const {
 }
 
 void Polygon::addVertex(const glm::vec2& v) {
-	if (std::find(verticies.begin(), verticies.end(), v) == verticies.end()) {
+	if (verticies.back() != v) {
 		verticies.push_back(v);
 	}
 }

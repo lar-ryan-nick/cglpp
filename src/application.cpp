@@ -28,13 +28,7 @@ Application::Application() {
 void Application::run() {
 	onCreate();
 	// To enter wirefram mode
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	/*
-	glEnable(GL_CLIP_DISTANCE0);
-	glEnable(GL_CLIP_DISTANCE1);
-	glEnable(GL_CLIP_DISTANCE2);
-	glEnable(GL_CLIP_DISTANCE3);
-	*/
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	while (!windows.empty()) {
 		for (std::list<Window*>::iterator it = windows.begin(); it != windows.end(); it++) {
 			Window* window = *it;
