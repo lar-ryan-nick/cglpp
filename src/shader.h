@@ -31,10 +31,12 @@ class Shader {
 		void setUniform(const std::string& name, unsigned int value1, unsigned int value2);
 		void setUniform(const std::string& name, unsigned int value1, unsigned int value2, unsigned int value3);
 		void setUniform(const std::string& name, unsigned int value1, unsigned int value2, unsigned int value3, unsigned int value4);
+		/*(
 		void setUniform(const std::string& name, double value);
 		void setUniform(const std::string& name, double value1, double value2);
 		void setUniform(const std::string& name, double value1, double value2, double value3);
 		void setUniform(const std::string& name, double value1, double value2, double value3, double value4);
+		*/
 		void setUniform(const std::string& name, unsigned int count, bool transpose, const float* value);
 		void setUniform(const std::string& name, const Material& material);
 		void setUniform(const std::string& name, const Light& light);

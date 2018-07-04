@@ -117,7 +117,7 @@ void Shader::setUniform(const std::string& name, unsigned int value1, unsigned i
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform4ui(location, value1, value2, value3, value4);
 }
-
+/*
 void Shader::setUniform(const std::string& name, double value) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform1d(location, value);
@@ -137,7 +137,7 @@ void Shader::setUniform(const std::string& name, double value1, double value2, d
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform4d(location, value1, value2, value3, value4);
 }
-
+*/
 void Shader::setUniform(const std::string& name, unsigned int count, bool transpose, const float* value) {
 	int location  = glGetUniformLocation(id, name.c_str());
 	glUniformMatrix4fv(location, count, transpose, value);

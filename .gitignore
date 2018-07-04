@@ -4,3 +4,13 @@ test/build/
 bin/
 build/
 lib/
+# Visual Studio
+Debug/
+x64/
+*.sln
+*.db
+*.opendb
+*.vcxproj
+*.filters
+*.user
+.vs
