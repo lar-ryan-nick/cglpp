@@ -4,41 +4,43 @@ LINKER = link.exe
 CFLAGS = /c /EHsc /nologo /Wall /I include /Fo
 LFLAGS = /LIBPATH:lib /OUT:
 CLEARER = del
-MDFLAGS =
-BUILDDIR = build\ 
-BINDIR = bin\ 
-TESTBUILDDIR = test\build\ 
-TESTBINDIR = test\bin\ 
+SRCDIR = "src\\"
+BUILDDIR = "build\\"
+BINDIR = "bin\\"
+TESTBUILDDIR = "test\\build\\"
+TESTBINDIR = "test\\bin\\"
 else
 CC = g++
 LINKER = g++
 CFLAGS = -c -g -Wall -Iinclude -std=c++11 -o 
 CLEARER = rm -rf
-LFLAGS = -Llib -lglfw -lglad -lGL -lX11 -lpthread -lXrandr -lXi -ldl -o 
+LFLAGS = -Llib -lglfw -lglad -lpthread -ldl -o 
 MDFLAGS = -p
+SRCDIR = src/
 BUILDDIR = build/
 BINDIR = bin/
+TESTSRCDIR = test/src/
 TESTBUILDDIR = test/build/
 TESTBINDIR = test/bin/
 .PHONY: clean
 	
 endif
 
-SRC = $(wildcard src/*.cpp)
-OBJS = $(SRC:src/%.cpp=build/%.o)
-TESTSRC = $(wildcard test/src/*.cpp)
-TESTOBJS = $(TESTSRC:test/src/%.cpp=test/build/%.o)
-TESTEXECS = $(TESTOBJS:test/build/%.o=test/bin/%)
+SRC = $(wildcard $(SRCDIR)*.cpp)
+OBJS = $(SRC:$(SRCDIR)%.cpp=$(BUILDDIR)%.o)
+TESTSRC = $(wildcard $(TESTSRCDIR)*.cpp)
+TESTOBJS = $(TESTSRC:$(TESTSRCDIR)%.cpp=$(TESTBUILDDIR)%.o)
+TESTEXECS = $(TESTOBJS:$(TESTBUILDDIR)%.o=$(TESTBINDIR)%)
 
 default: $(TESTEXECS)
 
 $(TESTEXECS): $(TESTBINDIR)%: $(TESTBUILDDIR)%.o $(OBJS) $(TESTBINDIR)
 	$(LINKER) $(OBJS) $< $(LFLAGS)$@
 
-$(TESTOBJS): $(TESTBUILDDIR)%.o: test/src/%.cpp $(TESTBUILDDIR)
+$(TESTOBJS): $(TESTBUILDDIR)%.o: $(TESTSRCDIR)%.cpp $(TESTBUILDDIR)
 	$(CC) $< $(CFLAGS)$@
 
-$(OBJS): $(BUILDDIR)%.o: src/%.cpp $(BUILDIR)
+$(OBJS): $(BUILDDIR)%.o: $(SRCDIR)%.cpp $(BUILDIR)
 	$(CC) $< $(CFLAGS)$@
 
 $(BINDIR):
