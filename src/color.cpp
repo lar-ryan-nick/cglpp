@@ -1,14 +1,14 @@
 #include "color.h"
 
-Color::Color(float r, float g, float b, float a) : red(r), green(g), blue(b), alpha(a) {
+cgl::Color::Color(float r, float g, float b, float a) : red(r), green(g), blue(b), alpha(a) {
 	fixValues();
 }
-
-Color::Color(int r, int g, int b, int a) : red(r / 255.0f), green(g / 255.0f), blue(b / 255.0f), alpha(a / 255.0f) {
+/*
+cgl::Color::Color(int r, int g, int b, int a) : red(r / 255.0f), green(g / 255.0f), blue(b / 255.0f), alpha(a / 255.0f) {
 	fixValues();
 }
-
-void Color::fixValues() {
+*/
+void cgl::Color::fixValues() {
 	if (red > 1.0f) {
 		red = 1.0f;
 	}
@@ -35,18 +35,18 @@ void Color::fixValues() {
 	}
 }
 
-float Color::getRed() const {
+float cgl::Color::getRed() const {
 	return red;
 }
 
-float Color::getGreen() const {
+float cgl::Color::getGreen() const {
 	return green;
 }
 
-float Color::getBlue() const {
+float cgl::Color::getBlue() const {
 	return blue;
 }
 
-float Color::getAlpha() const {
+float cgl::Color::getAlpha() const {
 	return alpha;
 }

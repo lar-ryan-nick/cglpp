@@ -1,6 +1,6 @@
 #include "cube.h"
 
-Cube::Cube() {
+cgl::Cube::Cube() {
 	float verticies[] = {
 		// vertex			 color			   tex coord   normal
 		-0.5f, -0.5f, 0.5f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
@@ -67,6 +67,6 @@ Cube::Cube() {
 	glEnableVertexAttribArray(3);
 }
 
-void Cube::bindVAO() {
+void cgl::Cube::bindVAO() {
 	glBindVertexArray(VAO);
 }

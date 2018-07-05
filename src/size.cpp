@@ -1,22 +1,22 @@
 #include "size.h"
 
-Size::Size(float w, float h) {
+cgl::Size::Size(float w, float h) {
 	width = w;
 	height = h;
 }
 
-float Size::getWidth() const {
+float cgl::Size::getWidth() const {
 	return width;
 }
 
-float Size::getHeight() const {
+float cgl::Size::getHeight() const {
 	return height;
 }
 
-void Size::setWidth(float w) {
+void cgl::Size::setWidth(float w) {
 	width = w;
 }
 
-void Size::setHeight(float h) {
+void cgl::Size::setHeight(float h) {
 	height = h;
 }

@@ -6,5 +6,5 @@ void TestApplication::onCreate() {
 }
 
 void TestApplication::onTerminate() {
-	Application::onTerminate();
+	cgl::Application::onTerminate();
 }

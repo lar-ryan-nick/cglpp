@@ -1,11 +1,11 @@
 #include "scrollView.h"
 
-ScrollView::ScrollView(float x, float y, float width, float height) : View(x, y, width, height), contentSize(width, height) {
+cgl::ScrollView::ScrollView(float x, float y, float width, float height) : View(x, y, width, height), contentSize(width, height) {
 	setIsScrollable(true);
 	setClipSubviews(true);
 }
 
-void ScrollView::setContentSize(float width, float height) {
+void cgl::ScrollView::setContentSize(float width, float height) {
 	Rectangle bounds = getBounds();
 	if (width < bounds.getWidth()) {
 		width = bounds.getWidth();
@@ -17,7 +17,7 @@ void ScrollView::setContentSize(float width, float height) {
 	contentSize.setHeight(height);
 }
 
-bool ScrollView::onScroll(double xOffset, double yOffset) {
+bool cgl::ScrollView::onScroll(double xOffset, double yOffset) {
 	Position offsetPosition = getOffsetPosition();
 	offsetPosition.move(xOffset, yOffset);
 	Rectangle bounds = getBounds();

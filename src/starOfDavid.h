@@ -1,8 +1,11 @@
 #include <glad/glad.h>
 
-class StarOfDavid {
-	unsigned int VAO;
-	public:
-		StarOfDavid();
-		void bindVAO();
-};
+namespace cgl {
+	class StarOfDavid {
+		private:
+			unsigned int VAO;
+		public:
+			StarOfDavid();
+			void bindVAO();
+	};
+}

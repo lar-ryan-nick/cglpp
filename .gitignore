@@ -6,6 +6,7 @@ build/
 lib/
 # Visual Studio
 Debug/
+Release/
 x64/
 *.sln
 *.db

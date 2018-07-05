@@ -3,7 +3,7 @@
 
 #include "window.h"
 
-class TestWindow : public Window {
+class TestWindow : public cgl::Window {
 	public:
 		TestWindow();
 };

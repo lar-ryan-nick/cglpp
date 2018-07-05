@@ -4,7 +4,7 @@
 #include "application.h"
 #include "testWindow.h"
 
-class TestApplication : public Application {
+class TestApplication : public cgl::Application {
 	protected:
 		virtual void onCreate();
 		virtual void onTerminate();

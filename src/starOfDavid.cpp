@@ -1,6 +1,6 @@
 #include "starOfDavid.h"
 
-StarOfDavid::StarOfDavid() {
+cgl::StarOfDavid::StarOfDavid() {
 	float verticies[] = {
 		// vertex					 color
 		-0.5f, -0.577350269f, 0.5f,  0.0f, 0.0f, 1.0f,
@@ -47,6 +47,6 @@ StarOfDavid::StarOfDavid() {
 	glEnableVertexAttribArray(1);
 }
 
-void StarOfDavid::bindVAO() {
+void cgl::StarOfDavid::bindVAO() {
 	glBindVertexArray(VAO);
 }

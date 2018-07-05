@@ -1,6 +1,6 @@
 #include "shader.h"
 
-Shader::Shader(const std::string& vertexSourcePath, const std::string& fragmentSourcePath) {
+cgl::Shader::Shader(const std::string& vertexSourcePath, const std::string& fragmentSourcePath) {
 	unsigned int vertexShader;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	char* vertexShaderSource = getFileContents(vertexSourcePath);
@@ -42,127 +42,127 @@ Shader::Shader(const std::string& vertexSourcePath, const std::string& fragmentS
 	}
 }
 
-unsigned int Shader::getId() {
+unsigned int cgl::Shader::getId() {
 	return id;
 }
 
-void Shader::use() {
+void cgl::Shader::use() {
 	glUseProgram(id);
 }
 
-void Shader::finish() {
+void cgl::Shader::finish() {
 	glUseProgram(0);
 }
 
-void Shader::setUniform(const std::string& name, float value) {
+void cgl::Shader::setUniform(const std::string& name, float value) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform1f(location, value);
 }
 
-void Shader::setUniform(const std::string& name, float value1, float value2) {
+void cgl::Shader::setUniform(const std::string& name, float value1, float value2) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform2f(location, value1, value2);
 }
 
-void Shader::setUniform(const std::string& name, float value1, float value2, float value3) {
+void cgl::Shader::setUniform(const std::string& name, float value1, float value2, float value3) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform3f(location, value1, value2, value3);
 }
 
-void Shader::setUniform(const std::string& name, float value1, float value2, float value3, float value4) {
+void cgl::Shader::setUniform(const std::string& name, float value1, float value2, float value3, float value4) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform4f(location, value1, value2, value3, value4);
 }
 
-void Shader::setUniform(const std::string& name, const glm::vec3& value) {
+void cgl::Shader::setUniform(const std::string& name, const glm::vec3& value) {
 	setUniform(name, value.x, value.y, value.z);
 }
 
-void Shader::setUniform(const std::string& name, int value) {
+void cgl::Shader::setUniform(const std::string& name, int value) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform1i(location, value);
 }
 
-void Shader::setUniform(const std::string& name, int value1, int value2) {
+void cgl::Shader::setUniform(const std::string& name, int value1, int value2) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform2i(location, value1, value2);
 }
 
-void Shader::setUniform(const std::string& name, int value1, int value2, int value3) {
+void cgl::Shader::setUniform(const std::string& name, int value1, int value2, int value3) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform3i(location, value1, value2, value3);
 }
 
-void Shader::setUniform(const std::string& name, int value1, int value2, int value3, int value4) {
+void cgl::Shader::setUniform(const std::string& name, int value1, int value2, int value3, int value4) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform4i(location, value1, value2, value3, value4);
 }
 
-void Shader::setUniform(const std::string& name, unsigned int value) {
+void cgl::Shader::setUniform(const std::string& name, unsigned int value) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform1ui(location, value);
 }
 
-void Shader::setUniform(const std::string& name, unsigned int value1, unsigned int value2) {
+void cgl::Shader::setUniform(const std::string& name, unsigned int value1, unsigned int value2) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform2ui(location, value1, value2);
 }
 
-void Shader::setUniform(const std::string& name, unsigned int value1, unsigned int value2, unsigned int value3) {
+void cgl::Shader::setUniform(const std::string& name, unsigned int value1, unsigned int value2, unsigned int value3) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform3ui(location, value1, value2, value3);
 }
 
-void Shader::setUniform(const std::string& name, unsigned int value1, unsigned int value2, unsigned int value3, unsigned int value4) {
+void cgl::Shader::setUniform(const std::string& name, unsigned int value1, unsigned int value2, unsigned int value3, unsigned int value4) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform4ui(location, value1, value2, value3, value4);
 }
 /*
-void Shader::setUniform(const std::string& name, double value) {
+void cgl::Shader::setUniform(const std::string& name, double value) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform1d(location, value);
 }
 
-void Shader::setUniform(const std::string& name, double value1, double value2) {
+void cgl::Shader::setUniform(const std::string& name, double value1, double value2) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform2d(location, value1, value2);
 }
 
-void Shader::setUniform(const std::string& name, double value1, double value2, double value3) {
+void cgl::Shader::setUniform(const std::string& name, double value1, double value2, double value3) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform3d(location, value1, value2, value3);
 }
 
-void Shader::setUniform(const std::string& name, double value1, double value2, double value3, double value4) {
+void cgl::Shader::setUniform(const std::string& name, double value1, double value2, double value3, double value4) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform4d(location, value1, value2, value3, value4);
 }
 */
-void Shader::setUniform(const std::string& name, unsigned int count, bool transpose, const float* value) {
+void cgl::Shader::setUniform(const std::string& name, unsigned int count, bool transpose, const float* value) {
 	int location  = glGetUniformLocation(id, name.c_str());
 	glUniformMatrix4fv(location, count, transpose, value);
 }
 
-void Shader::setUniform(const std::string& name, const Material& material) {
+void cgl::Shader::setUniform(const std::string& name, const Material& material) {
 	setUniform(name + ".diffuseMap", 0);
 	setUniform(name + ".specularMap", 1);
 	setUniform(name + ".shininess", material.getShininess());
 	material.bind();
 }
 
-void Shader::setUniform(const std::string& name, const Light& light) {
+void cgl::Shader::setUniform(const std::string& name, const Light& light) {
 	setUniform(name + ".color", light.getColor());
 	setUniform(name + ".ambientStrength", light.getAmbientStrength());
 	setUniform(name + ".diffuseStrength", light.getDiffuseStrength());
 	setUniform(name + ".specularStrength", light.getSpecularStrength());
 }
 
-void Shader::setUniform(const std::string& name, const DirectionalLight& light) {
+void cgl::Shader::setUniform(const std::string& name, const DirectionalLight& light) {
 	setUniform(name, (Light) light);
 	setUniform(name + ".direction", light.getDirection());
 }
 
-void Shader::setUniform(const std::string& name, const PointLight& light) {
+void cgl::Shader::setUniform(const std::string& name, const PointLight& light) {
 	setUniform(name, (Light) light);
 	setUniform(name + ".position", light.getPosition());
 	setUniform(name + ".constant", light.getConstant());
@@ -170,14 +170,14 @@ void Shader::setUniform(const std::string& name, const PointLight& light) {
 	setUniform(name + ".quadratic", light.getQuadratic());
 }
 
-void Shader::setUniform(const std::string& name, const SpotLight& light) {
+void cgl::Shader::setUniform(const std::string& name, const SpotLight& light) {
 	setUniform(name, (PointLight) light);
 	setUniform(name + ".direction", light.getDirection());
 	setUniform(name + ".cutOff", light.getCutOff());
 	setUniform(name + ".outerCutOff", light.getOuterCutOff());
 }
 
-char* Shader::getFileContents(std::string filename) {
+char* cgl::Shader::getFileContents(std::string filename) {
 	std::ifstream fin(filename);
 	if (fin.fail()) {
 		std::cerr << "Couldn't open file " << filename << '\n';

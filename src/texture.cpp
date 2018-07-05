@@ -2,16 +2,16 @@
 #include <stb/stb_image.h>
 #include "texture.h"
 
-Texture::Texture() {
+cgl::Texture::Texture() {
 	init();
 }
 
-Texture::Texture(const std::string& filename) {
+cgl::Texture::Texture(const std::string& filename) {
 	init();
 	setTexture(filename);
 }
 
-void Texture::init() {
+void cgl::Texture::init() {
 	stbi_set_flip_vertically_on_load(true);
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
@@ -22,7 +22,7 @@ void Texture::init() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-void Texture::setTexture(const std::string& filename) {
+void cgl::Texture::setTexture(const std::string& filename) {
 	glBindTexture(GL_TEXTURE_2D, id);
 	// load and generate the texture
 	int width, height, nrChannels;
@@ -40,6 +40,6 @@ void Texture::setTexture(const std::string& filename) {
 	stbi_image_free(data);
 }
 
-void Texture::bind() const {
+void cgl::Texture::bind() const {
 	glBindTexture(GL_TEXTURE_2D, id);
 }

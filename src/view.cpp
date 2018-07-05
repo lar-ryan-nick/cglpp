@@ -1,14 +1,13 @@
 #include "view.h"
 
-Shader* View::viewShader = NULL;
-const int View::MAX_VERTICIES = 50;
+cgl::Shader* cgl::View::viewShader = NULL;
+const int cgl::View::MAX_VERTICIES = 50;
 
-View::View(float x, float y, float width, float height) : backgroundColor(0.0f, 0.0f, 0.0f, 0.0f), rotation(0.0f), scalar(1.0f, 1.0f, 1.0f), clipSubviews(false), clipToParent(false), isScrollable(false) {
+cgl::View::View(float x, float y, float width, float height) : bounds(x, y, width, height), backgroundColor(0.0f, 0.0f, 0.0f, 0.0f), rotation(0.0f), scalar(1.0f, 1.0f, 1.0f), clipSubviews(false), clipToParent(false), isScrollable(false) {
 	if (viewShader == NULL) {
 		viewShader = new Shader("res/glsl/viewVertexShader.glsl", "res/glsl/viewFragmentShader.glsl");
 	}
 	shader = viewShader;
-	bounds = Rectangle(x, y, width, height);
 	unsigned int indicies[(MAX_VERTICIES - 2) * 3];
 	for (int i = 0; i < (MAX_VERTICIES - 2) * 3; i += 3) {
 		indicies[i] = 0;
@@ -38,7 +37,7 @@ View::View(const View& view) : vao(view.vao), backgroundColor(view.backgroundCol
 	}
 }
 */
-View::~View() {
+cgl::View::~View() {
 	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
 		delete *it;
 	}
@@ -48,7 +47,7 @@ View::~View() {
 	glDeleteVertexArrays(1, &vao);
 }
 
-void View::setBounds(float x, float y, float width, float height) {
+void cgl::View::setBounds(float x, float y, float width, float height) {
 	bounds = Rectangle(x, y, width, height);
 	/*
 	verticies[0] = verticies[6] = x;
@@ -61,15 +60,15 @@ void View::setBounds(float x, float y, float width, float height) {
 	*/
 }
 
-Rectangle View::getBounds() const {
+cgl::Rectangle cgl::View::getBounds() const {
 	return bounds;//return Rectangle(verticies[0], verticies[1], verticies[2] - verticies[0], verticies[5] - verticies[1]);
 }
 
-void View::setBackgroundColor(const Color& bc) {
+void cgl::View::setBackgroundColor(const Color& bc) {
 	backgroundColor = bc;
 }
 
-void View::draw(float parentX, float parentY, float parentWidth, float parentHeight, const glm::mat4& parentModel, const Polygon& poly) {
+void cgl::View::draw(float parentX, float parentY, float parentWidth, float parentHeight, const glm::mat4& parentModel, const Polygon& poly) {
 	Rectangle bounds = getBounds();
 	float verticies[8];
 	verticies[0] = verticies[6] = bounds.getX();
@@ -143,31 +142,31 @@ void View::draw(float parentX, float parentY, float parentWidth, float parentHei
 	}
 }
 
-void View::addSubview(View* view) {
+void cgl::View::addSubview(View* view) {
 	subviews.push_back(view);
 }
 
-void View::setClipSubviews(bool clipSub) {
+void cgl::View::setClipSubviews(bool clipSub) {
 	clipSubviews = clipSub;
 }
 
-void View::setClipToParent(bool clipToP) {
+void cgl::View::setClipToParent(bool clipToP) {
 	clipToParent = clipToP;
 }
 
-bool View::getClipToParent() const {
+bool cgl::View::getClipToParent() const {
 	return clipToParent;
 }
 
-void View::setIsScrollable(bool s) {
+void cgl::View::setIsScrollable(bool s) {
 	isScrollable = s;
 }
 
-bool View::getIsScrollable() const {
+bool cgl::View::getIsScrollable() const {
 	return isScrollable;
 }
 
-bool View::scroll(double xOffset, double yOffset, float mouseX, float mouseY) {
+bool cgl::View::scroll(double xOffset, double yOffset, float mouseX, float mouseY) {
 	Rectangle bounds = getBounds();
 	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
 		View* view = *it;
@@ -195,38 +194,38 @@ bool View::scroll(double xOffset, double yOffset, float mouseX, float mouseY) {
 	}
 }
 
-bool View::onScroll(double xOffset, double yOffset) {
+bool cgl::View::onScroll(double xOffset, double yOffset) {
 	return false;
 }
 
-void View::translate(float x, float y) {
+void cgl::View::translate(float x, float y) {
 	translation += glm::vec3(x, y, 0.0f);
 }
 
-void View::setTranslation(float x, float y) {
+void cgl::View::setTranslation(float x, float y) {
 	translation = glm::vec3(x, y, 0.0f);
 }
 
-void View::rotate(float radians) {
+void cgl::View::rotate(float radians) {
 	rotation += radians;
 }
 
-void View::setRotation(float radians) {
+void cgl::View::setRotation(float radians) {
 	rotation = radians;
 }
 
-void View::scale(float x, float y) {
+void cgl::View::scale(float x, float y) {
 	scalar *= glm::vec3(x, y, 0.0f);
 }
 
-void View::setScalar(float x, float y) {
+void cgl::View::setScalar(float x, float y) {
 	scalar = glm::vec3(x, y, 0.0f);
 }
 
-Position View::getOffsetPosition() const {
+cgl::Position cgl::View::getOffsetPosition() const {
 	return offsetPosition;
 }
 
-void View::setOffsetPosition(const Position& offset) {
+void cgl::View::setOffsetPosition(const Position& offset) {
 	offsetPosition = offset;
 }

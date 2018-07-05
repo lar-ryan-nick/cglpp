@@ -3,11 +3,14 @@
 
 #include <glad/glad.h>
 
-class Cube {
-	unsigned int VAO;
-	public:
-		Cube();
-		void bindVAO();
-};
+namespace cgl {
+	class Cube {
+		private:
+			unsigned int VAO;
+		public:
+			Cube();
+			void bindVAO();
+	};
+}
 
 #endif

@@ -1,10 +1,10 @@
 #include "polygon.h"
 
-bool Polygon::isInside(const Position& p) const {
+bool cgl::Polygon::isInside(const Position& p) const {
 	return isInside(glm::vec2(p.getX(), p.getY()));
 }
 
-bool Polygon::isInside(const glm::vec2& v) const {
+bool cgl::Polygon::isInside(const glm::vec2& v) const {
 	glm::vec3 insidePoint;
 	for (std::list<glm::vec2>::const_iterator it = verticies.cbegin(); it != verticies.cend(); it++) {
 		insidePoint.x += it->x;
@@ -33,7 +33,10 @@ bool Polygon::isInside(const glm::vec2& v) const {
 	return true;
 }
 
-std::list<Polygon> Polygon::mapTo(const Polygon& p) const {
+std::list<cgl::Polygon> cgl::Polygon::mapTo(const Polygon& p) const {
+	if (verticies.empty() || p.verticies.empty()) {
+		return std::list<Polygon>();
+	}
 	std::list<VertexNode*> intersectionPoints;
 	VertexNode* clippingHead = new VertexNode(p.verticies.front());
 	VertexNode* current = clippingHead;
@@ -100,16 +103,18 @@ std::list<Polygon> Polygon::mapTo(const Polygon& p) const {
 			glm::vec2 edge[2];
 			edge[0] = *it3;
 			edge[1] = *it4;
-			glm::vec2 intersectionPoint = intersect(side, edge);
+			// do edge, side to preserve order from previous call and avoif float misaccuracies
+			glm::vec2 intersectionPoint = intersect(edge, side);
 			if (intersectionPoint != glm::vec2(-1000000000, -1000000000)) {
 				VertexNode* node = NULL;
 				for (std::list<VertexNode*>::iterator it5 = intersectionPoints.begin(); it5 != intersectionPoints.end(); it5++) {
 					VertexNode* interPoint = *it5;
-					if (std::abs(interPoint->vertex.x - intersectionPoint.x) < 0.00001 && std::abs(interPoint->vertex.y - intersectionPoint.y) < 0.00001) {
+					if (interPoint->vertex == intersectionPoint) {
 						node = interPoint;
 						break;
 					}
 				}
+				// node should never be NULL
 				float distance = sqrt(pow(intersectionPoint.x - it1->x, 2) + pow(intersectionPoint.y - it1->y, 2));
 				bool added = false;
 				for (std::list<VertexNode*>::iterator it5 = points.begin(); it5 != points.end(); it5++) {
@@ -258,7 +263,7 @@ std::list<Polygon> Polygon::mapTo(const Polygon& p) const {
 	return mappedPolygons;
 }
 
-glm::vec2 intersect(glm::vec2 v1[2], glm::vec2 v2[2]) {
+glm::vec2 cgl::intersect(glm::vec2 v1[2], glm::vec2 v2[2]) {
 	float j = (v1[0].y - v2[0].y + (v1[1].y - v1[0].y) * (v2[0].x - v1[0].x) / (v1[1].x - v1[0].x)) / (v2[1].y - v2[0].y - (v1[1].y - v1[0].y) * (v2[1].x - v2[0].x) / (v1[1].x - v1[0].x));
 	float i = (v2[0].x + (v2[1].x - v2[0].x) * j - v1[0].x) / (v1[1].x - v1[0].x);
 	if (i >= 0 && i <= 1 && j >= 0 && j <= 1) {
@@ -267,16 +272,20 @@ glm::vec2 intersect(glm::vec2 v1[2], glm::vec2 v2[2]) {
 	return glm::vec2(-1000000000, -1000000000);
 }
 
-bool Polygon::isInside(float x, float y) const {
+bool cgl::Polygon::isInside(float x, float y) const {
 	return isInside(glm::vec2(x, y));
 }
 
-void Polygon::addVertex(const glm::vec2& v) {
-	if (verticies.back() != v) {
+void cgl::Polygon::addVertex(const glm::vec2& v) {
+	if (verticies.empty() || verticies.back() != v) {
 		verticies.push_back(v);
 	}
 }
 
-std::list<glm::vec2> Polygon::getVerticies() {
+std::list<glm::vec2>& cgl::Polygon::getVerticies() {
+	return verticies;
+}
+
+const std::list<glm::vec2>& cgl::Polygon::getVerticies() const {
 	return verticies;
 }

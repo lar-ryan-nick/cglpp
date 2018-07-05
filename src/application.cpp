@@ -1,6 +1,6 @@
 #include "application.h"
 
-Application::Application() {
+cgl::Application::Application() {
 	if (!glfwInit()) {
 		std::cerr << "Failed to initialize glfw" << std::endl;
 		exit(-1);
@@ -25,7 +25,7 @@ Application::Application() {
 	glfwMakeContextCurrent(NULL);
 }
 
-void Application::run() {
+void cgl::Application::run() {
 	onCreate();
 	// To enter wirefram mode
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -40,6 +40,9 @@ void Application::run() {
 				window->close();
 				delete window;
 				it = windows.erase(it);
+				if (windows.empty()) {
+					break;
+				}
 				it--;
 			}
 		}
@@ -48,16 +51,16 @@ void Application::run() {
 	glfwTerminate();
 }
 
-void Application::onTerminate() {
+void cgl::Application::onTerminate() {
 	for (std::list<Window*>::iterator it = windows.begin(); it != windows.end(); it++) {
 		delete *it;
 	}
 }
 
-void Application::addWindow(Window* window) {
+void cgl::Application::addWindow(Window* window) {
 	windows.push_back(window);
 }
 
-void errorCallback(int error, const char* description) {
+void cgl::errorCallback(int error, const char* description) {
 	std::cerr << "Error code " << error << ": " << description << std::endl;
 }

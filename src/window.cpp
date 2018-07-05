@@ -1,6 +1,8 @@
 #include "window.h"
 
-Window::Window(const std::string& windowName, int w, int h, float r, float g, float b, float a) : backgroundColor(r, g, b, a) {
+const float cgl::Window::SCROLL_SCALE = 5.0f;
+
+cgl::Window::Window(const std::string& windowName, int w, int h, float r, float g, float b, float a) : backgroundColor(r, g, b, a) {
 	window = glfwCreateWindow(w, h, windowName.c_str(), NULL, NULL);
 	if (window == NULL) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
@@ -17,18 +19,18 @@ Window::Window(const std::string& windowName, int w, int h, float r, float g, fl
 	//glfwSetCursorPosCallback(window, &mouseCallback);
 }
 
-Window::~Window() {
+cgl::Window::~Window() {
 	delete view;
 }
 
-View& Window::getView() {
+cgl::View& cgl::Window::getView() {
 	return *view;
 }
 
-void Window::processInput() {
+void cgl::Window::processInput() {
 }
 
-void Window::render() {
+void cgl::Window::render() {
 	glfwMakeContextCurrent(window);
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);
@@ -40,37 +42,37 @@ void Window::render() {
 	maxPolygon.addVertex(glm::vec2(1.0f, 1.0f));
 	maxPolygon.addVertex(glm::vec2(1.0f, -1.0f));
 	maxPolygon.addVertex(glm::vec2(-1.0f, -1.0f));
-	view->draw(0.0f, 0.0f, width, height, glm::mat4(), Polygon());
+	view->draw(0.0f, 0.0f, width, height, glm::mat4(), maxPolygon);
 	glfwSwapBuffers(window);
 }
 
-Size Window::getSize() const {
+cgl::Size cgl::Window::getSize() const {
 	int width = 0, height = 0;
 	glfwGetWindowSize(window, &width, &height);
 	return Size(width, height);
 }
 
-Color Window::getBackgroundColor() {
+cgl::Color cgl::Window::getBackgroundColor() {
 	return backgroundColor;
 }
 
-void Window::setBackgroundColor(const Color& bc) {
+void cgl::Window::setBackgroundColor(const Color& bc) {
 	backgroundColor = bc;
 }
 
-void Window::close() {
+void cgl::Window::close() {
 	glfwDestroyWindow(window);
 }
 
-bool Window::shouldClose() {
+bool cgl::Window::shouldClose() {
 	return glfwWindowShouldClose(window);
 }
 
-void Window::framebufferSizeCallback(GLFWwindow* window, int w, int h) {
+void cgl::Window::framebufferSizeCallback(GLFWwindow* window, int w, int h) {
 	glViewport(0, 0, w, h);
 }
 
-void Window::scrollCallback(GLFWwindow* w, double xOffset, double yOffset) {
+void cgl::Window::scrollCallback(GLFWwindow* w, double xOffset, double yOffset) {
 	View* view = static_cast<View*>(glfwGetWindowUserPointer(w));
 	double xpos, ypos;
 	glfwGetCursorPos(w, &xpos, &ypos);
@@ -80,10 +82,10 @@ void Window::scrollCallback(GLFWwindow* w, double xOffset, double yOffset) {
 	glfwGetFramebufferSize(w, &frameWidth, &frameHeight);
 	xpos *= frameWidth / width;
 	ypos *= frameHeight / height;
-	view->scroll(2 * xOffset, 2 * yOffset, xpos, ypos);
+	view->scroll(SCROLL_SCALE * xOffset, SCROLL_SCALE * yOffset, xpos, ypos);
 }
 
-void Window::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
+void cgl::Window::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 	static bool firstCall = true;
 	static float lastX = xpos;
 	static float lastY = ypos;

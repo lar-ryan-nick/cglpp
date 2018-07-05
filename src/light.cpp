@@ -1,40 +1,40 @@
 #include "light.h"
 
-Light::Light(const glm::vec3& col, float ambient, float diffuse, float specular) {
+cgl::Light::Light(const glm::vec3& col, float ambient, float diffuse, float specular) {
 	color = col;
 	ambientStrength = ambient;
 	diffuseStrength = diffuse;
 	specularStrength = specular;
 }
 
-glm::vec3 Light::getColor() const {
+glm::vec3 cgl::Light::getColor() const {
 	return color;
 }
 
-float Light::getAmbientStrength() const {
+float cgl::Light::getAmbientStrength() const {
 	return ambientStrength;
 }
 
-float Light::getDiffuseStrength() const {
+float cgl::Light::getDiffuseStrength() const {
 	return diffuseStrength;
 }
 
-float Light::getSpecularStrength() const {
+float cgl::Light::getSpecularStrength() const {
 	return specularStrength;
 }
 
-void Light::setColor(const glm::vec3& col) {
+void cgl::Light::setColor(const glm::vec3& col) {
 	color = col;
 }
 
-void Light::setAmbientStrength(float ambient) {
+void cgl::Light::setAmbientStrength(float ambient) {
 	ambientStrength = ambient;
 }
 
-void Light::setDiffuseStrength(float diffuse) {
+void cgl::Light::setDiffuseStrength(float diffuse) {
 	diffuseStrength = diffuse;
 }
 
-void Light::setSpecularStrength(float specular) {
+void cgl::Light::setSpecularStrength(float specular) {
 	specularStrength = specular;
 }
