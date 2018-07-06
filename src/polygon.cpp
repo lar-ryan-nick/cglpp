@@ -34,7 +34,7 @@ bool cgl::Polygon::isInside(const glm::vec2& v) const {
 }
 
 std::list<cgl::Polygon> cgl::Polygon::mapTo(const Polygon& p) const {
-	if (verticies.empty() || p.verticies.empty()) {
+	if (verticies.size() < 3 || p.verticies.size() < 3) {
 		return std::list<Polygon>();
 	}
 	std::list<VertexNode*> intersectionPoints;
@@ -81,8 +81,12 @@ std::list<cgl::Polygon> cgl::Polygon::mapTo(const Polygon& p) const {
 			current->next1 = *it3;
 			current = current->next1;
 		}
-		current->next1 = new VertexNode(*it2, clippingHead);
-		current = current->next1;
+		if (it2 != p.verticies.cbegin()) {
+			current->next1 = new VertexNode(*it2);
+			current = current->next1;
+		} else {
+			current->next1 = clippingHead;
+		}
 	}
 	clippingHead = new VertexNode(verticies.front());
 	current = clippingHead;
@@ -132,7 +136,7 @@ std::list<cgl::Polygon> cgl::Polygon::mapTo(const Polygon& p) const {
 			}
 		}
 		for (std::list<VertexNode*>::iterator it3 = points.begin(); it3 != points.end(); it3++) {
-			if (current->next1 == NULL || current->next1 == clippingHead) {
+			if (current->next1 == NULL) {
 				current->next1 = *it3;
 				current = current->next1;
 			} else {
@@ -140,12 +144,20 @@ std::list<cgl::Polygon> cgl::Polygon::mapTo(const Polygon& p) const {
 				current = current->next2;
 			}
 		}
-		if (current->next1 == NULL || current->next1 == clippingHead) {
-			current->next1 = new VertexNode(*it2, clippingHead);
-			current = current->next1;
+		if (it2 != verticies.cbegin()) {
+			if (current->next1 == NULL) {
+				current->next1 = new VertexNode(*it2);
+				current = current->next1;
+			} else {
+				current->next2 = new VertexNode(*it2);
+				current = current->next2;
+			}
 		} else {
-			current->next2 = new VertexNode(*it2, clippingHead);
-			current = current->next2;
+			if (current->next1 == NULL) {
+				current->next1 = clippingHead;
+			} else {
+				current->next2 = clippingHead;
+			}
 		}
 	}
 	int numIntersections = intersectionPoints.size();
@@ -158,13 +170,6 @@ std::list<cgl::Polygon> cgl::Polygon::mapTo(const Polygon& p) const {
 			first = false;
 			bool option1 = iterator->next2 != NULL; // is an intersection point
 			bool option2 = p.isInside(iterator->vertex) && isInside(iterator->vertex);
-			/*
-			if (std::find(originalNodes.begin(), originalNodes.end(), iterator) != originalNodes.end()) {
-				option2 = p.isInside(iterator->vertex); // is vertex of this and inside clipping region
-			} else {
-				option2 = isInside(iterator->vertex); // is vertex of clipping region and inside this
-			}
-			*/
 			if (option1 || option2) {
 				mappedPolygon.addVertex(iterator->vertex);
 				adding = true;
@@ -175,16 +180,9 @@ std::list<cgl::Polygon> cgl::Polygon::mapTo(const Polygon& p) const {
 					mappedPolygon = Polygon();
 				}
 			}
-			if (iterator->next2 != NULL) { // && iterator->next2->next2 == NULL) {
+			if (iterator->next2 != NULL) {
 				option1 = iterator->next2->next2 != NULL;
 				option2 = p.isInside(iterator->next2->vertex) && isInside(iterator->next2->vertex);
-				/*
-				if (std::find(originalNodes.begin(), originalNodes.end(), iterator->next2) != originalNodes.end()) {
-					option2 = p.isInside(iterator->next2->vertex);
-				} else {
-					option2 = isInside(iterator->next2->vertex);
-				}
-				*/
 				if (option1 || option2) {
 					iterator = iterator->next2;
 				} else {
@@ -264,9 +262,26 @@ std::list<cgl::Polygon> cgl::Polygon::mapTo(const Polygon& p) const {
 }
 
 glm::vec2 cgl::intersect(glm::vec2 v1[2], glm::vec2 v2[2]) {
+	// v1 is vertical
+	if (v1[1].x == v1[0].x) {
+		if (v2[1].x != v2[0].x && ((v2[0].x <= v1[0].x && v1[0].x <= v2[1].x) || (v2[1].x <= v1[0].x && v1[0].x <= v2[0].x))) {
+			float y = (v2[1].y - v2[0].y) / (v2[1].x - v2[0].x) * (v1[0].x - v2[0].x) + v2[0].y;
+			if (v1[0].y <= y && y <= v1[1].y || v1[1].y <= y && y <= v1[0].x) {
+				return glm::vec2(v1[0].x, y);
+			} else {
+				return glm::vec2(-1000000000, -1000000000);
+			}
+		} else {
+			return glm::vec2(-1000000000, -1000000000);
+		}
+	}
+	// Line segments have the same slope
+	if (v2[1].y - v2[0].y - (v2[1].x - v2[0].x) * (v1[1].y - v1[0].y) / (v1[1].x - v1[0].x) == 0) {
+		return glm::vec2(-1000000000, -1000000000);
+	}
 	float j = (v1[0].y - v2[0].y + (v1[1].y - v1[0].y) * (v2[0].x - v1[0].x) / (v1[1].x - v1[0].x)) / (v2[1].y - v2[0].y - (v1[1].y - v1[0].y) * (v2[1].x - v2[0].x) / (v1[1].x - v1[0].x));
 	float i = (v2[0].x + (v2[1].x - v2[0].x) * j - v1[0].x) / (v1[1].x - v1[0].x);
-	if (i >= 0 && i <= 1 && j >= 0 && j <= 1) {
+	if (i > 0 && i < 1 && j > 0 && j < 1) {
 		return glm::vec2(v1[0].x + (v1[1].x - v1[0].x) * i, v1[0].y + (v1[1].y - v1[0].y) * i);
 	}
 	return glm::vec2(-1000000000, -1000000000);

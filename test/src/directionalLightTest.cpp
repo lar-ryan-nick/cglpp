@@ -16,7 +16,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 int width = 800, height = 600;
-Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
+cgl::Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
 
 int main() {
 	if (!glfwInit()) {
@@ -42,12 +42,12 @@ int main() {
 	glViewport(0, 0, 800, 600);
 	glEnable(GL_DEPTH_TEST);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	Shader shader("res/glsl/directionalLightTestVertexShader.glsl", "res/glsl/directionalLightTestFragmentShader.glsl");
-	Texture diffuse("res/img/container2.png");
-	Texture specular("res/img/container2_specular.png");
-	Material material(diffuse, specular, 32.0f);
-	DirectionalLight directionalLight(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.3f, 0.8f, 1.0f);
-	Cube cube;
+	cgl::Shader shader("res/glsl/directionalLightTestVertexShader.glsl", "res/glsl/directionalLightTestFragmentShader.glsl");
+	cgl::Texture diffuse("res/img/container2.png");
+	cgl::Texture specular("res/img/container2_specular.png");
+	cgl::Material material(diffuse, specular, 32.0f);
+	cgl::DirectionalLight directionalLight(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.3f, 0.8f, 1.0f);
+	cgl::Cube cube;
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
 

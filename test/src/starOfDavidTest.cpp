@@ -15,7 +15,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 int width = 600, height = 600;
-Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
+cgl::Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
 
 int main() {
 	if (!glfwInit()) {
@@ -41,8 +41,8 @@ int main() {
 	glViewport(0, 0, 800, 600);
 	glEnable(GL_DEPTH_TEST);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	Shader shader("res/glsl/starOfDavidTestVertexShader.glsl", "res/glsl/starOfDavidTestFragmentShader.glsl");
-	StarOfDavid sod;
+	cgl::Shader shader("res/glsl/starOfDavidTestVertexShader.glsl", "res/glsl/starOfDavidTestFragmentShader.glsl");
+	cgl::StarOfDavid sod;
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
 

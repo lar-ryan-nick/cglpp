@@ -2,7 +2,7 @@
 #include "../../src/polygon.h"
 
 int main() {
-	Polygon p;
+	cgl::Polygon p;
 	p.addVertex(glm::vec2(0.0f, 0.0f));
 	p.addVertex(glm::vec2(1.0f, 0.0f));
 	p.addVertex(glm::vec2(1.0f, 1.0f));

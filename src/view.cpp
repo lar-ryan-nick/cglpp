@@ -101,8 +101,8 @@ void cgl::View::draw(float parentX, float parentY, float parentWidth, float pare
 	float h = 1 - e * verticies[0] - f * verticies[1];
 	glm::mat4 textureMapper(a, e, 0.0f, 0.0f, b, f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, d, h, 0.0f, 0.0f);
 	std::list<Polygon> clippedPolygons = p.mapTo(poly);
-	for (std::list<Polygon>::iterator it = clippedPolygons.begin(); it != clippedPolygons.end(); it++) {
-		Polygon clippedPolygon = *it;
+	for (std::list<Polygon>::iterator it1 = clippedPolygons.begin(); it1 != clippedPolygons.end(); it1++) {
+		Polygon clippedPolygon = *it1;
 		std::list<glm::vec2> vert = clippedPolygon.getVerticies();
 		if (vert.size() < 3) {
 			continue;
@@ -110,9 +110,9 @@ void cgl::View::draw(float parentX, float parentY, float parentWidth, float pare
 		float* v = new float[vert.size() * 2];
 		float* t = new float[vert.size() * 2];
 		int index = 0;
-		for (std::list<glm::vec2>::iterator it = vert.begin(); it != vert.end(); it++) {
-			v[index] = it->x;
-			v[index + 1] = it->y;
+		for (std::list<glm::vec2>::iterator it2 = vert.begin(); it2 != vert.end(); it2++) {
+			v[index] = it2->x;
+			v[index + 1] = it2->y;
 			glm::vec4 textureTransform = textureMapper * glm::vec4(v[index], v[index + 1], 0.0f, 1.0f);
 			t[index] = textureTransform.x;
 			t[index + 1] = textureTransform.y;
@@ -129,8 +129,8 @@ void cgl::View::draw(float parentX, float parentY, float parentWidth, float pare
 		shader->setUniform("backgroundColor", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 		glDrawElements(GL_TRIANGLES, (vert.size() - 2) * 3, GL_UNSIGNED_INT, 0);
 		shader->finish();
-		for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
-			View* view = *it;
+		for (std::list<View*>::iterator it2 = subviews.begin(); it2 != subviews.end(); it2++) {
+			View* view = *it2;
 			view->translate(bounds.getX() - offsetPosition.getX(), bounds.getY() - offsetPosition.getY());
 			if (view->getClipToParent() || clipSubviews) {
 				view->draw(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), model, clippedPolygon);

@@ -29,11 +29,11 @@ int main() {
 	}
 	glViewport(0, 0, 800, 600);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	Shader shader("res/glsl/textureSquareVertexShader.glsl", "res/glsl/textureSquareFragmentShader.glsl");
+	cgl::Shader shader("res/glsl/textureSquareVertexShader.glsl", "res/glsl/textureSquareFragmentShader.glsl");
 	glActiveTexture(GL_TEXTURE0);
-	Texture texture1("res/img/container.jpg");
+	cgl::Texture texture1("res/img/container.jpg");
 	glActiveTexture(GL_TEXTURE1);
-	Texture texture2("res/img/awesomeface.png");
+	cgl::Texture texture2("res/img/awesomeface.png");
 	shader.use();
 	shader.setUniform("texture1", 0);
 	shader.setUniform("texture2", 1);

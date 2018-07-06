@@ -14,7 +14,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 int width = 800, height = 600;
-Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
+cgl::Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
 
 int main() {
 	if (!glfwInit()) {
@@ -39,11 +39,11 @@ int main() {
 	}
 	glViewport(0, 0, 800, 600);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	Shader shader("res/glsl/3dSquareVertexShader.glsl", "res/glsl/3dSquareFragmentShader.glsl");
+	cgl::Shader shader("res/glsl/3dSquareVertexShader.glsl", "res/glsl/3dSquareFragmentShader.glsl");
 	glActiveTexture(GL_TEXTURE0);
-	Texture texture1("res/img/container.jpg");
+	cgl::Texture texture1("res/img/container.jpg");
 	glActiveTexture(GL_TEXTURE1);
-	Texture texture2("res/img/awesomeface.png");
+	cgl::Texture texture2("res/img/awesomeface.png");
 	shader.use();
 	shader.setUniform("texture1", 0);
 	shader.setUniform("texture2", 1);

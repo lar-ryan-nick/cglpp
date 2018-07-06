@@ -15,6 +15,7 @@ cgl::Window::Window(const std::string& windowName, int w, int h, float r, float 
 	view = new View(0, 0, width, height);
 	glfwSetWindowUserPointer(window, view);
 	glfwSetScrollCallback(window, scrollCallback);
+	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	//glfwSetCursorPosCallback(window, &mouseCallback);
 }
@@ -70,16 +71,19 @@ bool cgl::Window::shouldClose() {
 
 void cgl::Window::framebufferSizeCallback(GLFWwindow* window, int w, int h) {
 	glViewport(0, 0, w, h);
+	View* view = static_cast<View*>(glfwGetWindowUserPointer(window));
+	Rectangle bounds = view->getBounds();
+	view->setBounds(0, 0, w, h);
 }
 
-void cgl::Window::scrollCallback(GLFWwindow* w, double xOffset, double yOffset) {
-	View* view = static_cast<View*>(glfwGetWindowUserPointer(w));
+void cgl::Window::scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
+	View* view = static_cast<View*>(glfwGetWindowUserPointer(window));
 	double xpos, ypos;
-	glfwGetCursorPos(w, &xpos, &ypos);
+	glfwGetCursorPos(window, &xpos, &ypos);
 	int width = 0, height = 0;
-	glfwGetWindowSize(w, &width, &height);
+	glfwGetWindowSize(window, &width, &height);
 	int frameWidth = 0, frameHeight = 0;
-	glfwGetFramebufferSize(w, &frameWidth, &frameHeight);
+	glfwGetFramebufferSize(window, &frameWidth, &frameHeight);
 	xpos *= frameWidth / width;
 	ypos *= frameHeight / height;
 	view->scroll(SCROLL_SCALE * xOffset, SCROLL_SCALE * yOffset, xpos, ypos);

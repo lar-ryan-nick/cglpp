@@ -33,7 +33,7 @@ int main() {
 	}
 	glViewport(0, 0, 800, 600);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	Shader shader("res/glsl/colorTriangleVertexShader.glsl", "res/glsl/colorTriangleFragmentShader.glsl");
+	cgl::Shader shader("res/glsl/colorTriangleVertexShader.glsl", "res/glsl/colorTriangleFragmentShader.glsl");
 	float triangleVerticies[] = {
 		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
