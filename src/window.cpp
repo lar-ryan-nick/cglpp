@@ -12,7 +12,7 @@ cgl::Window::Window(const std::string& windowName, int w, int h, float r, float 
 	glfwMakeContextCurrent(window);
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);
-	view = new View(0, 0, width, height);
+	view = new View(0, 0, static_cast<float>(width), static_cast<float>(height));
 	glfwSetWindowUserPointer(window, view);
 	glfwSetScrollCallback(window, scrollCallback);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
@@ -43,14 +43,14 @@ void cgl::Window::render() {
 	maxPolygon.addVertex(glm::vec2(1.0f, 1.0f));
 	maxPolygon.addVertex(glm::vec2(1.0f, -1.0f));
 	maxPolygon.addVertex(glm::vec2(-1.0f, -1.0f));
-	view->draw(0.0f, 0.0f, width, height, glm::mat4(), maxPolygon);
+	view->draw(glm::mat4(), maxPolygon);
 	glfwSwapBuffers(window);
 }
 
 cgl::Size cgl::Window::getSize() const {
 	int width = 0, height = 0;
 	glfwGetWindowSize(window, &width, &height);
-	return Size(width, height);
+	return Size(static_cast<float>(width), static_cast<float>(height));
 }
 
 cgl::Color cgl::Window::getBackgroundColor() {
@@ -73,7 +73,7 @@ void cgl::Window::framebufferSizeCallback(GLFWwindow* window, int w, int h) {
 	glViewport(0, 0, w, h);
 	View* view = static_cast<View*>(glfwGetWindowUserPointer(window));
 	Rectangle bounds = view->getBounds();
-	view->setBounds(0, 0, w, h);
+	view->setBounds(0, 0, static_cast<float>(w), static_cast<float>(h));
 }
 
 void cgl::Window::scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {

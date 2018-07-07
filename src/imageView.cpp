@@ -24,10 +24,10 @@ void cgl::ImageView::setTexture(const std::string& textureFilename) {
 	texture = Texture(textureFilename);
 }
 
-void cgl::ImageView::draw(float parentX, float parentY, float parentWidth, float parentHeight, const glm::mat4& parentModel, const Polygon& p) {
+void cgl::ImageView::draw(const glm::mat4& parentModel, const Polygon& p) {
 	shader->use();
 	glActiveTexture(GL_TEXTURE0);
 	texture.bind();
 	shader->setUniform("image", 0);
-	View::draw(parentX, parentY, parentWidth, parentHeight, parentModel, p);
+	View::draw(parentModel, p);
 }

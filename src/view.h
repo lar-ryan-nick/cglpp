@@ -38,7 +38,7 @@ namespace cgl {
 			void setBounds(float x, float y, float width, float height);
 			Rectangle getBounds() const;
 			void setBackgroundColor(const Color& bc);
-			void draw(float parentX, float parentY, float parentWidth, float ParentHeight, const glm::mat4& parentModel, const Polygon& p);
+			void draw(const glm::mat4& parentModel, const Polygon& p);
 			void addSubview(View* view);
 			void setClipSubviews(bool clipSub);
 			void setClipToParent(bool clipToP);

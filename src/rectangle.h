@@ -10,7 +10,7 @@ namespace cgl {
 		bool isInbetween(float min, float max, float val) const;
 		public:
 			Rectangle(float xpos = 0.0f, float ypos = 0.0f, float w = 1.0f, float h = 1.0f);
-			bool contains(Position p) const;
+			bool contains(const Position& p) const;
 	};
 }
 

@@ -68,7 +68,7 @@ void cgl::View::setBackgroundColor(const Color& bc) {
 	backgroundColor = bc;
 }
 
-void cgl::View::draw(float parentX, float parentY, float parentWidth, float parentHeight, const glm::mat4& parentModel, const Polygon& poly) {
+void cgl::View::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	Rectangle bounds = getBounds();
 	float verticies[8];
 	verticies[0] = verticies[6] = bounds.getX();
@@ -133,9 +133,9 @@ void cgl::View::draw(float parentX, float parentY, float parentWidth, float pare
 			View* view = *it2;
 			view->translate(bounds.getX() - offsetPosition.getX(), bounds.getY() - offsetPosition.getY());
 			if (view->getClipToParent() || clipSubviews) {
-				view->draw(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), model, clippedPolygon);
+				view->draw(model, clippedPolygon);
 			} else {
-				view->draw(parentX, parentY, parentWidth, parentHeight, model, p);
+				view->draw(model, p);
 			}
 			view->translate(offsetPosition.getX() - bounds.getX(), offsetPosition.getY() - bounds.getY());
 		}

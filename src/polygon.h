@@ -13,23 +13,25 @@ namespace cgl {
 	class Polygon {
 		private:
 			struct VertexNode {
-				glm::vec2 vertex;
+				Position vertex;
 				VertexNode* next1;
 				VertexNode* next2;
-				VertexNode(const glm::vec2& v, VertexNode* n1 = NULL, VertexNode* n2 = NULL) : vertex(v), next1(n1), next2(n2) {}
+				VertexNode(const Position& p, VertexNode* n1 = NULL, VertexNode* n2 = NULL);
 			};
-			std::list<glm::vec2> verticies;
+			std::list<Position> verticies;
 		public:
-			bool isInside(const Position& p) const;
-			bool isInside(const glm::vec2& v) const;
-			bool isInside(float x, float y) const;
-			std::list<Polygon> mapTo(const Polygon& p) const;
+			bool contains(const Position& p) const;
+			bool contains(const glm::vec2& v) const;
+			bool contains(float x, float y) const;
+			std::list<Polygon> clipTo(const Polygon& p) const;
 			void addVertex(const glm::vec2& v);
-			std::list<glm::vec2>& getVerticies();
-			const std::list<glm::vec2>& getVerticies() const;
+			void addVertex(const Position& p);
+			void addVertex(float x, float y);
+			std::list<Position>& getVerticies();
+			const std::list<Position>& getVerticies() const;
 	};
 
-	glm::vec2 intersect(glm::vec2 v1[2], glm::vec2 v2[2]);
+	Position intersect(const Position v1[2], const Position v2[2]);
 }
 
 #endif

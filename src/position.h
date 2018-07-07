@@ -1,28 +1,13 @@
 #ifndef POSITION_H
 #define POSITION_H
 
-#include <functional>
+#include "VectorContainer.h"
 
 namespace cgl {
-	class Position {
-		private:
-			float x;
-			float y;
+	class Position : public VectorContainer {
 		public:
-			Position(float xPos = 0.0f, float yPos = 0.0f);
-			float getX() const;
-			float getY() const;
-			void setX(float xPos);
-			void setY(float yPos);
-			void move(float xOffset, float yOffset);
-			bool operator==(const Position& p) const;
-	};
-}
-
-namespace std {
-	template<>
-	struct hash<cgl::Position> {
-		size_t operator()(const cgl::Position& p) const;
+			Position(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 1.0f);
+			void move(float x, float y = 0.0f, float z = 0.0f);
 	};
 }
 
