@@ -11,8 +11,8 @@ namespace cgl {
 			glm::vec4 vector;
 		public:
 			VectorContainer(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f);
-			VectorContainer(const glm::vec2& v);
-			VectorContainer(const glm::vec3& v);
+			VectorContainer(const glm::vec2& v, float z = 0.0f, float w = 0.0f);
+			VectorContainer(const glm::vec3& v, float w = 0.0f);
 			VectorContainer(const glm::vec4& v);
 			float getX() const;
 			float getY() const;
@@ -24,12 +24,6 @@ namespace cgl {
 			void setW(float w);
 			bool operator==(const VectorContainer& v) const;
 			bool operator!=(const VectorContainer& v) const;
-			bool operator==(const glm::vec2& v) const;
-			bool operator!=(const glm::vec2& v) const;
-			bool operator==(const glm::vec3& v) const;
-			bool operator!=(const glm::vec3& v) const;
-			bool operator==(const glm::vec4& v) const;
-			bool operator!=(const glm::vec4& v) const;
 			VectorContainer operator+(const VectorContainer& v) const;
 			VectorContainer operator-(const VectorContainer& v) const;
 			VectorContainer operator*(const VectorContainer& v) const;
@@ -72,32 +66,6 @@ namespace cgl {
 	};
 }
 
-const cgl::VectorContainer operator+(const glm::vec2 & v, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator-(const glm::vec2 & v, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator*(const glm::vec2 & v, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator/(const glm::vec2 & v, const cgl::VectorContainer& vc);
-glm::vec2& operator+=(const glm::vec2& v, const cgl::VectorContainer& vc);
-glm::vec2& operator-=(const glm::vec2& v, const cgl::VectorContainer& vc);
-glm::vec2& operator*=(const glm::vec2& v, const cgl::VectorContainer& vc);
-glm::vec2& operator/=(const glm::vec2& v, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator+(const glm::vec3 & v, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator-(const glm::vec3 & v, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator*(const glm::vec3 & v, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator/(const glm::vec3 & v, const cgl::VectorContainer& vc);
-glm::vec3& operator+=(const glm::vec3& v, const cgl::VectorContainer& vc);
-glm::vec3& operator-=(const glm::vec3& v, const cgl::VectorContainer& vc);
-glm::vec3& operator*=(const glm::vec3& v, const cgl::VectorContainer& vc);
-glm::vec3& operator/=(const glm::vec3& v, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator+(const glm::vec4 & v, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator-(const glm::vec4 & v, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator*(const glm::vec4 & v, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator/(const glm::vec4 & v, const cgl::VectorContainer& vc);
-glm::vec4& operator+=(const glm::vec4& v, const cgl::VectorContainer& vc);
-glm::vec4& operator-=(const glm::vec4& v, const cgl::VectorContainer& vc);
-glm::vec4& operator*=(const glm::vec4& v, const cgl::VectorContainer& vc);
-glm::vec4& operator/=(const glm::vec4& v, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator*(float s, const cgl::VectorContainer& vc);
-const cgl::VectorContainer operator/(float s, const cgl::VectorContainer& vc);
 std::ostream& operator <<(std::ostream& out, const cgl::VectorContainer& position);
 
 namespace std {

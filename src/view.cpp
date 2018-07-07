@@ -100,20 +100,20 @@ void cgl::View::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	float f = e * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]);
 	float h = 1 - e * verticies[0] - f * verticies[1];
 	glm::mat4 textureMapper(a, e, 0.0f, 0.0f, b, f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, d, h, 0.0f, 0.0f);
-	std::list<Polygon> clippedPolygons = p.mapTo(poly);
+	std::list<Polygon> clippedPolygons = p.clipTo(poly);
 	for (std::list<Polygon>::iterator it1 = clippedPolygons.begin(); it1 != clippedPolygons.end(); it1++) {
 		Polygon clippedPolygon = *it1;
-		std::list<glm::vec2> vert = clippedPolygon.getVerticies();
+		std::list<Position> vert = clippedPolygon.getVerticies();
 		if (vert.size() < 3) {
 			continue;
 		}
 		float* v = new float[vert.size() * 2];
 		float* t = new float[vert.size() * 2];
 		int index = 0;
-		for (std::list<glm::vec2>::iterator it2 = vert.begin(); it2 != vert.end(); it2++) {
-			v[index] = it2->x;
-			v[index + 1] = it2->y;
-			glm::vec4 textureTransform = textureMapper * glm::vec4(v[index], v[index + 1], 0.0f, 1.0f);
+		for (std::list<Position>::iterator it2 = vert.begin(); it2 != vert.end(); it2++) {
+			v[index] = it2->getX();
+			v[index + 1] = it2->getY();
+			glm::vec4 textureTransform = textureMapper * *it2;
 			t[index] = textureTransform.x;
 			t[index + 1] = textureTransform.y;
 			index += 2;
