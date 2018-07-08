@@ -18,7 +18,7 @@ namespace cgl {
 	class View {
 		private:
 			static Shader* viewShader;
-			const static int MAX_VERTICIES;
+			const static unsigned int MAX_VERTICIES;
 			unsigned int vao;
 			unsigned int vbo[2];
 			unsigned int ebo;

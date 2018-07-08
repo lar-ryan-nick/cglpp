@@ -1,7 +1,7 @@
 #include "View.h"
 
 cgl::Shader* cgl::View::viewShader = NULL;
-const int cgl::View::MAX_VERTICIES = 50;
+const unsigned int cgl::View::MAX_VERTICIES = 50;
 
 cgl::View::View(float x, float y, float width, float height) : bounds(x, y, width, height), backgroundColor(0.0f, 0.0f, 0.0f, 0.0f), rotation(0.0f), clipSubviews(false), clipToParent(false), isScrollable(false) {
 	if (viewShader == NULL) {

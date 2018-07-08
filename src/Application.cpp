@@ -30,7 +30,7 @@ cgl::Application::~Application() {}
 void cgl::Application::run() {
 	onCreate();
 	// To enter wirefram mode
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	while (!windows.empty()) {
 		for (std::list<Window*>::iterator it = windows.begin(); it != windows.end(); it++) {
 			Window* window = *it;
