@@ -3,8 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "../src/shader.h"
-#include "../src/texture.h"
+#include "../src/Shader.h"
+#include "../src/Texture.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 

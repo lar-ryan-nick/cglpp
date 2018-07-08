@@ -6,11 +6,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "../src/shader.h"
-#include "../src/texture.h"
-#include "../src/camera.h"
-#include "../src/cube.h"
-#include "../src/directionalLight.h"
+#include "../src/Shader.h"
+#include "../src/Texture.h"
+#include "../src/Camera.h"
+#include "../src/Cube.h"
+#include "../src/DirectionalLight.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);

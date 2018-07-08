@@ -24,6 +24,7 @@ namespace cgl {
 			void setW(float w);
 			bool operator==(const VectorContainer& v) const;
 			bool operator!=(const VectorContainer& v) const;
+			VectorContainer operator-() const;
 			VectorContainer operator+(const VectorContainer& v) const;
 			VectorContainer operator-(const VectorContainer& v) const;
 			VectorContainer operator*(const VectorContainer& v) const;
@@ -60,9 +61,9 @@ namespace cgl {
 			VectorContainer operator/(float s) const;
 			VectorContainer& operator*=(float s);
 			VectorContainer& operator/=(float s);
-			operator glm::vec2();
-			operator glm::vec3();
-			operator glm::vec4();
+			operator glm::vec2() const;
+			operator glm::vec3() const;
+			operator glm::vec4() const;
 	};
 }
 

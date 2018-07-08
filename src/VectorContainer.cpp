@@ -47,6 +47,10 @@ bool cgl::VectorContainer::operator!=(const VectorContainer& v) const {
 	return vector != v.vector;
 }
 
+cgl::VectorContainer cgl::VectorContainer::operator-() const {
+	return -vector;
+}
+
 cgl::VectorContainer cgl::VectorContainer::operator+(const VectorContainer& v) const {
 	return vector + v.vector;
 }
@@ -207,15 +211,15 @@ cgl::VectorContainer& cgl::VectorContainer::operator/=(float s) {
 	vector /= s;
 	return *this;
 }
-cgl::VectorContainer::operator glm::vec2() {
+cgl::VectorContainer::operator glm::vec2() const {
 	return glm::vec2(vector);
 }
 
-cgl::VectorContainer::operator glm::vec3() {
+cgl::VectorContainer::operator glm::vec3() const {
 	return glm::vec3(vector);
 }
 
-cgl::VectorContainer::operator glm::vec4() {
+cgl::VectorContainer::operator glm::vec4() const {
 	return vector;
 }
 

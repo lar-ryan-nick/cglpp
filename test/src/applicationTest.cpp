@@ -1,4 +1,4 @@
-#include "../../src/testApplication.h"
+#include "../../src/TestApplication.h"
 
 int main(int argc, char** argv) {
 	TestApplication application;
