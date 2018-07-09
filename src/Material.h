@@ -2,17 +2,19 @@
 #define MATERIAL_H
 
 #include <glad/glad.h>
+#include <list>
 #include "Texture.h"
 
 namespace cgl {
 	class Material {
 		private:
-			Texture diffuseMap;
-			Texture specularMap;
+			std::list<Texture> diffuseMaps;
+			std::list<Texture> specularMaps;
 			float shininess;
 		public:
-			Material(const Texture& diffuse, const Texture& specular, float shine);
-			void bind() const;
+			Material(const std::list<Texture>& diffuses, const std::list<Texture>& speculars, float shine);
+			std::list<Texture> getDiffuseMaps() const;
+			std::list<Texture> getSpecularMaps() const;
 			float getShininess() const;
 	};
 }

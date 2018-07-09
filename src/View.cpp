@@ -136,6 +136,7 @@ void cgl::View::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		shader->setUniform("backgroundColor", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 		glDrawElements(GL_TRIANGLES, (vert.size() - 2) * 3, GL_UNSIGNED_INT, 0);
 		shader->finish();
+		glBindVertexArray(0);
 		for (std::list<View*>::iterator it2 = subviews.begin(); it2 != subviews.end(); it2++) {
 			View* view = *it2;
 			view->translate(bounds.getX() - offsetPosition.getX(), bounds.getY() - offsetPosition.getY());

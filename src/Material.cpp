@@ -1,16 +1,14 @@
 #include "Material.h"
 
-cgl::Material::Material(const Texture& diffuse, const Texture& specular, float shine) {
-	diffuseMap = diffuse;
-	specularMap = specular;
-	shininess = shine;
+cgl::Material::Material(const std::list<Texture>& diffuses, const std::list<Texture>& speculars, float shine) : diffuseMaps(diffueses), specularMaps(speculars), shininess(shine) {
 }
 
-void cgl::Material::bind() const {
-	glActiveTexture(GL_TEXTURE0);
-	diffuseMap.bind();
-	glActiveTexture(GL_TEXTURE1);
-	specularMap.bind();
+std::list<cgl::Texture> cgl::Material::getDiffuseMaps() const {
+	return diffuseMaps;
+}
+
+std::list<cgl::Texture> cgl::Material::getSpecularMaps() const {
+	return specularMaps;
 }
 
 float cgl::Material::getShininess() const {
