@@ -3,10 +3,11 @@
 
 #include "Application.h"
 #include "TestWindow.h"
+#include "WorldTestWindow.h"
 
 class TestApplication : public cgl::Application {
 	private:
-		TestWindow* window;
+		cgl::Window* window;
 	public:
 		virtual ~TestApplication();
 	protected:

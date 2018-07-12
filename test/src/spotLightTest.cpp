@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <list>
 #include "../src/Shader.h"
 #include "../src/Texture.h"
 #include "../src/Camera.h"
@@ -44,8 +45,12 @@ int main() {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	cgl::Shader shader("res/glsl/spotLightTestVertexShader.glsl", "res/glsl/spotLightTestFragmentShader.glsl");
 	cgl::Texture diffuse("res/img/container2.png");
+	std::list<cgl::Texture> diffuseMaps;
+	diffuseMaps.push_back(diffuse);
 	cgl::Texture specular("res/img/container2_specular.png");
-	cgl::Material material(diffuse, specular, 32.0f);
+	std::list<cgl::Texture> specularMaps;
+	specularMaps.push_back(specular);
+	cgl::Material material(diffuseMaps, specularMaps, 32.0f);
 	cgl::SpotLight spotLight;
 	cgl::Cube cube;
 	while (!glfwWindowShouldClose(window)) {
@@ -68,6 +73,7 @@ int main() {
 		shader.setUniform("light", spotLight);
 		cube.bindVAO();
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		shader.finish();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();    

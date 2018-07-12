@@ -1,9 +1,7 @@
 #include "Actor.h"
 
-cgl::Actor::Actor() {
-	Assimp::Importer importer;
-	const aiScene *scene = importer.ReadFile("", aiProcess_Triangulate | aiProcess_FlipUVs);
-}
+cgl::Actor::Actor(const std::string& path) : model(path) {}
 
-void cgl::Actor::draw(const glm::mat4& parentModel, const Polygon& p) {
+void cgl::Actor::draw(Shader& shader) {
+	model.draw(shader);
 }

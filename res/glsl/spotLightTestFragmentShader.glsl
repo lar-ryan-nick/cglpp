@@ -1,7 +1,9 @@
-#version 330 core
+#version 400 core
 struct Material {
-	sampler2D diffuseMap;
-	sampler2D specularMap;
+	sampler2D diffuseMaps[8];
+	uint numDiffuse;
+	sampler2D specularMaps[8];
+	uint numSpecular;
 	float shininess;
 };
 
@@ -36,17 +38,26 @@ void main() {
 	float theta = dot(lightDir, normalize(-light.direction));
 	float distance = length(difference);
 	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
-	vec3 ambient = attenuation * light.color * light.ambientStrength * vec3(texture(material.diffuseMap, TexCoord));
+	vec3 ambient;
+	for (uint i = 0u; i < material.numDiffuse; i++) {
+		ambient += attenuation * light.color * light.ambientStrength * vec3(texture(material.diffuseMaps[i], TexCoord));
+	}
 	if (theta > light.outerCutOff) {
 		float epsilon   = light.cutOff - light.outerCutOff;
 		float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
 		vec3 norm = normalize(normalVec);
 		float diff = max(dot(norm, lightDir), 0.0);
-		vec3 diffuse = intensity * attenuation * light.color * light.diffuseStrength * diff * vec3(texture(material.diffuseMap, TexCoord));
+		vec3 diffuse;
+		for (uint i = 0u; i < material.numDiffuse; i++) {
+			diffuse += intensity * attenuation * light.color * light.diffuseStrength * diff * vec3(texture(material.diffuseMaps[i], TexCoord));
+		}
 		vec3 viewDir = normalize(viewPos - fragmentPosition);
 		vec3 reflectDir = reflect(-lightDir, norm);
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-		vec3 specular = intensity * attenuation * light.color * light.specularStrength * spec * vec3(texture(material.specularMap, TexCoord));
+		vec3 specular;
+		for (uint i = 0u; i < material.numSpecular; i++) {
+			specular += intensity * attenuation * light.color * light.specularStrength * spec * vec3(texture(material.specularMaps[i], TexCoord));
+		}
 		FragColor = vec4(ambient + diffuse + specular, 1.0);
 	} else {
 		FragColor = vec4(ambient, 1.0);

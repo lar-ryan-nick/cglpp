@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-cgl::Mesh::Mesh(const std::list<Position>& p, const std::list<glm::vec3>& n, const std::list<Position>& tc, const std::list<unsigned int>& i, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), materials(m) {
+cgl::Mesh::Mesh(const std::list<Position>& p, const std::list<glm::vec3>& n, const std::list<Position>& tc, const std::list<unsigned int>& i, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), material(m) {
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(3, vbo);
 	glGenBuffers(1, &ebo);
@@ -34,31 +34,10 @@ cgl::Mesh::~Mesh() {
 }
 
 void cgl::Mesh::draw(Shader& shader) {
-	// set textures
-	unsigned int i = 0;
-	std::list<Texture> textureMaps = material.getDiffuseMaps();
-	for (std::list<Texture>::iterator it = textureMaps.begin(); it != textureMaps.end(); it++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		std::stringstream ss;
-		ss << "material.diffuseMap[" << i << ']';
-		shader.setUniform(ss.str(), i);
-		it->bind();
-		i++;
-	}
-	shader.setUniform("material.numDiffuse", textureMaps.size());
-	textureMaps = material.getSpecularMaps();
-	for (std::list<Texture>::iterator it = textureMaps.begin(); it != textureMaps.end(); it++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		std::stringstream ss;
-		ss << "material.specularMap[" << i << ']';
-		shader.setUniform(ss.str(), i);
-		it->bind();
-		i++;
-	}
-	shader.setUniform("material.numSpecular", textureMaps.size());
+	shader.setUniform("material", material);
 	// draw mesh
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, indicies.size(), GL_UNSIGNED_INT, 0);
 	// set back to defaults
 	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);

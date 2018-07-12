@@ -144,10 +144,30 @@ void cgl::Shader::setUniform(const std::string& name, unsigned int count, bool t
 }
 
 void cgl::Shader::setUniform(const std::string& name, const Material& material) {
-	setUniform(name + ".diffuseMap", 0);
-	setUniform(name + ".specularMap", 1);
+	unsigned int i = 0;
+	std::list<Texture> textureMaps = material.getDiffuseMaps();
+	for (std::list<Texture>::iterator it = textureMaps.begin(); it != textureMaps.end(); it++) {
+		std::stringstream ss;
+		ss << name << ".diffuseMaps[" << i << ']';
+		setUniform(ss.str(), i);
+		glActiveTexture(GL_TEXTURE0 + i);
+		it->bind();
+		i++;
+	}
+	setUniform(name + ".numDiffuse", i);
+	unsigned int j = 0;
+	textureMaps = material.getSpecularMaps();
+	for (std::list<Texture>::iterator it = textureMaps.begin(); it != textureMaps.end(); it++) {
+		std::stringstream ss;
+		ss << name << ".specularMaps[" << j << ']';
+		setUniform(ss.str(), i);
+		glActiveTexture(GL_TEXTURE0 + i);
+		it->bind();
+		i++;
+		j++;
+	}
+	setUniform(name + ".numSpecular", j);
 	setUniform(name + ".shininess", material.getShininess());
-	material.bind();
 }
 
 void cgl::Shader::setUniform(const std::string& name, const Light& light) {

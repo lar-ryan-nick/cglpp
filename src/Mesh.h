@@ -6,7 +6,6 @@
 #include <list>
 #include <vector>
 #include <string>
-#include <sstream>
 #include "Position.h"
 #include "Rotation.h"
 #include "Material.h"

@@ -3,6 +3,8 @@
 
 #include <glad/glad.h>
 #include <string>
+#include <list>
+#include <sstream>
 #include <fstream>
 #include <iostream>
 #include "Material.h"

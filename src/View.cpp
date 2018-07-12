@@ -5,7 +5,7 @@ const unsigned int cgl::View::MAX_VERTICIES = 50;
 
 cgl::View::View(float x, float y, float width, float height) : bounds(x, y, width, height), backgroundColor(0.0f, 0.0f, 0.0f, 0.0f), rotation(0.0f), clipSubviews(false), clipToParent(false), isScrollable(false) {
 	if (viewShader == NULL) {
-		viewShader = new Shader("res/glsl/viewVertexShader.glsl", "res/glsl/viewFragmentShader.glsl");
+		viewShader = new Shader("res/glsl/ViewVertexShader.glsl", "res/glsl/ViewFragmentShader.glsl");
 	}
 	shader = viewShader;
 	unsigned int indicies[(MAX_VERTICIES - 2) * 3];
@@ -17,6 +17,8 @@ cgl::View::View(float x, float y, float width, float height) : bounds(x, y, widt
 	glGenBuffers(2, vbo);
 	glGenBuffers(1, &ebo);
 	glGenVertexArrays(1, &vao);
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);

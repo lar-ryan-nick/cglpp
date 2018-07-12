@@ -1,7 +1,7 @@
 #include "Rotation.h"
 
-cgl::Rotation::Rotation(float x = 0.0f, float y = 0.0f, float z = 0.0f) : VectorContainer(x, y, z) {}
+cgl::Rotation::Rotation(float x, float y, float z) : VectorContainer(x, y, z) {}
 
-void cgl::Rotation::rotate(float x, float y = 0.0f, float z = 0.0f) {
+void cgl::Rotation::rotate(float x, float y, float z) {
 	*this += glm::vec3(x, y, z);
 }
