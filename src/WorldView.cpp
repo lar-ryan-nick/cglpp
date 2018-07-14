@@ -25,6 +25,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& p) {
 	cgl::SpotLight spotLight;
 	spotLight.setPosition(camera.getPosition());
 	spotLight.setDirection(camera.getDirection());
+	std::cout << Position(projection * view * model * glm::vec4(0.0f, 12.0f, 0.0f, 1.0f)) << std::endl;
 	worldViewShader->use();
 	worldViewShader->setUniform("model", 1, false, glm::value_ptr(model));
 	worldViewShader->setUniform("view", 1, false, glm::value_ptr(view));

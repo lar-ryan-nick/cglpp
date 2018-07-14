@@ -13,7 +13,6 @@ cgl::Model::Model(const std::string& path) {
 	std::string directory = path.substr(0, path.find_last_of("/") + 1);
 	// process ASSIMP's root node recursively
 	processNode(scene->mRootNode, scene, directory);
-	std::cout << meshes.size() << std::endl;
 }
 
 cgl::Model::~Model() {
