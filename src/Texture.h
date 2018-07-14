@@ -9,6 +9,8 @@
 namespace cgl {
 	class Texture {
 		private:
+			static Texture whiteTexture;
+			static Texture blackTexture;
 			unsigned int id;
 			static std::unordered_map<std::string, unsigned int> loadedTextures;
 			void init();
@@ -17,6 +19,8 @@ namespace cgl {
 			Texture(const std::string& textureSource);
 			void setTexture(const std::string& textureSource);
 			void bind() const;
+			static Texture getBlackTexture();
+			static Texture getWhiteTexture();
 	};
 }
 

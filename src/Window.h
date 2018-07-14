@@ -16,7 +16,6 @@
 namespace cgl {
 	class Window {
 		private:
-			GLFWwindow* window;
 			Color backgroundColor;
 			View* view;
 			const static float SCROLL_SCALE;
@@ -26,7 +25,8 @@ namespace cgl {
 		public:
 			Window(const std::string& windowName = "Application", int w = 1280, int h = 720, float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f);
 			virtual ~Window();
-			void processInput();
+			// remove virtual on input later
+			virtual void processInput();
 			virtual void render();
 			Size getSize() const;
 			View& getView();
@@ -36,6 +36,8 @@ namespace cgl {
 			bool shouldClose();
 			void close();
 		protected:
+			// make private later
+			GLFWwindow* window;
 			//virtual bool onScroll(double xOffset, double yOffset);
 	};
 }

@@ -3,6 +3,8 @@
 #include "Texture.h"
 
 std::unordered_map<std::string, unsigned int> cgl::Texture::loadedTextures;
+cgl::Texture cgl::Texture::whiteTexture;
+cgl::Texture cgl::Texture::blackTexture;
 
 cgl::Texture::Texture() : id(0) {}
 
@@ -13,7 +15,6 @@ cgl::Texture::Texture(const std::string& filename) : id(0) {
 void cgl::Texture::setTexture(const std::string& filename) {
 	std::unordered_map<std::string, unsigned int>::iterator it = loadedTextures.find(filename);
 	if (it != loadedTextures.end()) {
-		std::cout << "Fuck" << std::endl;
 		id = it->second;
 		return;
 	}
@@ -29,7 +30,7 @@ void cgl::Texture::setTexture(const std::string& filename) {
 	} else {
 		imageType = GL_RGBA;
 	}
-	if (data) {
+	if (data != NULL) {
 		glGenTextures(1, &id);
 		glBindTexture(GL_TEXTURE_2D, id);
 		// set the texture wrapping/filtering options (on the currently bound texture object)
@@ -41,13 +42,27 @@ void cgl::Texture::setTexture(const std::string& filename) {
 		glGenerateMipmap(GL_TEXTURE_2D);
 		loadedTextures.insert(std::pair<std::string, unsigned int>(filename, id));
 	} else {
-		setTexture("res/img/white.jpg");
 		std::cerr << "Failed to load texture at path: " << filename << std::endl;
 		std::cerr << "Loaded a white texture instead" << std::endl;
+		setTexture("res/img/white.jpg");
 	}
 	stbi_image_free(data);
 }
 
 void cgl::Texture::bind() const {
 	glBindTexture(GL_TEXTURE_2D, id);
+}
+
+cgl::Texture cgl::Texture::getWhiteTexture() {
+	if (whiteTexture.id == 0) {
+		whiteTexture.setTexture("res/img/white.jpg");
+	}
+	return whiteTexture;
+}
+
+cgl::Texture cgl::Texture::getBlackTexture() {
+	if (blackTexture.id == 0) {
+		blackTexture.setTexture("res/img/black.png");
+	}
+	return blackTexture;
 }

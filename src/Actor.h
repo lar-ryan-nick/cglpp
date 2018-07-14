@@ -15,6 +15,7 @@ namespace cgl {
 			Model model;
 		public:
 			Actor(const std::string& path);
+			virtual ~Actor();
 			virtual void draw(Shader& shader);
 	};
 }

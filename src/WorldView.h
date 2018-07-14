@@ -22,6 +22,8 @@ namespace cgl {
 			WorldView(float x, float y, float width, float height);
 			void addActor(Actor* a);
 			virtual void draw(const glm::mat4& parentModel, const Polygon& p);
+			Camera getCamera();
+			void setCamera(const Camera& c);
 	};
 }
 

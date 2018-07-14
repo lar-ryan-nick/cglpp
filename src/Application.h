@@ -11,7 +11,7 @@ namespace cgl {
 	class Application {
 		private:
 			std::list<Window*> windows;
-			//static void errorCallback(int error, const char* description);
+			static void errorCallback(int error, const char* description);
 		public:
 			Application();
 			virtual ~Application();

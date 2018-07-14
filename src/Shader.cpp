@@ -144,29 +144,44 @@ void cgl::Shader::setUniform(const std::string& name, unsigned int count, bool t
 }
 
 void cgl::Shader::setUniform(const std::string& name, const Material& material) {
-	unsigned int i = 0;
-	std::list<Texture> textureMaps = material.getDiffuseMaps();
-	for (std::list<Texture>::iterator it = textureMaps.begin(); it != textureMaps.end(); it++) {
+	int i = 0;
+	std::list<Texture> diffuseMaps = material.getDiffuseMaps();
+	for (std::list<Texture>::iterator it = diffuseMaps.begin(); it != diffuseMaps.end(); it++) {
 		std::stringstream ss;
-		ss << name << ".diffuseMaps[" << i << ']';
-		setUniform(ss.str(), i);
+		ss << name << ".diffuseMap" << i;
 		glActiveTexture(GL_TEXTURE0 + i);
+		setUniform(ss.str(), i);
 		it->bind();
 		i++;
 	}
-	setUniform(name + ".numDiffuse", i);
-	unsigned int j = 0;
-	textureMaps = material.getSpecularMaps();
-	for (std::list<Texture>::iterator it = textureMaps.begin(); it != textureMaps.end(); it++) {
+	while (i < 8) {
 		std::stringstream ss;
-		ss << name << ".specularMaps[" << j << ']';
-		setUniform(ss.str(), i);
+		ss << name << ".diffuseMap" << i;
 		glActiveTexture(GL_TEXTURE0 + i);
+		setUniform(ss.str(), i);
+		Texture::getBlackTexture().bind();
+		i++;
+	}
+	int j = 0;
+	std::list<Texture> specularMaps = material.getSpecularMaps();
+	for (std::list<Texture>::iterator it = specularMaps.begin(); it != specularMaps.end(); it++) {
+		std::stringstream ss;
+		ss << name << ".specularMap" << j;
+		glActiveTexture(GL_TEXTURE0 + i);
+		setUniform(ss.str(), i);
 		it->bind();
 		i++;
 		j++;
 	}
-	setUniform(name + ".numSpecular", j);
+	while (j < 8) {
+		std::stringstream ss;
+		ss << name << ".specularMap" << j;
+		glActiveTexture(GL_TEXTURE0 + i);
+		setUniform(ss.str(), i);
+		Texture::getBlackTexture().bind();
+		i++;
+		j++;
+	}
 	setUniform(name + ".shininess", material.getShininess());
 }
 

@@ -13,11 +13,19 @@ cgl::Model::Model(const std::string& path) {
 	std::string directory = path.substr(0, path.find_last_of("/") + 1);
 	// process ASSIMP's root node recursively
 	processNode(scene->mRootNode, scene, directory);
+	std::cout << meshes.size() << std::endl;
+}
+
+cgl::Model::~Model() {
+	for (std::list<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); it++) {
+		delete *it;
+	}
 }
 
 void cgl::Model::draw(Shader& shader) {
-	for (std::list<Mesh>::iterator it = meshes.begin(); it != meshes.end(); it++) {
-		it->draw(shader);
+	for (std::list<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); it++) {
+		Mesh* m = *it;
+		m->draw(shader);
 	}
 }
 
@@ -49,7 +57,7 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 		textureCoordinates.push_back(textureCoordinate);
 	}
 	std::list<unsigned int> indicies;
-	// now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
+	// now wak through each of the mesh's faces (a face is a triangle) and retrieve the corresponding vertex indices.
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
 		aiFace face = mesh->mFaces[i];
 		for (unsigned int j = 0; j < face.mNumIndices; j++) {
@@ -62,7 +70,7 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 	float shininess = 0;
 	m->Get(AI_MATKEY_SHININESS, shininess);
 	Material material(diffuseMaps, specularMaps, shininess);
-	meshes.push_back(Mesh(positions, normals, textureCoordinates, indicies, material));
+	meshes.push_back(new Mesh(positions, normals, textureCoordinates, indicies, material));
 }
 
 std::list<cgl::Texture> cgl::Model::loadMaterialTextures(aiMaterial* material, aiTextureType type, const std::string& directory) {
@@ -70,7 +78,6 @@ std::list<cgl::Texture> cgl::Model::loadMaterialTextures(aiMaterial* material, a
 	for (unsigned int i = 0; i < material->GetTextureCount(type); i++) {
 		aiString str;
 		material->GetTexture(type, i, &str);
-		std::cout << type << str.C_Str() << std::endl;
 		textures.push_back(Texture(directory + str.data));
 	}
 	return textures;

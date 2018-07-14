@@ -22,6 +22,8 @@ cgl::Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
 int main() {
 	if (!glfwInit()) {
 		// Initialization failed
+		std::cerr << "Failed to initialize GLFW" << std::endl;
+		return -1;
 	}
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -31,6 +33,7 @@ int main() {
 	if (window == NULL) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
+		return -1;
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);

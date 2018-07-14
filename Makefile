@@ -14,7 +14,7 @@ CC = g++
 LINKER = g++
 CFLAGS = -c -g -Wall -Iinclude -std=c++11 -o 
 CLEARER = rm -rf
-LFLAGS = -Llib -lglfw -lglad -lpthread -ldl -o 
+LFLAGS = -Llib -lglfw -lglad -lpthread -ldl -lassimp -o 
 MDFLAGS = -p
 SRCDIR = src/
 BUILDDIR = build/

@@ -45,7 +45,7 @@ int main() {
 	cgl::Shader shader("res/glsl/directionalLightTestVertexShader.glsl", "res/glsl/directionalLightTestFragmentShader.glsl");
 	cgl::Texture diffuse("res/img/container2.png");
 	cgl::Texture specular("res/img/container2_specular.png");
-	cgl::Material material(diffuse, specular, 32.0f);
+	cgl::Material material(std::list<cgl::Texture>(1, diffuse), std::list<cgl::Texture>(1, specular), 32.0f);
 	cgl::DirectionalLight directionalLight(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.3f, 0.8f, 1.0f);
 	cgl::Cube cube;
 	while (!glfwWindowShouldClose(window)) {
