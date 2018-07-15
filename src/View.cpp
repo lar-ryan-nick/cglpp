@@ -17,8 +17,6 @@ cgl::View::View(float x, float y, float width, float height) : bounds(x, y, widt
 	glGenBuffers(2, vbo);
 	glGenBuffers(1, &ebo);
 	glGenVertexArrays(1, &vao);
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
@@ -242,4 +240,11 @@ cgl::Position cgl::View::getOffsetPosition() const {
 
 void cgl::View::setOffsetPosition(const Position& offset) {
 	offsetPosition = offset;
+}
+
+void cgl::View::onMouseMove(float xOffset, float yOffset) {
+	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
+		View* subview = *it;
+		subview->onMouseMove(xOffset, yOffset);
+	}
 }

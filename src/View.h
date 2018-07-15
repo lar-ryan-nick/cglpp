@@ -56,6 +56,7 @@ namespace cgl {
 			Position getOffsetPosition() const;
 			glm::mat4 getTransformationMatrix() const;
 			glm::mat4 getInverseTransformationMatrix() const;
+			virtual void onMouseMove(float xOffset, float yOffset);
 		protected:
 			void setOffsetPosition(const Position& offset);
 			virtual bool onScroll(double xOffset, double yOffset);

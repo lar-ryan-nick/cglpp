@@ -22,6 +22,9 @@ namespace cgl {
 			static void framebufferSizeCallback(GLFWwindow* window, int w, int h);
 			static void scrollCallback(GLFWwindow* w, double xOffset, double yOffset);
 			static void mouseCallback(GLFWwindow* window, double xpos, double ypos);
+			static bool firstCall;
+			static float lastX;
+			static float lastY;
 		public:
 			Window(const std::string& windowName = "Application", int w = 1280, int h = 720, float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f);
 			virtual ~Window();

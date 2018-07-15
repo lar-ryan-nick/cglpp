@@ -3,7 +3,7 @@
 cgl::Model::Model(const std::string& path) {
 	// read file via ASSIMP
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 	// check for errors
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cerr << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
@@ -61,6 +61,9 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 		aiFace face = mesh->mFaces[i];
 		for (unsigned int j = 0; j < face.mNumIndices; j++) {
 			indicies.push_back(face.mIndices[j]);
+			if (j >= 3) {
+				std::cout << "Woah" << std::endl;
+			}
 		}
 	}
 	aiMaterial* m = scene->mMaterials[mesh->mMaterialIndex];

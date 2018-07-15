@@ -1,6 +1,8 @@
 #include "WorldView.h"
 
 cgl::Shader* cgl::WorldView::worldViewShader = NULL;
+float cgl::WorldView::pitch = 0.0f;
+float cgl::WorldView::yaw = 90.0f;
 
 cgl::WorldView::WorldView(float x, float y, float width, float height) : View(x, y, width, height), camera(glm::vec3(0, 0, -3)) {
 	if (worldViewShader == NULL) {
@@ -25,7 +27,8 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& p) {
 	cgl::SpotLight spotLight;
 	spotLight.setPosition(camera.getPosition());
 	spotLight.setDirection(camera.getDirection());
-	std::cout << Position(projection * view * model * glm::vec4(0.0f, 12.0f, 0.0f, 1.0f)) << std::endl;
+	glEnable(GL_DEPTH_TEST);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	worldViewShader->use();
 	worldViewShader->setUniform("model", 1, false, glm::value_ptr(model));
 	worldViewShader->setUniform("view", 1, false, glm::value_ptr(view));
@@ -37,6 +40,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& p) {
 		actor->draw(*worldViewShader);
 	}
 	worldViewShader->finish();
+	glDisable(GL_DEPTH_TEST);
 }
 
 cgl::Camera cgl::WorldView::getCamera() {
@@ -45,4 +49,21 @@ cgl::Camera cgl::WorldView::getCamera() {
 
 void cgl::WorldView::setCamera(const Camera& c) {
 	camera = c;
+}
+
+void cgl::WorldView::onMouseMove(float xOffset, float yOffset) {
+	float sensitivity = 0.15f;
+	xOffset *= sensitivity;
+	yOffset *= sensitivity;
+	glm::vec3 direction = camera.getDirection();
+	yaw += xOffset;
+	if (yaw > 360.0f) {
+		yaw -= 360.0f;
+	}
+	pitch += yOffset;
+	if(pitch > 89.0f)
+		pitch =  89.0f;
+	if(pitch < -89.0f)
+		pitch = -89.0f;
+	camera.setRotation(pitch, yaw);
 }

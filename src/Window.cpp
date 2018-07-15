@@ -1,6 +1,9 @@
 #include "Window.h"
 
 const float cgl::Window::SCROLL_SCALE = 5.0f;
+bool cgl::Window::firstCall = true;
+float cgl::Window::lastX;
+float cgl::Window::lastY;
 
 cgl::Window::Window(const std::string& windowName, int w, int h, float r, float g, float b, float a) : backgroundColor(r, g, b, a) {
 	window = glfwCreateWindow(w, h, windowName.c_str(), NULL, NULL);
@@ -16,8 +19,8 @@ cgl::Window::Window(const std::string& windowName, int w, int h, float r, float 
 	glfwSetWindowUserPointer(window, view);
 	glfwSetScrollCallback(window, scrollCallback);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	//glfwSetCursorPosCallback(window, &mouseCallback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, &mouseCallback);
 }
 
 cgl::Window::~Window() {
@@ -90,15 +93,16 @@ void cgl::Window::scrollCallback(GLFWwindow* window, double xOffset, double yOff
 }
 
 void cgl::Window::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
-	static bool firstCall = true;
-	static float lastX = xpos;
-	static float lastY = ypos;
+	View* view = static_cast<View*>(glfwGetWindowUserPointer(window));
 	if (!firstCall) {
 		float xoffset = xpos - lastX;
 		float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
 		lastX = xpos;
 		lastY = ypos;
+		view->onMouseMove(xoffset, yoffset);
 	} else {
 		firstCall = false;
+		lastX = xpos;
+		lastY = ypos;
 	}
 }

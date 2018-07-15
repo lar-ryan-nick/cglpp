@@ -18,10 +18,13 @@ namespace cgl {
 			static Shader* worldViewShader;
 			std::list<Actor*> actors;
 			Camera camera;
+			static float pitch;
+			static float yaw;
 		public:
 			WorldView(float x, float y, float width, float height);
 			void addActor(Actor* a);
 			virtual void draw(const glm::mat4& parentModel, const Polygon& p);
+			virtual void onMouseMove(float xOffset, float yOffset);
 			Camera getCamera();
 			void setCamera(const Camera& c);
 	};
