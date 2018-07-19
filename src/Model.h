@@ -9,6 +9,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Position.h"
+#include "Polygon.h"
 #include "Texture.h"
 
 namespace cgl {
@@ -21,7 +22,7 @@ namespace cgl {
 		public:
 			Model(const std::string& path);
 			~Model();
-			void draw(Shader& shader);
+			void draw(Shader& shader, const glm::mat4 mvp, const Polygon& clippingRegion);
 	};
 }
 

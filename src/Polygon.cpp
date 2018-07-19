@@ -161,7 +161,7 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 		while (first || current != intersectionPoints.front()) {
 			first = false;
 			bool option1 = current->next2 != NULL; // is an intersection point
-			bool option2 = p.contains(current->vertex) && contains(current->vertex);
+			bool option2 = p.contains(static_cast<glm::vec2>(current->vertex)) && contains(static_cast<glm::vec2>(current->vertex));
 			if (option1 || option2) {
 				mappedPolygon.addVertex(current->vertex);
 				adding = true;
@@ -174,7 +174,7 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 			}
 			if (current->next2 != NULL) {
 				option1 = current->next2->next2 != NULL;
-				option2 = p.contains(current->next2->vertex) && contains(current->next2->vertex);
+				option2 = p.contains(static_cast<glm::vec2>(current->next2->vertex)) && contains(static_cast<glm::vec2>(current->next2->vertex));
 				if (option1 || option2) {
 					current = current->next2;
 				} else {

@@ -29,15 +29,18 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& p) {
 	spotLight.setDirection(camera.getDirection());
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_DEPTH_BUFFER_BIT);
+	Rectangle bounds = getBounds();
+	Polygon clipArea;
+	clipArea.addVertex(glm::vec2(bounds.getX(), bounds.getY()));
+	clipArea.addVertex(glm::vec2(bounds.getX() + bounds.getWidth(), bounds.getY()));
+	clipArea.addVertex(glm::vec2(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight()));
+	clipArea.addVertex(glm::vec2(bounds.getX(), bounds.getY() + bounds.getHeight()));
 	worldViewShader->use();
-	worldViewShader->setUniform("model", 1, false, glm::value_ptr(model));
-	worldViewShader->setUniform("view", 1, false, glm::value_ptr(view));
-	worldViewShader->setUniform("projection", 1, false, glm::value_ptr(projection));
 	worldViewShader->setUniform("viewPos", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 	worldViewShader->setUniform("light", spotLight);
 	for (std::list<Actor*>::iterator it = actors.begin(); it != actors.end(); it++) {
 		Actor* actor = *it;
-		actor->draw(*worldViewShader);
+		actor->draw(*worldViewShader, parentModel * view * projection, clipArea);
 	}
 	worldViewShader->finish();
 	glDisable(GL_DEPTH_TEST);

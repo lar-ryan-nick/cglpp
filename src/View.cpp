@@ -28,10 +28,13 @@ cgl::View::View(float x, float y, float width, float height) : bounds(x, y, widt
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * MAX_VERTICIES, NULL, GL_STREAM_DRAW);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
+	glBindVertexArray(0);
 }
 /* fix later
 View::View(const View& view) : vao(view.vao), backgroundColor(view.backgroundColor), rotation(view.rotation), translation(view.translation), scalar(view.scalar), subviews(view.subviews), clipSubviews(view.clipSubviews), clipToParent(view.clipToParent), isScrollable(view.isScrollable), offsetPosition(view.offsetPosition) {
 	viewShader = view.viewShader;
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, MAX_VERTICIES * sizeof(glm::vec3), NULL, GL_STREAM_DRAW);
 	for (int i = 0; i < 8; i++) {
 		verticies[i] = view.verticies[i];
 	}
@@ -85,6 +88,8 @@ void cgl::View::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	float verticies[8];
 	verticies[0] = verticies[6] = bounds.getX();
 	verticies[1] = verticies[3] = bounds.getY();
+	glBindVertexArray(0);
+	glActiveTexture(GL_TEXTURE0);
 	verticies[2] = verticies[4] = bounds.getX() + bounds.getWidth();
 	verticies[5] = verticies[7] = bounds.getY() + bounds.getHeight();
 	glm::mat4 model = getTransformationMatrix();

@@ -8,6 +8,7 @@
 #include <string>
 #include "Model.h"
 #include "Shader.h"
+#include "Polygon.h"
 
 namespace cgl {
 	class Actor {
@@ -16,7 +17,7 @@ namespace cgl {
 		public:
 			Actor(const std::string& path);
 			virtual ~Actor();
-			virtual void draw(Shader& shader);
+			virtual void draw(Shader& shader, const glm::mat4 mvp, const Polygon& clippingRegion);
 	};
 }
 

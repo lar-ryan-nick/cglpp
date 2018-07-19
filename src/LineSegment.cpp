@@ -43,6 +43,7 @@ bool cgl::LineSegment::intersects(const LineSegment& other, Position& point) {
 	if (i > 0 && i < 1 && j > 0 && j < 1) {
 		point.setX(point1.getX() + (point2.getX() - point1.getX()) * i);
 		point.setY(point1.getY() + (point2.getY() - point1.getY()) * i);
+		point.setZ(point1.getZ() + (point2.getZ() - point1.getZ()) * i);
 		return true;
 	}
 	return false;

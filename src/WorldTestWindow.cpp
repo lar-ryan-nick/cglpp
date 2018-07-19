@@ -2,10 +2,11 @@
 
 WorldTestWindow::WorldTestWindow()  {
 	cgl::Rectangle bounds = getView().getBounds();
-	worldView = new cgl::WorldView(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+	worldView = new cgl::WorldView(bounds.getWidth() / 4, bounds.getHeight() / 4, bounds.getWidth() / 2, bounds.getHeight() / 2);
 	actor = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
 	worldView->addActor(actor);
 	getView().addSubview(worldView);
+	getView().setBackgroundColor(cgl::Color(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 WorldTestWindow::~WorldTestWindow() {

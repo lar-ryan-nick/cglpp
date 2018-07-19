@@ -21,10 +21,10 @@ cgl::Model::~Model() {
 	}
 }
 
-void cgl::Model::draw(Shader& shader) {
+void cgl::Model::draw(Shader& shader, const glm::mat4 mvp, const Polygon& clippingRegion) {
 	for (std::list<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); it++) {
 		Mesh* m = *it;
-		m->draw(shader);
+		m->draw(shader, mvp, clippingRegion);
 	}
 }
 
@@ -43,9 +43,9 @@ void cgl::Model::processNode(aiNode* node, const aiScene* scene, const std::stri
 }
 
 void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory) {
-	std::list<Position> positions;
-	std::list<glm::vec3> normals;
-	std::list<Position> textureCoordinates;
+	std::vector<Position> positions;
+	std::vector<glm::vec3> normals;
+	std::vector<Position> textureCoordinates;
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		positions.push_back(Position(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
 		normals.push_back(glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
@@ -61,9 +61,6 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 		aiFace face = mesh->mFaces[i];
 		for (unsigned int j = 0; j < face.mNumIndices; j++) {
 			indicies.push_back(face.mIndices[j]);
-			if (j >= 3) {
-				std::cout << "Woah" << std::endl;
-			}
 		}
 	}
 	aiMaterial* m = scene->mMaterials[mesh->mMaterialIndex];

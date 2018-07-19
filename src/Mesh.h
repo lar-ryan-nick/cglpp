@@ -7,25 +7,28 @@
 #include <vector>
 #include <string>
 #include "Position.h"
+#include "Polygon.h"
 #include "Rotation.h"
 #include "Material.h"
 #include "Shader.h"
+#include "Camera.h"
 
 namespace cgl {
 	class Mesh {
 		private:
+			const static unsigned int MAX_VERTICIES;
 			unsigned int vbo[3];
 			unsigned int ebo;
 			unsigned int vao;
-			std::list<Position> positions;
-			std::list<glm::vec3> normals;
-			std::list<Position> textureCoordinates;
+			std::vector<Position> positions;
+			std::vector<glm::vec3> normals;
+			std::vector<Position> textureCoordinates;
 			std::list<unsigned int> indicies;
 			Material material;
 		public:
-			Mesh(const std::list<Position>& p, const std::list<glm::vec3>& n, const std::list<Position>& tc, const std::list<unsigned int>& i, const Material& m);
+			Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<Position>& tc, const std::list<unsigned int>& i, const Material& m);
 			~Mesh();
-			void draw(Shader& shader);
+			void draw(Shader& shader, const glm::mat4 mvp, const Polygon& clippingRegion);
 	};
 }
 
