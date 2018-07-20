@@ -224,7 +224,7 @@ cgl::VectorContainer::operator glm::vec4() const {
 }
 
 std::ostream& operator <<(std::ostream& out, const cgl::VectorContainer& vc) {
-	out << '<' << vc.getX() << ", " << vc.getY() << ", " << vc.getZ() << ", " << vc.getW() << '>' << std::endl;
+	out << '<' << vc.getX() << ", " << vc.getY() << ", " << vc.getZ() << ", " << vc.getW() << '>';
 	return out;
 }
 

@@ -21,7 +21,7 @@ cgl::Model::~Model() {
 	}
 }
 
-void cgl::Model::draw(Shader& shader, const glm::mat4 mvp, const Polygon& clippingRegion) {
+void cgl::Model::draw(Shader& shader, const glm::mat4& mvp, const Polygon& clippingRegion) {
 	for (std::list<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); it++) {
 		Mesh* m = *it;
 		m->draw(shader, mvp, clippingRegion);

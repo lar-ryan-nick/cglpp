@@ -17,7 +17,7 @@ namespace cgl {
 		public:
 			Actor(const std::string& path);
 			virtual ~Actor();
-			virtual void draw(Shader& shader, const glm::mat4 mvp, const Polygon& clippingRegion);
+			virtual void draw(Shader& shader, const glm::mat4& mvp, const Polygon& clippingRegion);
 	};
 }
 

@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <list>
+#include <cmath>
 #include <vector>
 #include <string>
 #include "Position.h"
@@ -28,7 +29,7 @@ namespace cgl {
 		public:
 			Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<Position>& tc, const std::list<unsigned int>& i, const Material& m);
 			~Mesh();
-			void draw(Shader& shader, const glm::mat4 mvp, const Polygon& clippingRegion);
+			void draw(Shader& shader, const glm::mat4& mvp, const Polygon& clippingRegion);
 	};
 }
 
