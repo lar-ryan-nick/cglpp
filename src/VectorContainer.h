@@ -61,18 +61,28 @@ namespace cgl {
 			VectorContainer operator/(float s) const;
 			VectorContainer& operator*=(float s);
 			VectorContainer& operator/=(float s);
+			VectorContainer& operator*=(const glm::mat2& m);
+			VectorContainer& operator*=(const glm::mat3& m);
+			VectorContainer& operator*=(const glm::mat4& m);
 			operator glm::vec2() const;
 			operator glm::vec3() const;
 			operator glm::vec4() const;
 	};
 }
 
-std::ostream& operator <<(std::ostream& out, const cgl::VectorContainer& position);
+cgl::VectorContainer operator*(const cgl::VectorContainer& vc, const glm::mat2& m);
+cgl::VectorContainer operator*(const glm::mat2& m, const cgl::VectorContainer& vc);
+cgl::VectorContainer operator*(const cgl::VectorContainer& vc, const glm::mat3& m);
+cgl::VectorContainer operator*(const glm::mat3& m, const cgl::VectorContainer& vc);
+cgl::VectorContainer operator*(const cgl::VectorContainer& vc, const glm::mat4& m);
+cgl::VectorContainer operator*(const glm::mat4& m, const cgl::VectorContainer& vc);
+
+std::ostream& operator<<(std::ostream& out, const cgl::VectorContainer& position);
 
 namespace std {
 	template<>
 	struct hash<cgl::VectorContainer> {
-		size_t operator()(const cgl::VectorContainer& p) const;
+		size_t operator()(const cgl::VectorContainer& vc) const;
 	};
 }
 

@@ -19,7 +19,6 @@ cgl::Window::Window(const std::string& windowName, int w, int h, float r, float 
 	glfwSetWindowUserPointer(window, view);
 	glfwSetScrollCallback(window, scrollCallback);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, &mouseCallback);
 }
 

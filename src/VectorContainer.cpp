@@ -211,6 +211,22 @@ cgl::VectorContainer& cgl::VectorContainer::operator/=(float s) {
 	vector /= s;
 	return *this;
 }
+
+cgl::VectorContainer& cgl::VectorContainer::operator*=(const glm::mat2& m) {
+	vector = glm::vec4(static_cast<glm::vec2>(vector) * m, vector.z, vector.w);
+	return *this;
+}
+
+cgl::VectorContainer& cgl::VectorContainer::operator*=(const glm::mat3& m) {
+	vector = glm::vec4(static_cast<glm::vec3>(vector) * m, vector.w);
+	return *this;
+}
+
+cgl::VectorContainer& cgl::VectorContainer::operator*=(const glm::mat4& m) {
+	vector = vector * m;
+	return *this;
+}
+
 cgl::VectorContainer::operator glm::vec2() const {
 	return glm::vec2(vector);
 }
@@ -223,7 +239,31 @@ cgl::VectorContainer::operator glm::vec4() const {
 	return vector;
 }
 
-std::ostream& operator <<(std::ostream& out, const cgl::VectorContainer& vc) {
+cgl::VectorContainer operator*(const cgl::VectorContainer& vc, const glm::mat2& m) {
+	return cgl::VectorContainer(static_cast<glm::vec2>(vc) * m, vc.getZ(), vc.getW());
+}
+
+cgl::VectorContainer operator*(const glm::mat2& m, const cgl::VectorContainer& vc) {
+	return cgl::VectorContainer(m * static_cast<glm::vec2>(vc), vc.getZ(), vc.getW());
+}
+
+cgl::VectorContainer operator*(const cgl::VectorContainer& vc, const glm::mat3& m) {
+	return cgl::VectorContainer(static_cast<glm::vec3>(vc) * m, vc.getW());
+}
+
+cgl::VectorContainer operator*(const glm::mat3& m, const cgl::VectorContainer& vc) {
+	return cgl::VectorContainer(m * static_cast<glm::vec3>(vc), vc.getW());
+}
+
+cgl::VectorContainer operator*(const cgl::VectorContainer& vc, const glm::mat4& m) {
+	return static_cast<glm::vec4>(vc) * m;
+}
+
+cgl::VectorContainer operator*(const glm::mat4& m, const cgl::VectorContainer& vc) {
+	return m * static_cast<glm::vec4>(vc);
+}
+
+std::ostream& operator<<(std::ostream& out, const cgl::VectorContainer& vc) {
 	out << '<' << vc.getX() << ", " << vc.getY() << ", " << vc.getZ() << ", " << vc.getW() << '>';
 	return out;
 }

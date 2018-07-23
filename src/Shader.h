@@ -41,7 +41,7 @@ namespace cgl {
 			void setUniform(const std::string& name, double value1, double value2, double value3);
 			void setUniform(const std::string& name, double value1, double value2, double value3, double value4);
 			*/
-			void setUniform(const std::string& name, unsigned int count, bool transpose, const float* value);
+			void setUniform(const std::string& name, const glm::mat4& m, bool transpose = false);
 			void setUniform(const std::string& name, const Material& material);
 			void setUniform(const std::string& name, const Light& light);
 			void setUniform(const std::string& name, const DirectionalLight& light);

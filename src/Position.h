@@ -17,4 +17,11 @@ namespace cgl {
 	};
 }
 
+namespace std {
+	template<>
+	struct hash<cgl::Position> {
+		size_t operator()(const cgl::Position& p) const;
+	};
+}
+
 #endif

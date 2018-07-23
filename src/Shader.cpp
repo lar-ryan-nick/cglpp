@@ -138,9 +138,9 @@ void cgl::Shader::setUniform(const std::string& name, double value1, double valu
 	glUniform4d(location, value1, value2, value3, value4);
 }
 */
-void cgl::Shader::setUniform(const std::string& name, unsigned int count, bool transpose, const float* value) {
-	int location  = glGetUniformLocation(id, name.c_str());
-	glUniformMatrix4fv(location, count, transpose, value);
+void cgl::Shader::setUniform(const std::string& name, const glm::mat4& m, bool transpose) {
+	int location = glGetUniformLocation(id, name.c_str());
+	glUniformMatrix4fv(location, 1, transpose, glm::value_ptr(m));
 }
 
 void cgl::Shader::setUniform(const std::string& name, const Material& material) {

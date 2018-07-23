@@ -13,9 +13,9 @@ bool cgl::Polygon::contains(const Position& p) const {
 		if (it2 == verticies.cend()) {
 			it2 = verticies.cbegin();
 		}
-		Position diff = *it2 - *it1;
-		glm::vec3 insideCross = glm::cross(static_cast<glm::vec3>(insidePoint - *it1), static_cast<glm::vec3>(diff));
-		glm::vec3 queryCross = glm::cross(static_cast<glm::vec3>(p - *it1), static_cast<glm::vec3>(diff));
+		glm::vec2 diff = *it2 - *it1;
+		glm::vec3 insideCross = glm::cross(glm::vec3(static_cast<glm::vec2>(insidePoint - *it1), 0.0f), glm::vec3(diff, 0.0f));
+		glm::vec3 queryCross = glm::cross(glm::vec3(static_cast<glm::vec2>(p - *it1), 0.0f), glm::vec3(diff, 0.0f));
 		if (insideCross.z * queryCross.z < 0) {
 			return false;
 		}
@@ -31,11 +31,12 @@ bool cgl::Polygon::contains(float x, float y) const {
 	return contains(Position(x, y));
 }
 
+// Weiler-Atherton Clipping Algorithm
 std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 	if (verticies.size() < 3 || p.verticies.size() < 3) {
 		return std::list<Polygon>();
 	}
-	std::list<VertexNode*> intersectionPoints;
+	std::unordered_map<Position, VertexNode*> intersectionPoints;
 	VertexNode* clippingHead = new VertexNode(p.verticies.front());
 	VertexNode* current = clippingHead;
 	for (std::list<Position>::const_iterator it1 = p.verticies.cbegin(); it1 != p.verticies.cend(); it1++) {
@@ -52,10 +53,10 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 			}
 			LineSegment edge(*it3, *it4);
 			Position intersectionPoint;
-			bool intersect = side.intersects(edge, intersectionPoint);
+			bool intersect = edge.intersects(side, intersectionPoint);
 			if (intersect) {
 				VertexNode* node = new VertexNode(intersectionPoint);
-				intersectionPoints.push_back(node);
+				intersectionPoints.insert(std::pair<Position, VertexNode*>(intersectionPoint, node));
 				LineSegment intersectionSegment(intersectionPoint, *it1);
 				bool added = false;
 				for (std::list<VertexNode*>::iterator it5 = points.begin(); it5 != points.end(); it5++) {
@@ -100,17 +101,10 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 			LineSegment side(*it3, *it4);
 			// purposely switched side and edge above so float inaccuracies would not cause issues
 			Position intersectionPoint;
-			bool intersect = side.intersects(edge, intersectionPoint);
+			bool intersect = edge.intersects(side, intersectionPoint);
 			if (intersect) {
-				VertexNode* node = NULL;
-				for (std::list<VertexNode*>::iterator it5 = intersectionPoints.begin(); it5 != intersectionPoints.end(); it5++) {
-					VertexNode* interPoint = *it5;
-					if (interPoint->vertex == intersectionPoint) {
-						node = interPoint;
-						break;
-					}
-				}
-				// node should never be NULL
+				// should always be found TODO: add check to find just in case
+				VertexNode* node = intersectionPoints.find(intersectionPoint)->second;
 				LineSegment intersectionSegment(intersectionPoint, *it1);
 				bool added = false;
 				for (std::list<VertexNode*>::iterator it5 = points.begin(); it5 != points.end(); it5++) {
@@ -155,10 +149,10 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 	int numIntersections = intersectionPoints.size();
 	std::list<Polygon> mappedPolygons;
 	if (numIntersections > 0) {
-		current = intersectionPoints.front();
+		current = intersectionPoints.begin()->second;
 		bool adding = false, first = true;
 		Polygon mappedPolygon;
-		while (first || current != intersectionPoints.front()) {
+		while (first || current != intersectionPoints.begin()->second) {
 			first = false;
 			bool option1 = current->next2 != NULL; // is an intersection point
 			bool option2 = p.contains(static_cast<glm::vec2>(current->vertex)) && contains(static_cast<glm::vec2>(current->vertex));
@@ -196,7 +190,7 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 		}
 		// cleanup
 		int intersectionDeleteCount = 0;
-		VertexNode* iterator = intersectionPoints.front();
+		VertexNode* iterator = intersectionPoints.begin()->second;
 		first = true;
 		while (intersectionDeleteCount < numIntersections - 1) {
 			current = iterator->next1;

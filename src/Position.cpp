@@ -21,3 +21,7 @@ void cgl::Position::translate(const glm::vec2& v) {
 void cgl::Position::translate(const glm::vec3& v) {
 	*this += v;
 }
+
+size_t std::hash<cgl::Position>::operator()(const cgl::Position& p) const {
+	return std::hash<cgl::VectorContainer>()(p);
+}
