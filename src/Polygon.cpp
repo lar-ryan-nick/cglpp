@@ -1,6 +1,6 @@
 #include "Polygon.h"
 
-cgl::Polygon::VertexNode::VertexNode(const Position& p, VertexNode* n1, VertexNode* n2) : vertex(p), next1(n1), next2(n2) {}
+cgl::Polygon::VertexNode::VertexNode(const Position& p, VertexNode* n1, VertexNode* n2, bool e) : vertex(p), next1(n1), next2(n2), exiting(e) {}
 
 bool cgl::Polygon::contains(const Position& p) const {
 	Position insidePoint;
@@ -36,9 +36,13 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 	if (verticies.size() < 3 || p.verticies.size() < 3) {
 		return std::list<Polygon>();
 	}
-	std::unordered_map<Position, VertexNode*> intersectionPoints;
+	std::list<VertexNode*> exitingIntersections;
 	VertexNode* clippingHead = new VertexNode(p.verticies.front());
 	VertexNode* current = clippingHead;
+	std::unordered_map<Position, std::list<VertexNode*> > intersections;
+	for (std::list<Position>::const_iterator it = verticies.cbegin(); it != verticies.cend(); it++) {
+		intersections.insert(std::pair<Position, std::list<VertexNode*> >(*it, std::list<VertexNode*>()));
+	}
 	for (std::list<Position>::const_iterator it1 = p.verticies.cbegin(); it1 != p.verticies.cend(); it1++) {
 		std::list<Position>::const_iterator it2 = std::next(it1);
 		if (it2 == p.verticies.cend()) {
@@ -56,7 +60,6 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 			bool intersect = edge.intersects(side, intersectionPoint);
 			if (intersect) {
 				VertexNode* node = new VertexNode(intersectionPoint);
-				intersectionPoints.insert(std::pair<Position, VertexNode*>(intersectionPoint, node));
 				LineSegment intersectionSegment(intersectionPoint, *it1);
 				bool added = false;
 				for (std::list<VertexNode*>::iterator it5 = points.begin(); it5 != points.end(); it5++) {
@@ -71,11 +74,35 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 				if (!added) {
 					points.push_back(node);
 				}
+				std::list<VertexNode*>& inters = intersections.find(*it3)->second;
+				LineSegment intersectSegment(intersectionPoint, *it3);
+				added = false;
+				for (std::list<VertexNode*>::iterator it5 = inters.begin(); it5 != inters.end(); it5++) {
+					VertexNode* n = *it5;
+					LineSegment other(n->vertex, *it3);
+					if (intersectSegment.getLength() < other.getLength()) {
+						inters.insert(it5, node);
+						added = true;
+						break;
+					}
+				}
+				if (!added) {
+					inters.push_back(node);
+				}
 			}
+		}
+		bool exitingPoly;
+		if (!points.empty()) {
+			exitingPoly = contains(*it1);
 		}
 		for (std::list<VertexNode*>::iterator it3 = points.begin(); it3 != points.end(); it3++) {
 			current->next1 = *it3;
 			current = current->next1;
+			current->exiting = exitingPoly;
+			if (current->exiting) {
+				exitingIntersections.push_back(current);
+			}
+			exitingPoly = !exitingPoly;
 		}
 		if (it2 != p.verticies.cbegin()) {
 			current->next1 = new VertexNode(*it2);
@@ -91,108 +118,49 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 		if (it2 == verticies.cend()) {
 			it2 = verticies.cbegin();
 		}
-		LineSegment edge(*it1, *it2);
-		std::list<VertexNode*> points;
-		for (std::list<Position>::const_iterator it3 = p.verticies.cbegin(); it3 != p.verticies.cend(); it3++) {
-			std::list<Position>::const_iterator it4 = std::next(it3);
-			if (it4 == p.verticies.cend()) {
-				it4 = p.verticies.cbegin();
-			}
-			LineSegment side(*it3, *it4);
-			// purposely switched side and edge above so float inaccuracies would not cause issues
-			Position intersectionPoint;
-			bool intersect = edge.intersects(side, intersectionPoint);
-			if (intersect) {
-				// should always be found TODO: add check to find just in case
-				VertexNode* node = intersectionPoints.find(intersectionPoint)->second;
-				LineSegment intersectionSegment(intersectionPoint, *it1);
-				bool added = false;
-				for (std::list<VertexNode*>::iterator it5 = points.begin(); it5 != points.end(); it5++) {
-					VertexNode* n = *it5;
-					LineSegment other(n->vertex, *it1);
-					if (intersectionSegment.getLength() < other.getLength()) {
-						points.insert(it5, node);
-						added = true;
-						break;
-					}
-				}
-				if (!added) {
-					points.push_back(node);
-				}
-			}
-		}
+		std::list<VertexNode*>& points = intersections.find(*it1)->second;
 		for (std::list<VertexNode*>::iterator it3 = points.begin(); it3 != points.end(); it3++) {
-			if (current->next1 == NULL) {
-				current->next1 = *it3;
-				current = current->next1;
-			} else {
-				current->next2 = *it3;
-				current = current->next2;
-			}
+			current->next2 = *it3;
+			current = current->next2;
 		}
-		if (it2 != verticies.cbegin()) {
-			if (current->next1 == NULL) {
-				current->next1 = new VertexNode(*it2);
-				current = current->next1;
-			} else {
-				current->next2 = new VertexNode(*it2);
-				current = current->next2;
-			}
+		if (it2 != verticies.begin()) {
+			current->next2 = new VertexNode(*it2);
+			current = current->next2;
 		} else {
-			if (current->next1 == NULL) {
-				current->next1 = clippingHead;
-			} else {
-				current->next2 = clippingHead;
-			}
+			current->next2 = clippingHead;
 		}
 	}
-	int numIntersections = intersectionPoints.size();
 	std::list<Polygon> mappedPolygons;
-	if (numIntersections > 0) {
-		current = intersectionPoints.begin()->second;
-		bool adding = false, first = true;
-		Polygon mappedPolygon;
-		while (first || current != intersectionPoints.begin()->second) {
-			first = false;
-			bool option1 = current->next2 != NULL; // is an intersection point
-			bool option2 = p.contains(static_cast<glm::vec2>(current->vertex)) && contains(static_cast<glm::vec2>(current->vertex));
-			if (option1 || option2) {
-				mappedPolygon.addVertex(current->vertex);
-				adding = true;
-			} else {
-				if (adding) {
-					adding = false;
-					mappedPolygons.push_back(mappedPolygon);
-					mappedPolygon = Polygon();
+	if (exitingIntersections.size() > 0) {
+		for (std::list<VertexNode*>::iterator it = exitingIntersections.begin(); it != exitingIntersections.end(); it++) {
+			VertexNode* start = *it;
+			if (start->exiting) {
+				Polygon mappedPolygon;
+				mappedPolygon.addVertex(start->vertex);
+				bool tracer = false;
+				VertexNode* current = start->next2;
+				while (current != start) {
+					mappedPolygon.addVertex(current->vertex);
+					// intersection point
+					if (current->next1 && current->next2) {
+						tracer = !tracer;
+						current->exiting = false;
+					}
+					if (tracer) {
+						current = current->next1;
+					}
+					else {
+						current = current->next2;
+					}
 				}
+				mappedPolygons.push_back(mappedPolygon);
 			}
-			if (current->next2 != NULL) {
-				option1 = current->next2->next2 != NULL;
-				option2 = p.contains(static_cast<glm::vec2>(current->next2->vertex)) && contains(static_cast<glm::vec2>(current->next2->vertex));
-				if (option1 || option2) {
-					current = current->next2;
-				} else {
-					current = current->next1;
-				}
-			} else {
-				current = current->next1;
-			}
-		}
-		if (adding) {
-			if (!mappedPolygons.empty()) { 
-				Polygon p = mappedPolygons.front();
-				mappedPolygons.erase(mappedPolygons.begin());
-				for (std::list<Position>::iterator it = p.verticies.begin(); it != p.verticies.end(); it++) {
-					mappedPolygon.addVertex(*it);
-				}
-			}
-			mappedPolygons.push_back(mappedPolygon);
 		}
 		// cleanup
 		int intersectionDeleteCount = 0;
-		VertexNode* iterator = intersectionPoints.begin()->second;
-		first = true;
-		while (intersectionDeleteCount < numIntersections - 1) {
+		VertexNode* iterator = exitingIntersections.front();
+		bool first = true;
+		while (intersectionDeleteCount < exitingIntersections.size() - 1) {
 			current = iterator->next1;
 			while (current->next2 == NULL) {
 				VertexNode* previous = current;
@@ -200,9 +168,9 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 				delete previous;
 			}
 			current = iterator->next2;
-			while (current->next2 == NULL) {
+			while (current->next1 == NULL) {
 				VertexNode* previous = current;
-				current = current->next1;
+				current = current->next2;
 				delete previous;
 			}
 			if (!first) {

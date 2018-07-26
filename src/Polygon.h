@@ -18,7 +18,8 @@ namespace cgl {
 				Position vertex;
 				VertexNode* next1;
 				VertexNode* next2;
-				VertexNode(const Position& p, VertexNode* n1 = NULL, VertexNode* n2 = NULL);
+				bool exiting;
+				VertexNode(const Position& p, VertexNode* n1 = NULL, VertexNode* n2 = NULL, bool e = false);
 			};
 			std::list<Position> verticies;
 		public:
