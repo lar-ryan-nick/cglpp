@@ -28,10 +28,11 @@ namespace cgl {
 			std::vector<Position> textureCoordinates;
 			std::list<unsigned int> indicies;
 			Material material;
+			void setupVAO(const std::vector<glm::vec3>& pos, const std::vector<glm::vec3>& norm, const std::vector<glm::vec2>& texCoord, const std::vector<unsigned int>& ind);
 		public:
 			Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<Position>& tc, const std::list<unsigned int>& i, const Material& m);
 			~Mesh();
-			void draw(Shader& shader, const glm::mat4& mvp, const Polygon& clippingRegion);
+			void draw(Shader& shader, const glm::mat4& parentModel);
 	};
 }
 

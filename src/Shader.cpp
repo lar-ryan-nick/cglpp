@@ -1,6 +1,7 @@
 #include "Shader.h"
 
-cgl::Shader::Shader(const std::string& vertexSourcePath, const std::string& fragmentSourcePath) {
+cgl::Shader::Shader(const std::string& vertexSourcePath, const std::string& fragmentSourcePath, const std::string& geometrySourcePath) {
+	id = glCreateProgram();
 	unsigned int vertexShader;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	char* vertexShaderSource = getFileContents(vertexSourcePath);
@@ -13,7 +14,26 @@ cgl::Shader::Shader(const std::string& vertexSourcePath, const std::string& frag
 	if (!success) {
 		char infoLog[512];
 		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << vertexSourcePath << '\n' << infoLog << std::endl;
+	}
+	glAttachShader(id, vertexShader);
+	glDeleteShader(vertexShader);
+	if (geometrySourcePath != "") {
+		unsigned int geometryShader;
+		geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+		char* geometryShaderSource = getFileContents(geometrySourcePath);
+		glShaderSource(geometryShader, 1, &geometryShaderSource, NULL);
+		delete[] geometryShaderSource;
+		geometryShaderSource = NULL;
+		glCompileShader(geometryShader);
+		glGetShaderiv(geometryShader, GL_COMPILE_STATUS, &success);
+		if (!success) {
+			char infoLog[512];
+			glGetShaderInfoLog(geometryShader, 512, NULL, infoLog);
+			std::cerr << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" << geometrySourcePath << '\n' << infoLog << std::endl;
+		}
+		glAttachShader(id, geometryShader);
+		glDeleteShader(geometryShader);
 	}
 	unsigned int fragmentShader;
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -26,14 +46,11 @@ cgl::Shader::Shader(const std::string& vertexSourcePath, const std::string& frag
 	if (!success) {
 		char infoLog[512];
 		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+		std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << fragmentSourcePath << '\n' << infoLog << std::endl;
 	}
-	id = glCreateProgram();
-	glAttachShader(id, vertexShader);
 	glAttachShader(id, fragmentShader);
-	glLinkProgram(id);
-	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+	glLinkProgram(id);
 	glGetProgramiv(id, GL_LINK_STATUS, &success);
 	if (!success) {
 		char infoLog[512];
@@ -72,10 +89,6 @@ void cgl::Shader::setUniform(const std::string& name, float value1, float value2
 void cgl::Shader::setUniform(const std::string& name, float value1, float value2, float value3, float value4) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform4f(location, value1, value2, value3, value4);
-}
-
-void cgl::Shader::setUniform(const std::string& name, const glm::vec3& value) {
-	setUniform(name, value.x, value.y, value.z);
 }
 
 void cgl::Shader::setUniform(const std::string& name, int value) {
@@ -138,6 +151,19 @@ void cgl::Shader::setUniform(const std::string& name, double value1, double valu
 	glUniform4d(location, value1, value2, value3, value4);
 }
 */
+
+void cgl::Shader::setUniform(const std::string& name, const glm::vec2& value) {
+	setUniform(name, value.x, value.y);
+}
+
+void cgl::Shader::setUniform(const std::string& name, const glm::vec3& value) {
+	setUniform(name, value.x, value.y, value.z);
+}
+
+void cgl::Shader::setUniform(const std::string& name, const glm::vec4& value) {
+	setUniform(name, value.x, value.y, value.z, value.w);
+}
+
 void cgl::Shader::setUniform(const std::string& name, const glm::mat4& m, bool transpose) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniformMatrix4fv(location, 1, transpose, glm::value_ptr(m));

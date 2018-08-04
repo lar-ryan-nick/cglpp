@@ -22,7 +22,7 @@ namespace cgl {
 		public:
 			Model(const std::string& path);
 			~Model();
-			void draw(Shader& shader, const glm::mat4& mvp, const Polygon& clippingRegion);
+			void draw(Shader& shader, const glm::mat4& parentModel);
 	};
 }
 

@@ -5,7 +5,7 @@ cgl::Polygon::VertexNode::VertexNode(const Position& p, VertexNode* n1, VertexNo
 bool cgl::Polygon::contains(const Position& p) const {
 	Position insidePoint;
 	for (std::list<Position>::const_iterator it = verticies.cbegin(); it != verticies.cend(); it++) {
-		insidePoint.translate(it->getX(), it->getY());
+		insidePoint += *it;
 	}
 	insidePoint /= static_cast<float>(verticies.size());
 	for (std::list<Position>::const_iterator it1 = verticies.cbegin(); it1 != verticies.cend(); it1++) {

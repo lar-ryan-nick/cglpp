@@ -18,7 +18,7 @@ namespace cgl {
 			unsigned int id;
 			char* getFileContents(std::string filename);
 		public:
-			Shader(const std::string& vertexSourcePath, const std::string& fragmentSourcePath);
+			Shader(const std::string& vertexSourcePath, const std::string& fragmentSourcePath, const std::string& geometrySourcePath = "");
 			unsigned int getId();
 			void use();
 			void finish();
@@ -26,7 +26,6 @@ namespace cgl {
 			void setUniform(const std::string& name, float value1, float value2);
 			void setUniform(const std::string& name, float value1, float value2, float value3);
 			void setUniform(const std::string& name, float value1, float value2, float value3, float value4);
-			void setUniform(const std::string& name, const glm::vec3& value);
 			void setUniform(const std::string& name, int value);
 			void setUniform(const std::string& name, int value1, int value2);
 			void setUniform(const std::string& name, int value1, int value2, int value3);
@@ -41,6 +40,9 @@ namespace cgl {
 			void setUniform(const std::string& name, double value1, double value2, double value3);
 			void setUniform(const std::string& name, double value1, double value2, double value3, double value4);
 			*/
+			void setUniform(const std::string& name, const glm::vec2& value);
+			void setUniform(const std::string& name, const glm::vec3& value);
+			void setUniform(const std::string& name, const glm::vec4& value);
 			void setUniform(const std::string& name, const glm::mat4& m, bool transpose = false);
 			void setUniform(const std::string& name, const Material& material);
 			void setUniform(const std::string& name, const Light& light);

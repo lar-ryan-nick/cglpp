@@ -41,10 +41,10 @@ void cgl::Window::render() {
 	glClearColor(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 	glClear(GL_COLOR_BUFFER_BIT);
 	Polygon maxPolygon;
-	maxPolygon.addVertex(glm::vec2(0, 0));
-	maxPolygon.addVertex(glm::vec2(width, 0));
-	maxPolygon.addVertex(glm::vec2(width, height));
-	maxPolygon.addVertex(glm::vec2(0, height));
+	maxPolygon.addVertex(glm::vec2(-1.0f, 1.0f));
+	maxPolygon.addVertex(glm::vec2(1.0f, 1.0f));
+	maxPolygon.addVertex(glm::vec2(1.0f, -1.0f));
+	maxPolygon.addVertex(glm::vec2(-1.0f, -1.0f));
 	view->draw(glm::mat4(), maxPolygon);
 	glfwSwapBuffers(window);
 }

@@ -8,6 +8,6 @@ out vec2 textureCoordinate;
 
 void main() {
 	vec4 pos = vec4(position, 0.0, 1.0);
-	gl_Position = projection * pos;
-	textureCoordinate = textureMappper * pos;
+	gl_Position = pos;
+	textureCoordinate = vec2(textureMapper * pos);
 }

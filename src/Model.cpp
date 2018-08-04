@@ -3,7 +3,7 @@
 cgl::Model::Model(const std::string& path) {
 	// read file via ASSIMP
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_Triangulate);
 	// check for errors
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cerr << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
@@ -21,10 +21,10 @@ cgl::Model::~Model() {
 	}
 }
 
-void cgl::Model::draw(Shader& shader, const glm::mat4& mvp, const Polygon& clippingRegion) {
+void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
 	for (std::list<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); it++) {
 		Mesh* m = *it;
-		m->draw(shader, mvp, clippingRegion);
+		m->draw(shader, parentModel);
 	}
 }
 
