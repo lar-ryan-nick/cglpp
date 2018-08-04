@@ -58,11 +58,14 @@ bool intersectAt(vec4 line1[2], vec2 line2[2], out vec4 intersect) {
 	vec3 homLine1 = cross(line1[0].xyw, line1[1].xyw);
 	vec3 homLine2 = cross(vec3(line2[0].xy, 1.0), vec3(line2[1].xy, 1.0));
 	vec3 intersection = cross(homLine1, homLine2);
-	if (abs(intersection.z) < 0.000001) {
+	if (intersection.z == 0.0) {
 		return false;
 	}
 	intersection *= line1[0].w / intersection.z;
 	vec3 tempLine = line1[1].xyz * line1[0].w / line1[1].w;
+	if (min(line1[0].x, tempLine.x) < intersection.x && intersection.x < max(line1[0].x, tempLine.x)) {
+		return false;
+	}
 	intersect = vec4(intersection.xy, (tempLine.z - line1[0].z) / (tempLine.x - line1[0].x) * (intersection.x - line1[0].x) + line1[0].z, intersection.z);
 	return true;
 }
@@ -128,7 +131,8 @@ void main() {
 			bool exiting = sourceContains(intersects[0].xy);
 			clipVerticies[i].next1 = numIntersections;
 			for (int j = 0; j < numIntersects; j++) {
-				intersections[numIntersections++] = Vertex(intersects[j], -1, -1, exiting);
+				intersections[numIntersections] = Vertex(intersects[j], -1, -1, exiting);
+				numIntersections++;
 				exiting = !exiting;
 			}
 			intersections[numIntersections - 1].next1 = (i + 1) % numClipVerticies;
