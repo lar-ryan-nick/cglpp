@@ -8,7 +8,6 @@ out vec2 TexCoord;
 out vec3 normalVec;
 out vec3 fragmentPosition;
 
-
 uniform mat4 model;
 uniform mat4 vp;
 

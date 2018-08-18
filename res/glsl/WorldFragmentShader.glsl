@@ -56,8 +56,6 @@ void main() {
 	ambient += texture(material.diffuseMap6, texCoord);
 	ambient += texture(material.diffuseMap7, texCoord);
 	FragColor = ambient;
-	*/
-	/*
 	vec3 difference = light.position - fragmentPosition;
 	vec3 lightDir = normalize(difference);
 	float theta = dot(lightDir, normalize(-light.direction));

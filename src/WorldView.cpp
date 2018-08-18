@@ -37,40 +37,39 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		verticies[i + 1] = transformed.y;
 		p.addVertex(glm::vec2(transformed.x, transformed.y));
 	}
+	cgl::SpotLight spotLight;
+	spotLight.setPosition(camera.getPosition());
+	spotLight.setDirection(camera.getDirection());
+	glm::mat4 m;
+	m = glm::translate(m, glm::vec3(0.0f, 0.0f, -1.75f));
+	m = glm::scale(m, glm::vec3(0.2f, 0.2f, 0.2f));
+	m = model * m;
+	glm::mat4 view = camera.getViewMatrix();
+	projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 0.1f, 100.0f);
+	glm::mat4 vp = projection * view;
 	std::list<Polygon> clippedPolygons = p.clipTo(poly);
 	for (std::list<Polygon>::iterator it1 = clippedPolygons.begin(); it1 != clippedPolygons.end(); it1++) {
-		Polygon clippedPolygon = *it1;
-		std::list<Position> vert = clippedPolygon.getVerticies();
+		std::list<Position> vert = it1->getVerticies();
 		if (vert.size() < 3) {
 			continue;
 		}
-		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-		glm::mat4 view = camera.getViewMatrix();
-		float viewport[4];
-		glGetFloatv(GL_VIEWPORT, viewport);
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 0.1f, 100.0f);
-		glm::mat4 mvp = projection * view * parentModel * model;
-		cgl::SpotLight spotLight;
-		spotLight.setPosition(camera.getPosition());
-		spotLight.setDirection(camera.getDirection());
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		worldViewShader->use();
 		worldViewShader->setUniform("viewPos", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 		worldViewShader->setUniform("light", spotLight);
-		worldViewShader->setUniform("vp", projection * view);
-		worldViewShader->setUniform("model", model);
+		worldViewShader->setUniform("vp", vp);
+		worldViewShader->setUniform("model", m);
 		int i = 0;
-		for (std::list<Position>::iterator it = vert.begin(); it != vert.end(); it++) {
+		for (std::list<Position>::iterator it2 = vert.begin(); it2 != vert.end(); it2++) {
 			std::stringstream ss;
-			ss << "clipRegion[" << i++ << "]";
-			worldViewShader->setUniform(ss.str(), static_cast<glm::vec2>(*it));
+			ss << "clipRegion[" << i << "]";
+			worldViewShader->setUniform(ss.str(), static_cast<glm::vec2>(*it2));
+			i++;
 		}
 		worldViewShader->setUniform("numClipVerticies", i);
-		for (std::list<Actor*>::iterator it = actors.begin(); it != actors.end(); it++) {
-			Actor* actor = *it;
+		for (std::list<Actor*>::iterator it2 = actors.begin(); it2 != actors.end(); it2++) {
+			Actor* actor = *it2;
 			actor->draw(*worldViewShader, model);
 		}
 		worldViewShader->finish();

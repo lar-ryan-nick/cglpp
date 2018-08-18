@@ -21,6 +21,24 @@ uniform vec2 clipRegion[MAX_CLIP_VERTICIES];
 uniform int numClipVerticies;
 
 bool clipContains(vec2 position) {
+	/*
+	position /= position.z;
+	vec3 insidePoint;
+	for (int i = 0; i < numClipVerticies; i++) {
+		insidePoint += vec3(clipRegion[i], 1.0f);
+	}
+	insidePoint /= numClipVerticies;
+	for (int i = 0; i < numClipVerticies; i++) {
+		vec3 side = cross(vec3(clipRegion[(i + 1) % numClipVerticies], 1.0f), vec3(clipRegion[i], 1.0f));
+		side /= sqrt(pow(side.x, 2) + pow(side.y, 2));
+		float insideDistance = dot(side, insidePoint);
+		float queryDistance = dot(side, position);
+		if (sign(insideDistance) != sign(queryDistance)) {
+			return false;
+		}
+	}
+	return true;
+	*/
 	vec2 insidePoint;
 	for (int i = 0; i < numClipVerticies; i++) {
 		insidePoint += clipRegion[i];
@@ -28,8 +46,8 @@ bool clipContains(vec2 position) {
 	insidePoint /= numClipVerticies;
 	for (int i = 0; i < numClipVerticies; i++) {
 		vec3 diff = vec3(clipRegion[(i + 1) % numClipVerticies] - clipRegion[i], 0.0f);
-		vec3 insideSide = cross(vec3(insidePoint - clipRegion[i], 0.0f), diff);
-		vec3 querySide = cross(vec3(position - clipRegion[i], 0.0f), diff);
+		vec3 insideSide = cross(diff, vec3(insidePoint - clipRegion[i], 0.0f));
+		vec3 querySide = cross(diff, vec3(position - clipRegion[i], 0.0f));
 		if (sign(insideSide.z) != sign(querySide.z)) {
 			return false;
 		}
@@ -82,15 +100,54 @@ int findIntersect(Vertex intersections[2 * MAX_CLIP_VERTICIES], vec4 intersect) 
 
 void main() {
 	/*
-	float temp = gl_in[1].gl_Position.y - gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * gl_in[0].gl_Position.y;
-	float a = (TexCoord[2].x - gl_in[2].gl_Position.y / temp * (TexCoord[1].x - gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * TexCoord[0].x) - gl_in[2].gl_Position.z / gl_in[0].gl_Position.z * (TexCoord[0].x - gl_in[0].gl_Position.y / temp * (TexCoord[1].x - gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * TexCoord[0].x))) / (gl_in[2].gl_Position.x + gl_in[2].gl_Position.y / temp * (-gl_in[1].gl_Position.x + gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * gl_in[0].gl_Position.x) + gl_in[2].gl_Position.z / gl_in[0].gl_Position.z * (-gl_in[0].gl_Position.y / temp * (-gl_in[1].gl_Position.x + gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * gl_in[0].gl_Position.x)) - gl_in[0].gl_Position.x);
-	float b = (TexCoord[1].x - a * gl_in[1].gl_Position.x - gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * (TexCoord[0].x - a * gl_in[0].gl_Position.x)) / (gl_in[1].gl_Position.y - gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * gl_in[0].gl_Position.y);
-	float c = (TexCoord[0].x - b * gl_in[0].gl_Position.y - a * gl_in[0].gl_Position.x) / gl_in[0].gl_Position.z;
-	float d = (TexCoord[2].y - gl_in[2].gl_Position.y / temp * (TexCoord[1].y - gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * TexCoord[0].y) - gl_in[2].gl_Position.z / gl_in[0].gl_Position.z * (TexCoord[0].y - gl_in[0].gl_Position.y / temp * (TexCoord[1].y - gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * TexCoord[0].y))) / (gl_in[2].gl_Position.x + gl_in[2].gl_Position.y / temp * (-gl_in[1].gl_Position.x + gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * gl_in[0].gl_Position.x) + gl_in[2].gl_Position.z / gl_in[0].gl_Position.z * (-gl_in[0].gl_Position.y / temp * (-gl_in[1].gl_Position.x + gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * gl_in[0].gl_Position.x)) - gl_in[0].gl_Position.x);
-	float e = (TexCoord[1].y - d * gl_in[1].gl_Position.x - gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * (TexCoord[0].y - d * gl_in[0].gl_Position.x)) / (gl_in[1].gl_Position.y - gl_in[1].gl_Position.z / gl_in[0].gl_Position.z * gl_in[0].gl_Position.y);
-	float f = (TexCoord[0].y - e * gl_in[0].gl_Position.y - d * gl_in[0].gl_Position.x) / gl_in[0].gl_Position.z;
-	mat3 textureMapper = mat3(a, d, 0.0f, b, e, 0.0f, c, f, 0.0f);
+	for (int i = 1; i < numClipVerticies - 1; i++) {
+		gl_Position = vec4(clipRegion[0], 0.0, 1.0);
+		color = vec4(0.0, 0.0, 1.0, 1.0);
+		EmitVertex();
+		gl_Position = vec4(clipRegion[i], 0.0, 1.0);
+		color = vec4(0.0, 0.0, 1.0, 1.0);
+		EmitVertex();
+		gl_Position = vec4(clipRegion[i + 1], 0.0, 1.0);
+		color = vec4(0.0, 0.0, 1.0, 1.0);
+		EmitVertex();
+	}
+	EndPrimitive();
 	*/
+	vec3 points[3];
+	for (int i = 0; i < 3; i++) {
+		points[i] = gl_in[i].gl_Position.xyz / gl_in[i].gl_Position.w;
+	}
+	float temp = points[1].y - points[1].z / points[0].z * points[0].y;
+	float a = (TexCoord[2].x - points[2].y / temp * (TexCoord[1].x - points[1].z / points[0].z * TexCoord[0].x) - points[2].z / points[0].z * (TexCoord[0].x - points[0].y / temp * (TexCoord[1].x - points[1].z / points[0].z * TexCoord[0].x))) / (points[2].x + points[2].y / temp * (-points[1].x + points[1].z / points[0].z * points[0].x) + points[2].z / points[0].z * (-points[0].y / temp * (-points[1].x + points[1].z / points[0].z * points[0].x)) - points[0].x);
+	float b = (TexCoord[1].x - a * points[1].x - points[1].z / points[0].z * (TexCoord[0].x - a * points[0].x)) / temp;
+	float c = (TexCoord[0].x - b * points[0].y - a * points[0].x) / points[0].z;
+	float d = (TexCoord[2].y - points[2].y / temp * (TexCoord[1].y - points[1].z / points[0].z * TexCoord[0].y) - points[2].z / points[0].z * (TexCoord[0].y - points[0].y / temp * (TexCoord[1].y - points[1].z / points[0].z * TexCoord[0].y))) / (points[2].x + points[2].y / temp * (-points[1].x + points[1].z / points[0].z * points[0].x) + points[2].z / points[0].z * (-points[0].y / temp * (-points[1].x + points[1].z / points[0].z * points[0].x)) - points[0].x);
+	float e = (TexCoord[1].y - d * points[1].x - points[1].z / points[0].z * (TexCoord[0].y - d * points[0].x)) / temp;
+	float f = (TexCoord[0].y - e * points[0].y - d * points[0].x) / points[0].z;
+	mat3 textureMapper = mat3(a, d, 0.0f, b, e, 0.0f, c, f, 0.0f);
+	bool allInside = true;
+	for (int i = 0; i < 3; i++) {
+		if (!clipContains(points[i].xy)) {
+			allInside = false;
+			break;
+		}
+	}
+	float red = 1.0;
+	float green = 0.0;
+	if (allInside) {
+		red = 0.0;
+		green = 1.0;
+	}
+	//if (allInside) {
+		for (int i = 0; i < 3; i++) {
+			gl_Position = gl_in[i].gl_Position;
+			texCoord = vec2(textureMapper * (points[i]));
+			color = vec4(red, green, 0.0, 1.0);
+			EmitVertex();
+		}
+		EndPrimitive();
+	//}
+	/*
 	Vertex clipVerticies[MAX_CLIP_VERTICIES];
 	for (int i = 0; i < numClipVerticies; i++) {
 		clipVerticies[i] = Vertex(vec4(clipRegion[i], 0.0f, 1.0f), -1, -1, false);
@@ -255,7 +312,6 @@ void main() {
 			for (int i = 0; i < 3; i++) {
 				gl_Position = gl_in[i].gl_Position;
 				color = vec4(1.0, 0.0, 1.0, 1.0);
-				//texCoord = vec2(textureMapper * gl_Position.xyz);
 				EmitVertex();
 			}
 			EndPrimitive();
@@ -278,4 +334,5 @@ void main() {
 			}
 		}
 	}
+	*/
 }  
