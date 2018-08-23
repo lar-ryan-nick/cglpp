@@ -57,10 +57,10 @@ int main() {
 		shader.use();
 		glm::mat4 model;
 		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
-		shader.setUniform("model", 1, false, glm::value_ptr(model));
-		shader.setUniform("view", 1, false, glm::value_ptr(camera.getViewMatrix()));
+		shader.setUniform("model", model, false);
+		shader.setUniform("view", camera.getViewMatrix(), false);
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
-		shader.setUniform("projection", 1, false, glm::value_ptr(projection));
+		shader.setUniform("projection", projection, false);
 		shader.setUniform("viewPos", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 		shader.setUniform("material", material);
 		pointLight.setPosition(camera.getPosition());

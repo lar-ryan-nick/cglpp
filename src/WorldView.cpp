@@ -60,6 +60,13 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		worldViewShader->setUniform("light", spotLight);
 		worldViewShader->setUniform("vp", vp);
 		worldViewShader->setUniform("model", m);
+/*
+		vert.clear();
+		vert.push_back(glm::vec2(-0.5, 0.5));
+		vert.push_back(glm::vec2(0.5, 0.5));
+		vert.push_back(glm::vec2(0.5, -0.5));
+		vert.push_back(glm::vec2(-0.5, -0.5));
+*/
 		int i = 0;
 		for (std::list<Position>::iterator it2 = vert.begin(); it2 != vert.end(); it2++) {
 			std::stringstream ss;

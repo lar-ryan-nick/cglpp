@@ -57,7 +57,7 @@ int main() {
 		shader.use();
 		glm::mat4 trans;
 		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-		shader.setUniform("transform", 1, GL_FALSE, glm::value_ptr(trans));
+		shader.setUniform("transform", trans, false);
 		glBindVertexArray(triangleVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
