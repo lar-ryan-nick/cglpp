@@ -81,3 +81,7 @@ std::list<cgl::Texture> cgl::Model::loadMaterialTextures(aiMaterial* material, a
 	}
 	return textures;
 }
+
+std::list<cgl::Mesh*> cgl::Model::getMeshes() {
+	return meshes;
+}

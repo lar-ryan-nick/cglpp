@@ -23,6 +23,7 @@ namespace cgl {
 			Model(const std::string& path);
 			~Model();
 			void draw(Shader& shader, const glm::mat4& parentModel);
+			std::list<Mesh*> getMeshes();
 	};
 }
 

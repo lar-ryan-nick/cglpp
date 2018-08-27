@@ -59,6 +59,12 @@ cgl::Shader::Shader(const std::string& vertexSourcePath, const std::string& frag
 	}
 }
 
+cgl::Shader::Shader(unsigned int i) : id(i) {}
+
+cgl::Shader::~Shader() {
+	glDeleteProgram(id);
+}
+
 unsigned int cgl::Shader::getId() {
 	return id;
 }
@@ -238,7 +244,7 @@ void cgl::Shader::setUniform(const std::string& name, const SpotLight& light) {
 	setUniform(name + ".outerCutOff", light.getOuterCutOff());
 }
 
-char* cgl::Shader::getFileContents(std::string filename) {
+char* cgl::Shader::getFileContents(const std::string& filename) {
 	std::ifstream fin(filename);
 	if (fin.fail()) {
 		std::cerr << "Couldn't open file " << filename << '\n';

@@ -1,7 +1,5 @@
 #include "Mesh.h"
 
-const unsigned int cgl::Mesh::MAX_VERTICIES = 65536;
-
 cgl::Mesh::Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<Position>& tc, const std::list<unsigned int>& i, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), material(m) {
 	std::vector<glm::vec3> pos(positions.begin(), positions.end());
 	std::vector<glm::vec3> norm(normals.begin(), normals.end());
@@ -47,4 +45,8 @@ void cgl::Mesh::draw(Shader& shader, const glm::mat4& parentModel) {
 	// set back to defaults
 	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
+}
+
+std::vector<cgl::Position> cgl::Mesh::getPositions() {
+	return positions;
 }

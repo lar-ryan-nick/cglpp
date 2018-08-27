@@ -46,7 +46,6 @@ uniform SpotLight light;
 
 void main() {
 	FragColor = color;
-	/*
 	vec4 ambient = texture(material.diffuseMap0, texCoord);
 	ambient += texture(material.diffuseMap1, texCoord);
 	ambient += texture(material.diffuseMap2, texCoord);
@@ -56,6 +55,7 @@ void main() {
 	ambient += texture(material.diffuseMap6, texCoord);
 	ambient += texture(material.diffuseMap7, texCoord);
 	FragColor = ambient;
+	/*
 	vec3 difference = light.position - fragmentPosition;
 	vec3 lightDir = normalize(difference);
 	float theta = dot(lightDir, normalize(-light.direction));

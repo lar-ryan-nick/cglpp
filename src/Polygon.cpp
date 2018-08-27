@@ -216,15 +216,17 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 }
 
 void cgl::Polygon::addVertex(const glm::vec2& v) {
-	if (verticies.empty() || verticies.back() != v) {
-		verticies.push_back(v);
-	}
+	addVertex(Position(v));
 }
 
 void cgl::Polygon::addVertex(const Position& p) {
 	if (verticies.empty() || verticies.back() != p) {
 		verticies.push_back(p);
 	}
+}
+
+void cgl::Polygon::addVertex(float x, float y) {
+	addVertex(Position(x, y));
 }
 
 std::list<cgl::Position>& cgl::Polygon::getVerticies() {

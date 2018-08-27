@@ -2,6 +2,9 @@
 #define SHADER_H
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <string>
 #include <list>
 #include <sstream>
@@ -16,9 +19,11 @@ namespace cgl {
 	class Shader {
 		private:
 			unsigned int id;
-			char* getFileContents(std::string filename);
+			char* getFileContents(const std::string& filename);
 		public:
 			Shader(const std::string& vertexSourcePath, const std::string& fragmentSourcePath, const std::string& geometrySourcePath = "");
+			Shader(unsigned int i);
+			~Shader();
 			unsigned int getId();
 			void use();
 			void finish();

@@ -19,10 +19,9 @@
 namespace cgl {
 	class Mesh {
 		private:
-			const static unsigned int MAX_VERTICIES;
+			unsigned int vao;
 			unsigned int vbo[3];
 			unsigned int ebo;
-			unsigned int vao;
 			std::vector<Position> positions;
 			std::vector<glm::vec3> normals;
 			std::vector<Position> textureCoordinates;
@@ -33,6 +32,7 @@ namespace cgl {
 			Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<Position>& tc, const std::list<unsigned int>& i, const Material& m);
 			~Mesh();
 			void draw(Shader& shader, const glm::mat4& parentModel);
+			std::vector<Position> getPositions();
 	};
 }
 
