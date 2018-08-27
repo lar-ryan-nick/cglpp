@@ -71,7 +71,7 @@ bool intersectAt(vec4 line1[2], vec2 line2[2], out vec4 intersect) {
 	}
 	intersection *= line1[0].w / intersection.z;
 	vec3 tempLine = line1[1].xyz * line1[0].w / line1[1].w;
-	if (min(line1[0].x, tempLine.x) < intersection.x && intersection.x < max(line1[0].x, tempLine.x)) {
+	if (!(min(line1[0].x, tempLine.x) < intersection.x && intersection.x < max(line1[0].x, tempLine.x))) {
 		return false;
 	}
 	intersect = vec4(intersection.xy, (tempLine.z - line1[0].z) / (tempLine.x - line1[0].x) * (intersection.x - line1[0].x) + line1[0].z, intersection.z);
@@ -102,7 +102,7 @@ void main() {
 	float f = (TexCoord[0].y - e * points[0].y - d * points[0].x) / points[0].z;
 	mat3 textureMapper = mat3(a, d, 0.0f, b, e, 0.0f, c, f, 0.0f);
 	/*
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < gl_in.length(); i++) {
 		gl_Position = gl_in[i].gl_Position;
 		point = gl_Position;
 		isInside = clipContains(gl_Position.xy / gl_Position.w) ? 1 : 0;
@@ -138,23 +138,22 @@ void main() {
 		clipVerticies[i] = Vertex(vec4(clipRegion[i], 0.0f, 1.0f), -1, -1, false);
 	}
 	Vertex sourceVerticies[3];
-	for (int i = 0; i < sourceVerticies.length(); i++) {
+	for (int i = 0; i < gl_in.length(); i++) {
 		sourceVerticies[i] = Vertex(gl_in[i].gl_Position, -1, -1, false);
 	}
 	// max number of intersections between a triangle and an N-sided shape is 2N
 	Vertex intersections[2 * MAX_CLIP_VERTICIES];
 	int numIntersections = 0;
-	/*
 	for (int i = 0; i < numClipVerticies; i++) {
-		vec4 intersects[3];
+		vec4 intersects[sourceVerticies.length()];
 		int numIntersects = 0;
 		vec2 side[2];
 		side[0] = clipRegion[i];
 		side[1] = clipRegion[(i + 1) % numClipVerticies];
-		for (int j = 0; j < 3; j++) {
+		for (int j = 0; j < gl_in.length(); j++) {
 			vec4 edge[2];
 			edge[0] = gl_in[j].gl_Position;
-			edge[1] = gl_in[(j + 1) % 3].gl_Position;
+			edge[1] = gl_in[(j + 1) % gl_in.length()].gl_Position;
 			vec4 intersection;
 			if (intersectAt(edge, side, intersection)) {
 				float dist = distance(intersection.xy / intersection.w, side[0]);
@@ -181,12 +180,12 @@ void main() {
 			intersections[numIntersections - 1].next1 = (i + 1) % numClipVerticies;
 		}
 	}
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < gl_in.length(); i++) {
 		vec4 intersects[MAX_CLIP_VERTICIES];
 		int numIntersects = 0;
 		vec4 edge[2];
 		edge[0] = gl_in[i].gl_Position;
-		edge[1] = gl_in[(i + 1) % 3].gl_Position;
+		edge[1] = gl_in[(i + 1) % gl_in.length()].gl_Position;
 		for (int j = 0; j < numClipVerticies; j++) {
 			vec2 side[2];
 			side[0] = clipRegion[j];
@@ -211,13 +210,12 @@ void main() {
 			sourceVerticies[i].next2 = index;
 			for (int j = 1; j < numIntersects; j++) {
 				int next = findIntersect(intersections, intersects[j]);
-				intersections[index].next2 = 3 + next;
+				intersections[index].next2 = gl_in.length() + next;
 				index = next;
 			}
-			intersections[index].next2 = (i + 1) % 3;
+			intersections[index].next2 = (i + 1) % gl_in.length();
 		}
 	}
-	*/
 	if (numIntersections > 0) {
 		for (int i = 0; i < numIntersections; i++) {
 			if (intersections[i].exiting) {
@@ -227,9 +225,9 @@ void main() {
 				EmitVertex();
 				bool tracer = false;
 				bool intersect = true;
-				int current = intersections[i].next2 - 3;
+				int current = intersections[i].next2 - gl_in.length();
 				if (current < 0) {
-					current += 3;
+					current += gl_in.length();
 					intersect = false;
 				}
 				while (!(intersect && current == i)) {
@@ -269,14 +267,14 @@ void main() {
 						}
 					} else {
 						if (intersect) {
-							current = intersections[current].next2 - 3;
+							current = intersections[current].next2 - gl_in.length();
 							if (current < 0) {
-								current += 3;
+								current += gl_in.length();
 								intersect = false;
 							}
 						} else {
 							if (sourceVerticies[current].next2 == -1) {
-								current = (current + 1) % 3;
+								current = (current + 1) % gl_in.length();
 							} else {
 								current = sourceVerticies[current].next2;
 								intersect = true;
@@ -289,14 +287,14 @@ void main() {
 		}
 	} else {
 		bool allInside = true;
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < gl_in.length(); i++) {
 			if (!clipContains(points[i].xy)) {
 				allInside = false;
 				break;
 			}
 		}
 		if (allInside) {
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < gl_in.length(); i++) {
 				gl_Position = gl_in[i].gl_Position;
 				color = vec4(0.0, 1.0, 0.0, 1.0);
 				texCoord = vec2(textureMapper * points[i]);
