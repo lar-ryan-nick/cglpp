@@ -11,6 +11,7 @@ struct Vertex {
 	bool exiting;
 };
 
+const int MAX_GL_IN = 3;
 // must be the same as MAX_VERTICIES in cgl::View
 const int MAX_CLIP_VERTICIES = 50;
 
@@ -63,19 +64,69 @@ bool sourceContains(vec2 position) {
 }
 
 bool intersectAt(vec4 line1[2], vec2 line2[2], out vec4 intersect) {
+/*
 	vec3 homLine1 = cross(line1[0].xyw, line1[1].xyw);
 	vec3 homLine2 = cross(vec3(line2[0].xy, 1.0), vec3(line2[1].xy, 1.0));
 	vec3 intersection = cross(homLine1, homLine2);
 	if (intersection.z == 0.0) {
 		return false;
 	}
-	intersection *= line1[0].w / intersection.z;
-	vec3 tempLine = line1[1].xyz * line1[0].w / line1[1].w;
-	if (!(min(line1[0].x, tempLine.x) < intersection.x && intersection.x < max(line1[0].x, tempLine.x))) {
+	intersection /= intersection.z;
+	vec3 tempLine1 = line1[0].xyz / line1[0].w;
+	vec3 tempLine2 = line1[1].xyz / line1[1].w;
+	if (min(tempLine1.x, tempLine2.x) > intersection.x || intersection.x > max(tempLine1.x, tempLine2.x)) {
 		return false;
 	}
-	intersect = vec4(intersection.xy, (tempLine.z - line1[0].z) / (tempLine.x - line1[0].x) * (intersection.x - line1[0].x) + line1[0].z, intersection.z);
+	if (min(tempLine1.y, tempLine2.y) > intersection.y || intersection.y > max(tempLine1.y, tempLine2.y)) {
+		return false;
+	}
+	float change;
+	if (tempLine1.x != tempLine2.x) {
+		change = (intersection.x - tempLine1.x) / (tempLine2.x - tempLine1.x);
+	} else {
+		change = (intersection.y - tempLine1.y) / (tempLine2.y - tempLine1.y);
+	}
+	intersect = vec4(intersection.xy, (tempLine2.z - tempLine1.z) * change + tempLine1.z, 1.0f);
+	intersect *= (line1[1].w - line1[0].w) * change + line1[0].w;
 	return true;
+	*/
+	vec3 normLine[2];
+	normLine[0] = line1[0].xyz / line1[0].w;
+	normLine[1] = line1[1].xyz / line1[1].w;
+	if (normLine[1].x == normLine[0].x) {
+		if (line2[1].x != line2[0].x) {
+			if (((line2[0].x <= normLine[0].x && normLine[0].x <= line2[1].x) || (line2[1].x <= normLine[0].x && normLine[0].x <= line2[0].x))) {
+				float change = (line2[1].x - line2[0].x) * (normLine[0].x - line2[0].x);
+				float y = (line2[1].y - line2[0].y) / change + line2[0].y;
+				if (normLine[0].y <= y && y <= normLine[1].y || normLine[1].y <= y && y <= normLine[0].x) {
+					change = (normLine[1].x - normLine[0].y) * (y - normLine[0].y);
+					float z = (normLine[1].z - normLine[0].z) / change + normLine[0].z;
+					intersect = vec4(normLine[0].x, y, z, 1.0f);
+					intersect *= (line1[1].w - line1[0].w) / change + line1[0].w;
+					return true;
+				}
+			} else {
+				return false;
+			}
+		} else {
+			// both lines could be vertical and overlap here may want to consider having a line segment to return
+			return false;
+		}
+	}
+	float denominator = line2[1].y - line2[0].y - (line2[1].x - line2[0].x) * (normLine[1].y - normLine[0].y) / (normLine[1].x - normLine[0].x);
+	// Line segments have the same slope
+	if (denominator == 0) {
+		// both lines could overlap here may want to consider having a line segment to return
+		return false;
+	}
+	float j = (normLine[0].y - line2[0].y + (normLine[1].y - normLine[0].y) * (line2[0].x - normLine[0].x) / (normLine[1].x - normLine[0].x)) / denominator;
+	float i = (line2[0].x + (line2[1].x - line2[0].x) * j - normLine[0].x) / (normLine[1].x - normLine[0].x);
+	if (i > 0 && i < 1 && j > 0 && j < 1) {
+		intersect = vec4(normLine[0].x + (normLine[1].x - normLine[0].x) * i, normLine[0].y + (normLine[1].y - normLine[0].y) * i, normLine[0].z + (normLine[1].z - normLine[0].z) * i, 1.0f);
+		intersect *= line1[0].w + (line1[1].w - line1[0].w) * i;
+		return true;
+	}
+	return false;
 }
 
 int findIntersect(Vertex intersections[2 * MAX_CLIP_VERTICIES], vec4 intersect) {
@@ -137,7 +188,7 @@ void main() {
 	for (int i = 0; i < numClipVerticies; i++) {
 		clipVerticies[i] = Vertex(vec4(clipRegion[i], 0.0f, 1.0f), -1, -1, false);
 	}
-	Vertex sourceVerticies[3];
+	Vertex sourceVerticies[MAX_GL_IN];
 	for (int i = 0; i < gl_in.length(); i++) {
 		sourceVerticies[i] = Vertex(gl_in[i].gl_Position, -1, -1, false);
 	}
@@ -145,7 +196,7 @@ void main() {
 	Vertex intersections[2 * MAX_CLIP_VERTICIES];
 	int numIntersections = 0;
 	for (int i = 0; i < numClipVerticies; i++) {
-		vec4 intersects[sourceVerticies.length()];
+		vec4 intersects[MAX_GL_IN];
 		int numIntersects = 0;
 		vec2 side[2];
 		side[0] = clipRegion[i];
@@ -170,7 +221,7 @@ void main() {
 			}
 		}
 		if (numIntersects > 0) {
-			bool exiting = sourceContains(intersects[0].xy);
+			bool exiting = sourceContains(side[0]);
 			clipVerticies[i].next1 = numIntersections;
 			for (int j = 0; j < numIntersects; j++) {
 				intersections[numIntersections] = Vertex(intersects[j], -1, -1, exiting);
