@@ -79,32 +79,6 @@ bool sourceContains(vec2 position) {
 }
 
 bool intersectAt(vec4 line1[2], vec2 line2[2], out vec4 intersect) {
-/*
-	vec3 homLine1 = cross(line1[0].xyw, line1[1].xyw);
-	vec3 homLine2 = cross(vec3(line2[0].xy, 1.0), vec3(line2[1].xy, 1.0));
-	vec3 intersection = cross(homLine1, homLine2);
-	if (intersection.z == 0.0) {
-		return false;
-	}
-	intersection /= intersection.z;
-	vec3 tempLine1 = line1[0].xyz / line1[0].w;
-	vec3 tempLine2 = line1[1].xyz / line1[1].w;
-	if (min(tempLine1.x, tempLine2.x) > intersection.x || intersection.x > max(tempLine1.x, tempLine2.x)) {
-		return false;
-	}
-	if (min(tempLine1.y, tempLine2.y) > intersection.y || intersection.y > max(tempLine1.y, tempLine2.y)) {
-		return false;
-	}
-	float change;
-	if (tempLine1.x != tempLine2.x) {
-		change = (intersection.x - tempLine1.x) / (tempLine2.x - tempLine1.x);
-	} else {
-		change = (intersection.y - tempLine1.y) / (tempLine2.y - tempLine1.y);
-	}
-	intersect = vec4(intersection.xy, (tempLine2.z - tempLine1.z) * change + tempLine1.z, 1.0f);
-	intersect *= (line1[1].w - line1[0].w) * change + line1[0].w;
-	return true;
-	*/
 	vec3 normLine[2];
 	normLine[0] = line1[0].xyz / line1[0].w;
 	normLine[1] = line1[1].xyz / line1[1].w;
@@ -180,88 +154,54 @@ void main() {
 	EndPrimitive();
 	return;
 	*/
-	bool clockwise = sourceClockwise();
 	Vertex clipVerticies[MAX_CLIP_VERTICIES];
-	for (int i = 0; i < numClipVerticies; i++) {
-		clipVerticies[i] = Vertex(vec4(clipRegion[i], 0.0f, 1.0f), -1, -1, false);
+	if (sourceClockwise()) {
+		for (int i = 0; i < numClipVerticies; i++) {
+			clipVerticies[i] = Vertex(vec4(clipRegion[i], 0.0f, 1.0f), -1, -1, false);
+		}
+	} else {
+		for (int i = 0; i < numClipVerticies; i++) {
+			clipVerticies[i] = Vertex(vec4(clipRegion[numClipVerticies - i - 1], 0.0f, 1.0f), -1, -1, false);
+		}
 	}
 	Vertex sourceVerticies[MAX_GL_IN];
 	for (int i = 0; i < gl_in.length(); i++) {
 		sourceVerticies[i] = Vertex(gl_in[i].gl_Position, -1, -1, false);
 	}
-	if (clockwise) {
-		for (int i = 0; i < numClipVerticies; i++) {
-			vec4 intersects[MAX_GL_IN];
-			int numIntersects = 0;
-			vec2 side[2];
-			side[0] = clipRegion[i];
-			side[1] = clipRegion[(i + 1) % numClipVerticies];
-			for (int j = 0; j < gl_in.length(); j++) {
-				vec4 edge[2];
-				edge[0] = gl_in[j].gl_Position;
-				edge[1] = gl_in[(j + 1) % gl_in.length()].gl_Position;
-				vec4 intersection;
-				if (intersectAt(edge, side, intersection)) {
-					float dist = distance(intersection.xy / intersection.w, side[0]);
-					int index;
-					for (index = numIntersects; index > 0; index--) {
-						float dis = distance(intersects[index - 1].xy / intersects[index - 1].w, side[0]);
-						if (dist > dis) {
-							break;
-						}
-						intersects[index] = intersects[index - 1];
+	for (int i = 0; i < numClipVerticies; i++) {
+		vec4 intersects[MAX_GL_IN];
+		int numIntersects = 0;
+		vec2 side[2];
+		side[0] = clipVerticies[i].vertex.xy;
+		side[1] = clipVerticies[(i + 1) % numClipVerticies].vertex.xy;
+		for (int j = 0; j < gl_in.length(); j++) {
+			vec4 edge[2];
+			edge[0] = gl_in[j].gl_Position;
+			edge[1] = gl_in[(j + 1) % gl_in.length()].gl_Position;
+			vec4 intersect;
+			if (intersectAt(edge, side, intersect)) {
+				float dist = distance(intersect.xy / intersect.w, side[0]);
+				int index;
+				for (index = numIntersects; index > 0; index--) {
+					float dis = distance(intersects[index - 1].xy / intersects[index - 1].w, side[0]);
+					if (dist > dis) {
+						break;
 					}
-					intersects[index] = intersection;
-					numIntersects++;
+					intersects[index] = intersects[index - 1];
 				}
-			}
-			if (numIntersects > 0) {
-				bool exiting = sourceContains(clipRegion[i]);
-				clipVerticies[i].next1 = numIntersections;
-				for (int j = 0; j < numIntersects; j++) {
-					intersections[numIntersections] = Vertex(intersects[j], -1, -1, exiting);
-					numIntersections++;
-					exiting = !exiting;
-				}
-				intersections[numIntersections - 1].next1 = (i + 1) % numClipVerticies;
+				intersects[index] = intersect;
+				numIntersects++;
 			}
 		}
-	} else {
-		for (int i = numClipVerticies - 1; i >= 0; i--) {
-			vec4 intersects[MAX_GL_IN];
-			int numIntersects = 0;
-			vec2 side[2];
-			side[0] = clipRegion[i];
-			side[1] = clipRegion[(i + numClipVerticies - 1) % numClipVerticies];
-			for (int j = 0; j < gl_in.length(); j++) {
-				vec4 edge[2];
-				edge[0] = gl_in[j].gl_Position;
-				edge[1] = gl_in[(j + 1) % gl_in.length()].gl_Position;
-				vec4 intersection;
-				if (intersectAt(edge, side, intersection)) {
-					float dist = distance(intersection.xy / intersection.w, side[0]);
-					int index;
-					for (index = numIntersects; index > 0; index--) {
-						float dis = distance(intersects[index - 1].xy / intersects[index - 1].w, side[0]);
-						if (dist > dis) {
-							break;
-						}
-						intersects[index] = intersects[index - 1];
-					}
-					intersects[index] = intersection;
-					numIntersects++;
-				}
+		if (numIntersects > 0) {
+			bool exiting = sourceContains(side[0]);
+			clipVerticies[i].next1 = numIntersections;
+			for (int j = 0; j < numIntersects; j++) {
+				intersections[numIntersections] = Vertex(intersects[j], -1, -1, exiting);
+				numIntersections++;
+				exiting = !exiting;
 			}
-			if (numIntersects > 0) {
-				bool exiting = sourceContains(clipRegion[i]);
-				clipVerticies[i].next1 = numIntersections;
-				for (int j = 0; j < numIntersects; j++) {
-					intersections[numIntersections] = Vertex(intersects[j], -1, -1, exiting);
-					numIntersections++;
-					exiting = !exiting;
-				}
-				intersections[numIntersections - 1].next1 = (i + numClipVerticies - 1) % numClipVerticies;
-			}
+			intersections[numIntersections - 1].next1 = (i + 1) % numClipVerticies;
 		}
 	}
 	for (int i = 0; i < gl_in.length(); i++) {
@@ -270,45 +210,23 @@ void main() {
 		vec4 edge[2];
 		edge[0] = gl_in[i].gl_Position;
 		edge[1] = gl_in[(i + 1) % gl_in.length()].gl_Position;
-		if (clockwise) {
-			for (int j = 0; j < numClipVerticies; j++) {
-				vec2 side[2];
-				side[0] = clipRegion[j];
-				side[1] = clipRegion[(j + 1) % numClipVerticies];
-				vec4 intersection;
-				if (intersectAt(edge, side, intersection)) {
-					float dist = distance(intersection.xy / intersection.w, edge[0].xy / edge[0].w);
-					int index;
-					for (index = numIntersects; index > 0; index--) {
-						float dis = distance(intersects[index - 1].xy / intersects[index - 1].w, edge[0].xy / edge[0].w);
-						if (dist > dis) {
-							break;
-						}
-						intersects[index] = intersects[index - 1];
+		for (int j = 0; j < numClipVerticies; j++) {
+			vec2 side[2];
+			side[0] = clipVerticies[j].vertex.xy;
+			side[1] = clipVerticies[(j + 1) % numClipVerticies].vertex.xy;
+			vec4 intersect;
+			if (intersectAt(edge, side, intersect)) {
+				float dist = distance(intersect.xy / intersect.w, points[i].xy);
+				int index;
+				for (index = numIntersects; index > 0; index--) {
+					float dis = distance(intersects[index - 1].xy / intersects[index - 1].w, points[i].xy);
+					if (dist > dis) {
+						break;
 					}
-					intersects[index] = intersection;
-					numIntersects++;
+					intersects[index] = intersects[index - 1];
 				}
-			}
-		} else {
-			for (int j = numClipVerticies - 1; j >= 0; j--) {
-				vec2 side[2];
-				side[0] = clipRegion[j];
-				side[1] = clipRegion[(j + numClipVerticies - 1) % numClipVerticies];
-				vec4 intersection;
-				if (intersectAt(edge, side, intersection)) {
-					float dist = distance(intersection.xy / intersection.w, edge[0].xy / edge[0].w);
-					int index;
-					for (index = numIntersects; index > 0; index--) {
-						float dis = distance(intersects[index - 1].xy / intersects[index - 1].w, edge[0].xy / edge[0].w);
-						if (dist > dis) {
-							break;
-						}
-						intersects[index] = intersects[index - 1];
-					}
-					intersects[index] = intersection;
-					numIntersects++;
-				}
+				intersects[index] = intersect;
+				numIntersects++;
 			}
 		}
 		if (numIntersects > 0) {
@@ -359,11 +277,7 @@ void main() {
 							}
 						} else {
 							if (clipVerticies[current].next1 == -1) {
-								if (clockwise) {
-									current = (current + 1) % numClipVerticies;
-								} else {
-									current = (current + numClipVerticies - 1) % numClipVerticies;
-								}
+								current = (current + 1) % numClipVerticies;
 							} else {
 								current = clipVerticies[current].next1;
 								intersect = true;
@@ -386,6 +300,8 @@ void main() {
 						}
 					}
 				}
+				vec3 normal = cross(points[0] - points[2], points[0] - points[1]);
+				normal = normalize(normal);
 				color = vec4(1.0, 0.0, 0.0, 1.0);
 				for (int j = 1; j < clippedLength - 1; j++) {
 					gl_Position = clipped[0];
@@ -394,11 +310,18 @@ void main() {
 					gl_Position = clipped[j];
 					texCoord = vec2(textureMapper * gl_Position.xyz);
 					EmitVertex();
+					if (clipped[j + 1].z == 0 && clipped[j + 1].w == 1) {
+						vec3 clippedPoints[3];
+						clippedPoints[0] = clipped[0].xyz / clipped[0].w;
+						clippedPoints[1] = clipped[j].xyz / clipped[j].w;
+						clippedPoints[2] = clipped[j + 1].xyz / clipped[j + 1].w;
+						clipped[j + 1].z = (-normal.x + clippedPoints[0].z * (clippedPoints[2].y - clippedPoints[1].y) + clippedPoints[1].z * (clippedPoints[0].y - clippedPoints[2].y)) / (clippedPoints[0].y - clippedPoints[1].y);
+					}
 					gl_Position = clipped[j + 1];
 					texCoord = vec2(textureMapper * gl_Position.xyz);
 					EmitVertex();
+					EndPrimitive();
 				}
-				EndPrimitive();
 			}
 		}
 	} else {

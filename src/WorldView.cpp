@@ -43,7 +43,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	glm::mat4 m;
 	m = glm::translate(m, glm::vec3(0.0f, 0.0f, -1.75f));
 	m = glm::scale(m, glm::vec3(0.2f, 0.2f, 0.2f));
-	m = model * m;
+	//m = model * m;
 	glm::mat4 view = camera.getViewMatrix();
 	projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 0.1f, 100.0f);
 	glm::mat4 vp = projection * view;
@@ -53,7 +53,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		if (vert.size() < 3) {
 			continue;
 		}
-		//glEnable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		worldViewShader->use();
@@ -75,7 +75,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		}
 		worldViewShader->finish();
 		glDisable(GL_DEPTH_TEST);
-		//glDisable(GL_CULL_FACE);
+		glDisable(GL_CULL_FACE);
 	}
 }
 

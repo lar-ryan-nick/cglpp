@@ -12,7 +12,8 @@ class WorldTestWindow : public cgl::Window {
 	public:
 		WorldTestWindow();
 		virtual ~WorldTestWindow();
-		void processInput();
+		virtual void render();
+		virtual void processInput();
 };
 
 #endif

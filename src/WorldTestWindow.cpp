@@ -16,6 +16,11 @@ WorldTestWindow::~WorldTestWindow() {
 	delete worldView;
 }
 
+void WorldTestWindow::render() {
+	//worldView->setRotation(glfwGetTime());
+	Window::render();
+}
+
 void WorldTestWindow::processInput() {
 	cgl::Camera camera = worldView->getCamera();
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
