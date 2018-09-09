@@ -91,7 +91,7 @@ bool intersectAt(vec4 line1[2], vec2 line2[2], out vec4 intersect) {
 					change = (y - normLine[0].y) / (normLine[1].x - normLine[0].y);
 					float z = (normLine[1].z - normLine[0].z) * change + normLine[0].z;
 					intersect = vec4(normLine[0].x, y, z, 1.0f);
-					intersect *= (line1[1].w - line1[0].w) / change + line1[0].w;
+					intersect *= (line1[1].w - line1[0].w) * change + line1[0].w;
 					return true;
 				}
 			} else {
@@ -99,6 +99,20 @@ bool intersectAt(vec4 line1[2], vec2 line2[2], out vec4 intersect) {
 			}
 		} else {
 			// both lines could be vertical and overlap here may want to consider having a line segment to return
+			return false;
+		}
+	}
+	if (line2[1].x == line2[0].x) {
+		if (min(normLine[0].x, normLine[1].x) <= line2[0].x && line2[0].x <= max(normLine[0].x, normLine[1].x)) {
+			float change = (line2[0].x - normLine[0].x) / (normLine[1].x - normLine[0].x);
+			float y = (normLine[1].y - normLine[0].y) * change + normLine[0].y;
+			if (min(line2[0].y, line2[1].y) <= y && y <= max(line2[0].y, line2[1].y)) {
+				float z = (normLine[1].z - normLine[0].z) * change + normLine[0].z;
+				intersect = vec4(line2[0].x, y, z, 1.0f);
+				intersect *= (line1[1].w - line1[0].w) * change + line1[0].w;
+				return true;
+			}
+		} else {
 			return false;
 		}
 	}
@@ -301,7 +315,6 @@ void main() {
 					}
 				}
 				vec3 normal = cross(points[0] - points[2], points[0] - points[1]);
-				normal = normalize(normal);
 				color = vec4(1.0, 0.0, 0.0, 1.0);
 				for (int j = 1; j < clippedLength - 1; j++) {
 					gl_Position = clipped[0];
@@ -315,7 +328,7 @@ void main() {
 						clippedPoints[0] = clipped[0].xyz / clipped[0].w;
 						clippedPoints[1] = clipped[j].xyz / clipped[j].w;
 						clippedPoints[2] = clipped[j + 1].xyz / clipped[j + 1].w;
-						clipped[j + 1].z = (-normal.x + clippedPoints[0].z * (clippedPoints[2].y - clippedPoints[1].y) + clippedPoints[1].z * (clippedPoints[0].y - clippedPoints[2].y)) / (clippedPoints[0].y - clippedPoints[1].y);
+						//clipped[j + 1].z = (clippedPoints[0].z * clippedPoints[2].x - clippedPoints[0].z * clippedPoints[1].x - clippedPoints[2].x * clippedPoints[1].z + normal.y / normal.x * (clippedPoints[0].y * clippedPoints[1].z - clippedPoints[2].y * clippedPoints[1].z + clippedPoints[2].y * clippedPoints[0].z - clippedPoints[1].y * clippedPoints[0].z)) / (clippedPoints[0].x - clippedPoints[1].x - normal.y / normal.x * (clippedPoints[1].y - clippedPoints[0].y));
 					}
 					gl_Position = clipped[j + 1];
 					texCoord = vec2(textureMapper * gl_Position.xyz);
