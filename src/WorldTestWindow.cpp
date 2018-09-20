@@ -17,7 +17,7 @@ WorldTestWindow::~WorldTestWindow() {
 }
 
 void WorldTestWindow::render() {
-	//worldView->setRotation(glfwGetTime());
+	worldView->setRotation(glfwGetTime());
 	Window::render();
 }
 

@@ -1,8 +1,11 @@
 #version 330 core
 layout (triangles) in;
-// max_verticies = MAX_CLIP_VERTICIES * (gl_in.length() - 1)
-// gl_in.length() == 3
+// max_verticies = (MAX_GL_IN - 1) * MAX_CLIP_VERTICIES
 layout (triangle_strip, max_vertices = 100) out;
+
+const int MAX_GL_IN = 3;
+// must be the same as MAX_VERTICIES in cgl::View
+const int MAX_CLIP_VERTICIES = 50;
 
 struct Vertex {
 	vec4 vertex;
@@ -11,18 +14,10 @@ struct Vertex {
 	bool exiting;
 };
 
-const int MAX_GL_IN = 3;
-// must be the same as MAX_VERTICIES in cgl::View
-const int MAX_CLIP_VERTICIES = 50;
-
 in vec2 TexCoord[];
 
 out vec2 texCoord;
 out vec4 color;
-
-// for unit testing
-out vec4 point;
-out int isInside;
 
 uniform vec2 clipRegion[MAX_CLIP_VERTICIES];
 uniform int numClipVerticies;
@@ -39,7 +34,7 @@ bool sourceClockwise() {
 		vec2 next = gl_in[(i + 1) % gl_in.length()].gl_Position.xy / gl_in[(i + 1) % gl_in.length()].gl_Position.w;
 		tArea += (next.x - current.x) * (next.y + current.y);
 	}
-	return tArea >= 0;
+	return tArea > 0;
 }
 
 bool clipContains(vec2 position) {
@@ -91,12 +86,11 @@ bool intersectAt(vec4 line1[2], vec2 line2[2], out vec4 intersect) {
 					change = (y - normLine[0].y) / (normLine[1].x - normLine[0].y);
 					float z = (normLine[1].z - normLine[0].z) * change + normLine[0].z;
 					intersect = vec4(normLine[0].x, y, z, 1.0f);
-					intersect *= (line1[1].w - line1[0].w) * change + line1[0].w;
+					//intersect *= (line1[1].w - line1[0].w) * change + line1[0].w;
 					return true;
 				}
-			} else {
-				return false;
 			}
+			return false;
 		} else {
 			// both lines could be vertical and overlap here may want to consider having a line segment to return
 			return false;
@@ -109,12 +103,11 @@ bool intersectAt(vec4 line1[2], vec2 line2[2], out vec4 intersect) {
 			if (min(line2[0].y, line2[1].y) <= y && y <= max(line2[0].y, line2[1].y)) {
 				float z = (normLine[1].z - normLine[0].z) * change + normLine[0].z;
 				intersect = vec4(line2[0].x, y, z, 1.0f);
-				intersect *= (line1[1].w - line1[0].w) * change + line1[0].w;
+				//intersect *= (line1[1].w - line1[0].w) * change + line1[0].w;
 				return true;
 			}
-		} else {
-			return false;
 		}
+		return false;
 	}
 	float denominator = line2[1].y - line2[0].y - (line2[1].x - line2[0].x) * (normLine[1].y - normLine[0].y) / (normLine[1].x - normLine[0].x);
 	// Line segments have the same slope
@@ -126,7 +119,7 @@ bool intersectAt(vec4 line1[2], vec2 line2[2], out vec4 intersect) {
 	float i = (line2[0].x + (line2[1].x - line2[0].x) * j - normLine[0].x) / (normLine[1].x - normLine[0].x);
 	if (i > 0 && i < 1 && j > 0 && j < 1) {
 		intersect = vec4(normLine[0].x + (normLine[1].x - normLine[0].x) * i, normLine[0].y + (normLine[1].y - normLine[0].y) * i, normLine[0].z + (normLine[1].z - normLine[0].z) * i, 1.0f);
-		intersect *= line1[0].w + (line1[1].w - line1[0].w) * i;
+		//intersect *= line1[0].w + (line1[1].w - line1[0].w) * i;
 		return true;
 	}
 	return false;
@@ -158,16 +151,6 @@ void main() {
 	float e = (TexCoord[1].y - d * points[1].x - points[1].z / points[0].z * (TexCoord[0].y - d * points[0].x)) / temp;
 	float f = (TexCoord[0].y - e * points[0].y - d * points[0].x) / points[0].z;
 	mat3 textureMapper = mat3(a, d, 0.0f, b, e, 0.0f, c, f, 0.0f);
-	/*
-	for (int i = 0; i < gl_in.length(); i++) {
-		gl_Position = gl_in[i].gl_Position;
-		point = gl_Position;
-		isInside = clipContains(gl_Position.xy / gl_Position.w) ? 1 : 0;
-		EmitVertex();
-	}
-	EndPrimitive();
-	return;
-	*/
 	Vertex clipVerticies[MAX_CLIP_VERTICIES];
 	if (sourceClockwise()) {
 		for (int i = 0; i < numClipVerticies; i++) {
@@ -271,16 +254,14 @@ void main() {
 				while (!(intersect && current == i)) {
 					if (intersect) {
 						clipped[clippedLength] = intersections[current].vertex;
-						clippedLength++;
 						intersections[current].exiting = false;
 						traceClip = !traceClip;
 					} else if (traceClip) {
 						clipped[clippedLength] = clipVerticies[current].vertex;
-						clippedLength++;
 					} else {
 						clipped[clippedLength] = sourceVerticies[current].vertex;
-						clippedLength++;
 					}
+					clippedLength++;
 					if (traceClip) {
 						if (intersect) {
 							if (intersections[current].next1 == -1) {
@@ -314,24 +295,33 @@ void main() {
 						}
 					}
 				}
-				vec3 normal = cross(points[0] - points[2], points[0] - points[1]);
+				vec3 normal = cross(points[2] - points[0], points[1] - points[0]);
+				normal = normalize(normal);
 				color = vec4(1.0, 0.0, 0.0, 1.0);
 				for (int j = 1; j < clippedLength - 1; j++) {
 					gl_Position = clipped[0];
-					texCoord = vec2(textureMapper * gl_Position.xyz);
+					texCoord = vec2(textureMapper * gl_Position.xyz / gl_Position.w);
 					EmitVertex();
 					gl_Position = clipped[j];
-					texCoord = vec2(textureMapper * gl_Position.xyz);
+					texCoord = vec2(textureMapper * gl_Position.xyz / gl_Position.w);
 					EmitVertex();
 					if (clipped[j + 1].z == 0 && clipped[j + 1].w == 1) {
 						vec3 clippedPoints[3];
 						clippedPoints[0] = clipped[0].xyz / clipped[0].w;
 						clippedPoints[1] = clipped[j].xyz / clipped[j].w;
 						clippedPoints[2] = clipped[j + 1].xyz / clipped[j + 1].w;
-						//clipped[j + 1].z = (clippedPoints[0].z * clippedPoints[2].x - clippedPoints[0].z * clippedPoints[1].x - clippedPoints[2].x * clippedPoints[1].z + normal.y / normal.x * (clippedPoints[0].y * clippedPoints[1].z - clippedPoints[2].y * clippedPoints[1].z + clippedPoints[2].y * clippedPoints[0].z - clippedPoints[1].y * clippedPoints[0].z)) / (clippedPoints[0].x - clippedPoints[1].x - normal.y / normal.x * (clippedPoints[1].y - clippedPoints[0].y));
+						clipped[j + 1].z = (-clippedPoints[2].y * clippedPoints[1].z + clippedPoints[2].y * clippedPoints[0].z + clippedPoints[0].y * clippedPoints[1].z - clippedPoints[1].y * clippedPoints[0].z + normal.x / normal.y * (-clippedPoints[1].x * clippedPoints[0].z - clippedPoints[2].x * clippedPoints[1].z + clippedPoints[0].x * clippedPoints[1].z + clippedPoints[2].x * clippedPoints[0].z)) / (-clippedPoints[1].y + clippedPoints[0].y - normal.x / normal.y * (clippedPoints[1].x - clippedPoints[0].x));
+						/*
+						clippedPoints[2].z = clipped[j + 1].z;
+						vec3 normTest = cross(clippedPoints[2] - clippedPoints[0], clippedPoints[1] - clippedPoints[0]);
+						if (normalize(normTest) != normal) {
+							color = vec4(0.0, 0.0, 1.0, 1.0);
+						}
+						*/
+						//clipped[j + 1] *= (clipped[0].w + clipped[j].w) / 2;
 					}
 					gl_Position = clipped[j + 1];
-					texCoord = vec2(textureMapper * gl_Position.xyz);
+					texCoord = vec2(textureMapper * gl_Position.xyz / gl_Position.w);
 					EmitVertex();
 					EndPrimitive();
 				}
@@ -349,7 +339,7 @@ void main() {
 			for (int i = 0; i < gl_in.length(); i++) {
 				gl_Position = gl_in[i].gl_Position;
 				color = vec4(0.0, 1.0, 0.0, 1.0);
-				texCoord = vec2(textureMapper * points[i]);
+				texCoord = TexCoord[i];
 				EmitVertex();
 			}
 			EndPrimitive();
@@ -357,27 +347,27 @@ void main() {
 			/*
 			allInside = true;
 			for (int i = 0; i < numClipVerticies; i++) {
-				if (!sourceContains(clipRegion[i])) {
+				if (!sourceContains(clipVerticies[i].vertex.xy)) {
 					allInside = false;
 					break;
 				}
 			}
 			if (allInside) {
 				for (int i = 1; i < numClipVerticies - 1; i++) {
-					gl_Position = vec4(clipRegion[0], 0.0f, 1.0f);
+					gl_Position = clipVerticies[0].vertex;
 					texCoord = vec2(textureMapper * gl_Position.xyz);
 					color = vec4(0.0, 0.0, 1.0, 1.0);
 					EmitVertex();
-					gl_Position = vec4(clipRegion[i], 0.0f, 1.0f);
+					gl_Position = clipVerticies[i].vertex;
 					texCoord = vec2(textureMapper * gl_Position.xyz);
 					color = vec4(0.0, 1.0, 1.0, 1.0);
 					EmitVertex();
-					gl_Position = vec4(clipRegion[i + 1], 0.0f, 1.0f);
+					gl_Position = clipVerticies[i + 1].vertex;
 					texCoord = vec2(textureMapper * gl_Position.xyz);
 					color = vec4(0.0, 1.0, 1.0, 1.0);
 					EmitVertex();
+					EndPrimitive();
 				}
-				EndPrimitive();
 			}
 			*/
 		}

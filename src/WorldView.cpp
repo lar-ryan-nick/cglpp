@@ -53,7 +53,6 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		if (vert.size() < 3) {
 			continue;
 		}
-		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		worldViewShader->use();
@@ -75,7 +74,6 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		}
 		worldViewShader->finish();
 		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_CULL_FACE);
 	}
 }
 
