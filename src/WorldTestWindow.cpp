@@ -4,7 +4,7 @@ WorldTestWindow::WorldTestWindow()  {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	cgl::Rectangle bounds = getView().getBounds();
 	worldView = new cgl::WorldView(bounds.getWidth() / 4, bounds.getHeight() / 4, bounds.getWidth() / 2, bounds.getHeight() / 2);
-	worldView->setBackgroundColor(cgl::Color(1.0f, 1.0f, 1.0f, 1.0f));
+	worldView->setBackgroundColor(cgl::Color(0.0f, 0.0f, 0.0f, 1.0f));
 	actor = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
 	worldView->addActor(actor);
 	getView().addSubview(worldView);
@@ -17,7 +17,7 @@ WorldTestWindow::~WorldTestWindow() {
 }
 
 void WorldTestWindow::render() {
-	worldView->setRotation(glfwGetTime());
+	//worldView->setRotation(glfwGetTime());
 	Window::render();
 }
 

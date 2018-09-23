@@ -37,13 +37,10 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		verticies[i + 1] = transformed.y;
 		p.addVertex(glm::vec2(transformed.x, transformed.y));
 	}
-	cgl::SpotLight spotLight;
-	spotLight.setPosition(camera.getPosition());
-	spotLight.setDirection(camera.getDirection());
+	SpotLight spotLight(camera.getPosition(), camera.getDirection());
 	glm::mat4 m;
 	m = glm::translate(m, glm::vec3(0.0f, 0.0f, -1.75f));
 	m = glm::scale(m, glm::vec3(0.2f, 0.2f, 0.2f));
-	//m = model * m;
 	glm::mat4 view = camera.getViewMatrix();
 	projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 0.1f, 100.0f);
 	glm::mat4 vp = projection * view;
@@ -59,6 +56,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		worldViewShader->setUniform("viewPos", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 		worldViewShader->setUniform("light", spotLight);
 		worldViewShader->setUniform("vp", vp);
+		worldViewShader->setUniform("ivp", glm::inverse(vp));
 		worldViewShader->setUniform("model", m);
 		int i = 0;
 		for (std::list<Position>::iterator it2 = vert.begin(); it2 != vert.end(); it2++) {
