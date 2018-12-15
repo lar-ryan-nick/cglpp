@@ -138,6 +138,14 @@ int findIntersect(vec4 intersect) {
 }
 
 void main() {
+	for (int i = 0; i < gl_in.length(); i++) {
+		gl_Position = gl_in[i].gl_Position;
+		color = vec4(0.0, 0.0, 1.0, 1.0);
+		texCoord = TexCoord[i];
+		EmitVertex();
+	}
+	EndPrimitive();
+	return;
 	// check for preconditions (to prevent division by 0)
 	for (int i = 0; i < gl_in.length(); i++) {
 		if (gl_in[i].gl_Position.w == 0) {

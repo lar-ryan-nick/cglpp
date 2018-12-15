@@ -1,4 +1,4 @@
-#include "View.h"
+#include "../include/View.h"
 
 cgl::Shader* cgl::View::viewShader = NULL;
 const unsigned int cgl::View::MAX_VERTICIES = 50;

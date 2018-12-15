@@ -1,4 +1,4 @@
-#include "Size.h"
+#include "../include/Size.h"
 
 cgl::Size::Size(float x, float y, float z, float w) : VectorContainer(x, y, z, w) {}
 

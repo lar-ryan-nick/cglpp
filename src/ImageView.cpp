@@ -1,4 +1,4 @@
-#include "ImageView.h"
+#include "../include/ImageView.h"
 
 cgl::Shader* cgl::ImageView::imageViewShader = NULL;
 

@@ -1,4 +1,4 @@
-#include "Actor.h"
+#include "../include/Actor.h"
 
 cgl::Actor::Actor(const std::string& path) : model(path) {}
 

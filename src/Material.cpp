@@ -1,4 +1,4 @@
-#include "Material.h"
+#include "../include/Material.h"
 
 cgl::Material::Material(const std::list<Texture>& diffuses, const std::list<Texture>& speculars, float shine) : diffuseMaps(diffuses), specularMaps(speculars), shininess(shine) {}
 

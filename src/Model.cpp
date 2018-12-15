@@ -1,4 +1,4 @@
-#include "Model.h"
+#include "../include/Model.h"
 
 cgl::Model::Model(const std::string& path) {
 	// read file via ASSIMP

@@ -1,4 +1,4 @@
-#include "WorldView.h"
+#include "../include/WorldView.h"
 
 cgl::Shader* cgl::WorldView::worldViewShader = NULL;
 float cgl::WorldView::pitch = 0.0f;

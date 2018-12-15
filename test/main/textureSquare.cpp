@@ -1,20 +1,12 @@
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "../src/Shader.h"
-#include "../src/Texture.h"
-#include "../src/Camera.h"
+#include <Shader.h>
+#include <Texture.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-int width = 800, height = 600;
-cgl::Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
 
 int main() {
 	if (!glfwInit()) {
@@ -30,8 +22,6 @@ int main() {
 		glfwTerminate();
 	}
 	glfwMakeContextCurrent(window);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetCursorPosCallback(window, mouse_callback);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		glfwTerminate();
@@ -39,7 +29,7 @@ int main() {
 	}
 	glViewport(0, 0, 800, 600);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	cgl::Shader shader("res/glsl/3dSquareVertexShader.glsl", "res/glsl/3dSquareFragmentShader.glsl");
+	cgl::Shader shader("res/glsl/textureSquareVertexShader.glsl", "res/glsl/textureSquareFragmentShader.glsl");
 	glActiveTexture(GL_TEXTURE0);
 	cgl::Texture texture1("res/img/container.jpg");
 	glActiveTexture(GL_TEXTURE1);
@@ -75,18 +65,10 @@ int main() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 	while (!glfwWindowShouldClose(window)) {
-		processInput(window);
-
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
 		shader.use();
-		glm::mat4 model;
-		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
-		shader.setUniform("model", model, false);
-		shader.setUniform("view", camera.getViewMatrix(), false);
-		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
-		shader.setUniform("projection", projection, false);
 		glActiveTexture(GL_TEXTURE0);
 		texture1.bind();
 		glActiveTexture(GL_TEXTURE1);
@@ -101,49 +83,6 @@ int main() {
 	return 0;
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int w, int h) {
-	width = w;
-	height = h;
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
-}
-
-void processInput(GLFWwindow *window) {
-	float cameraSpeed = 0.05f; // adjust accordingly
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.moveForward(cameraSpeed);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.moveForward(-cameraSpeed);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.moveRight(-cameraSpeed);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.moveRight(cameraSpeed);
-}
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-	static bool firstCall = true;
-	static float lastX = xpos;
-	static float lastY = ypos;
-	static float pitch = 0.0f;
-	static float yaw = 90.0f;
-	if (!firstCall) {
-		float xoffset = xpos - lastX;
-		float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
-		lastX = xpos;
-		lastY = ypos;
-		float sensitivity = 0.15f;
-		xoffset *= sensitivity;
-		yoffset *= sensitivity;
-		yaw += xoffset;
-		if (yaw > 360.0f) {
-			yaw -= 360.0f;
-		}
-		pitch += yoffset;
-		if(pitch > 89.0f)
-			pitch =  89.0f;
-		if(pitch < -89.0f)
-			pitch = -89.0f;
-		camera.setRotation(pitch, yaw);
-	} else {
-		firstCall = false;
-	}
-}
+} 

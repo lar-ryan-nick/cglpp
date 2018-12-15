@@ -6,12 +6,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <list>
-#include "../src/Shader.h"
-#include "../src/Texture.h"
-#include "../src/Camera.h"
-#include "../src/Cube.h"
-#include "../src/SpotLight.h"
+#include <Shader.h>
+#include <Texture.h>
+#include <Camera.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -22,8 +19,6 @@ cgl::Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
 int main() {
 	if (!glfwInit()) {
 		// Initialization failed
-		std::cerr << "Failed to initialize GLFW" << std::endl;
-		return -1;
 	}
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -33,7 +28,6 @@ int main() {
 	if (window == NULL) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
-		return -1;
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -44,39 +38,61 @@ int main() {
 		return -1;
 	}
 	glViewport(0, 0, 800, 600);
-	glEnable(GL_DEPTH_TEST);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	cgl::Shader shader("res/glsl/spotLightTestVertexShader.glsl", "res/glsl/spotLightTestFragmentShader.glsl");
-	cgl::Texture diffuse("res/img/container2.png");
-	std::list<cgl::Texture> diffuseMaps;
-	diffuseMaps.push_back(diffuse);
-	cgl::Texture specular("res/img/container2_specular.png");
-	std::list<cgl::Texture> specularMaps;
-	specularMaps.push_back(specular);
-	cgl::Material material(diffuseMaps, specularMaps, 32.0f);
-	cgl::SpotLight spotLight;
-	cgl::Cube cube;
+	cgl::Shader shader("res/glsl/3dSquareVertexShader.glsl", "res/glsl/3dSquareFragmentShader.glsl");
+	glActiveTexture(GL_TEXTURE0);
+	cgl::Texture texture1("res/img/container.jpg");
+	glActiveTexture(GL_TEXTURE1);
+	cgl::Texture texture2("res/img/awesomeface.png");
+	shader.use();
+	shader.setUniform("texture1", 0);
+	shader.setUniform("texture2", 1);
+	float verticies[] = {
+		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f
+	};
+	unsigned int indicies[] = {
+		0, 1, 3,
+		1, 2, 3
+	};
+	unsigned int VBO;
+	glGenBuffers(1, &VBO);
+	unsigned int EBO;
+	glGenBuffers(1, &EBO);
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		glClear(GL_COLOR_BUFFER_BIT);
 		shader.use();
 		glm::mat4 model;
 		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
 		shader.setUniform("model", model, false);
 		shader.setUniform("view", camera.getViewMatrix(), false);
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
 		shader.setUniform("projection", projection, false);
-		shader.setUniform("viewPos", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
-		shader.setUniform("material", material);
-		spotLight.setPosition(camera.getPosition());
-		spotLight.setDirection(camera.getDirection());
-		shader.setUniform("light", spotLight);
-		cube.bindVAO();
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		shader.finish();
+		glActiveTexture(GL_TEXTURE0);
+		texture1.bind();
+		glActiveTexture(GL_TEXTURE1);
+		texture2.bind();
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();    

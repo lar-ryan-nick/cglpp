@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../src/Polygon.h"
+#include <Polygon.h>
 
 int main() {
 	cgl::Polygon p;

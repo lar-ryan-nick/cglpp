@@ -1,10 +1,10 @@
 #ifndef TESTWINDOW_H
 #define TESTWINDOW_H
 
-#include "View.h"
-#include "ImageView.h"
-#include "ScrollView.h"
-#include "Window.h"
+#include <View.h>
+#include <ImageView.h>
+#include <ScrollView.h>
+#include <Window.h>
 
 class TestWindow : public cgl::Window {
 	private:

@@ -6,15 +6,16 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "../src/Shader.h"
-#include "../src/Texture.h"
-#include "../src/Camera.h"
-#include "../src/StarOfDavid.h"
+#include <Shader.h>
+#include <Texture.h>
+#include <Camera.h>
+#include <Cube.h>
+#include <PointLight.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-int width = 600, height = 600;
+int width = 800, height = 600;
 cgl::Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
 
 int main() {
@@ -41,22 +42,30 @@ int main() {
 	glViewport(0, 0, 800, 600);
 	glEnable(GL_DEPTH_TEST);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	cgl::Shader shader("res/glsl/starOfDavidTestVertexShader.glsl", "res/glsl/starOfDavidTestFragmentShader.glsl");
-	cgl::StarOfDavid sod;
+	cgl::Shader shader("res/glsl/pointLightTestVertexShader.glsl", "res/glsl/pointLightTestFragmentShader.glsl");
+	cgl::Texture diffuse("res/img/container2.png");
+	cgl::Texture specular("res/img/container2_specular.png");
+	cgl::Material material(std::list<cgl::Texture>(1, diffuse), std::list<cgl::Texture>(1, specular), 32.0f);
+	cgl::PointLight pointLight;
+	cgl::Cube cube;
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
 
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shader.use();
 		glm::mat4 model;
-		//model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
 		shader.setUniform("model", model, false);
 		shader.setUniform("view", camera.getViewMatrix(), false);
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
 		shader.setUniform("projection", projection, false);
-		sod.bindVAO();
+		shader.setUniform("viewPos", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
+		shader.setUniform("material", material);
+		pointLight.setPosition(camera.getPosition());
+		shader.setUniform("light", pointLight);
+		cube.bindVAO();
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);

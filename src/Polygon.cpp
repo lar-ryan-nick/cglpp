@@ -1,4 +1,4 @@
-#include "Polygon.h"
+#include "../include/Polygon.h"
 
 cgl::Polygon::VertexNode::VertexNode(const Position& p, VertexNode* n1, VertexNode* n2, bool e) : vertex(p), next1(n1), next2(n2), exiting(e) {}
 

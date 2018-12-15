@@ -1,4 +1,4 @@
-#include "Window.h"
+#include "../include/Window.h"
 
 const float cgl::Window::SCROLL_SCALE = 5.0f;
 bool cgl::Window::firstCall = true;

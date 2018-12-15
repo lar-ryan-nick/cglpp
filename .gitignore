@@ -1,6 +1,7 @@
+.DS_Store
+# Makefile
 test/bin/
 test/build/
-.DS_Store
 bin/
 build/
 lib/

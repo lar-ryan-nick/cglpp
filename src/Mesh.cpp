@@ -1,4 +1,4 @@
-#include "Mesh.h"
+#include "../include/Mesh.h"
 
 cgl::Mesh::Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<Position>& tc, const std::list<unsigned int>& i, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), material(m) {
 	std::vector<glm::vec3> pos(positions.begin(), positions.end());

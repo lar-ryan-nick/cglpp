@@ -6,10 +6,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "../../src/Shader.h"
-#include "../../src/Polygon.h"
-#include "../../src/Camera.h"
-#include "../../src/Actor.h"
+#include <Shader.h>
+#include <Polygon.h>
+#include <Camera.h>
+#include <Actor.h>
 
 unsigned int createShader(const std::string& vertexSourcePath, const std::string& geometrySourcePath);
 char* getFileContents(const std::string& filename);

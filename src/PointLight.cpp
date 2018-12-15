@@ -1,4 +1,4 @@
-#include "PointLight.h"
+#include "../include/PointLight.h"
 
 cgl::PointLight::PointLight(const glm::vec3& pos, const glm::vec3& color, float ambientStrength, float diffuseStrength, float specularStrength, float con, float lin, float quad) : Light(color, ambientStrength, diffuseStrength, specularStrength), position(pos), constant(con), linear(lin), quadratic(quad) {}
 

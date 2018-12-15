@@ -6,8 +6,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "../src/Shader.h"
-#include "../src/Texture.h"
+#include <Shader.h>
+#include <Texture.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 

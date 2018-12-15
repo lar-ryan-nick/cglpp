@@ -1,4 +1,4 @@
-#include "WorldTestWindow.h"
+#include "../include/WorldTestWindow.h"
 
 WorldTestWindow::WorldTestWindow()  {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);

@@ -1,4 +1,4 @@
-#include "LineSegment.h"
+#include "../include/LineSegment.h"
 
 cgl::LineSegment::LineSegment(const Position& p1, const Position& p2) : point1(p1), point2(p2) {}
 

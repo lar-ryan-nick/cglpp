@@ -1,9 +1,9 @@
 #ifndef WORLDTESTWINDOW_H
 #define WORLDTESTWINDOW_H
 
-#include "WorldView.h"
-#include "Window.h"
-#include "Actor.h"
+#include <WorldView.h>
+#include <Window.h>
+#include <Actor.h>
 
 class WorldTestWindow : public cgl::Window {
 	private:

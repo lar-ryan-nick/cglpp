@@ -1,4 +1,4 @@
-#include "Rotation.h"
+#include "../include/Rotation.h"
 
 cgl::Rotation::Rotation(float x, float y, float z) : VectorContainer(x, y, z) {}
 

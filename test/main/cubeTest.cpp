@@ -6,11 +6,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "../src/Shader.h"
-#include "../src/Texture.h"
-#include "../src/Camera.h"
-#include "../src/Cube.h"
-#include "../src/PointLight.h"
+#include <Shader.h>
+#include <Texture.h>
+#include <Camera.h>
+#include <Cube.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -40,13 +39,10 @@ int main() {
 		return -1;
 	}
 	glViewport(0, 0, 800, 600);
-	glEnable(GL_DEPTH_TEST);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	cgl::Shader shader("res/glsl/pointLightTestVertexShader.glsl", "res/glsl/pointLightTestFragmentShader.glsl");
-	cgl::Texture diffuse("res/img/container2.png");
-	cgl::Texture specular("res/img/container2_specular.png");
-	cgl::Material material(std::list<cgl::Texture>(1, diffuse), std::list<cgl::Texture>(1, specular), 32.0f);
-	cgl::PointLight pointLight;
+	glEnable(GL_DEPTH_TEST);
+	cgl::Shader shader("res/glsl/cubeTestVertexShader.glsl", "res/glsl/cubeTestFragmentShader.glsl");
+	cgl::Texture texture("res/img/container.jpg");
 	cgl::Cube cube;
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
@@ -61,10 +57,9 @@ int main() {
 		shader.setUniform("view", camera.getViewMatrix(), false);
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
 		shader.setUniform("projection", projection, false);
+		shader.setUniform("lightPos", 1.2f, 1.0f, 2.0f);
 		shader.setUniform("viewPos", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
-		shader.setUniform("material", material);
-		pointLight.setPosition(camera.getPosition());
-		shader.setUniform("light", pointLight);
+		texture.bind();
 		cube.bindVAO();
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 

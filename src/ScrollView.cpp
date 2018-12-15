@@ -1,4 +1,4 @@
-#include "ScrollView.h"
+#include "../include/ScrollView.h"
 
 cgl::ScrollView::ScrollView(float x, float y, float width, float height) : View(x, y, width, height), contentSize(width, height) {
 	setIsScrollable(true);
