@@ -18,16 +18,18 @@ namespace cgl {
 		private:
 			Color backgroundColor;
 			View* view;
+			bool firstCall;
+			float lastX;
+			float lastY;
 			const static float SCROLL_SCALE;
 			static void framebufferSizeCallback(GLFWwindow* window, int w, int h);
 			static void scrollCallback(GLFWwindow* w, double xOffset, double yOffset);
-			static void mouseCallback(GLFWwindow* window, double xpos, double ypos);
-			static bool firstCall;
-			static float lastX;
-			static float lastY;
+			static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
+			static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 		public:
 			Window(const std::string& windowName = "Application", int w = 1280, int h = 720, float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f);
 			virtual ~Window();
+			void linkCallbacks();
 			// remove virtual on input later
 			virtual void processInput();
 			virtual void render();
@@ -35,13 +37,11 @@ namespace cgl {
 			View& getView();
 			void setBackgroundColor(const Color& color);
 			Color getBackgroundColor();
-			//void scroll(double xOffset, double yOffset);
 			bool shouldClose();
 			void close();
 		protected:
 			// make private later
 			GLFWwindow* window;
-			//virtual bool onScroll(double xOffset, double yOffset);
 	};
 }
 

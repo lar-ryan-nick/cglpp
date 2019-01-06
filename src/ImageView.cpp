@@ -29,5 +29,6 @@ void cgl::ImageView::draw(const glm::mat4& parentModel, const Polygon& p) {
 	glActiveTexture(GL_TEXTURE0);
 	texture.bind();
 	shader->setUniform("image", 0);
+	shader->finish();
 	View::draw(parentModel, p);
 }

@@ -3,7 +3,7 @@
 cgl::Shader* cgl::View::viewShader = NULL;
 const unsigned int cgl::View::MAX_VERTICIES = 50;
 
-cgl::View::View(float x, float y, float width, float height) : bounds(x, y, width, height), backgroundColor(0.0f, 0.0f, 0.0f, 0.0f), rotation(0.0f), clipSubviews(false), clipToParent(false), isScrollable(false) {
+cgl::View::View(float x, float y, float width, float height) : bounds(x, y, width, height), backgroundColor(0.0f, 0.0f, 0.0f, 0.0f), rotation(0.0f), clipSubviews(false), clipToParent(false), isScrollable(false), isClickable(true), isPressed(false) {
 	if (viewShader == NULL) {
 		viewShader = new Shader("res/glsl/ViewVertexShader.glsl", "res/glsl/ViewFragmentShader.glsl");
 	}
@@ -104,6 +104,26 @@ void cgl::View::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	float f = e * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]);
 	float h = 1 - e * verticies[0] - f * verticies[1];
 	glm::mat4 textureMapper(a, e, 0.0f, 0.0f, b, f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, d, h, 0.0f, 0.0f);
+	/*
+		std::list<Position> vert = p.getVerticies();
+		std::vector<glm::vec2> v(vert.begin(), vert.end());
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, v.size() * sizeof(glm::vec2), &v[0]);
+		shader->use();
+		shader->setUniform("backgroundColor", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
+		shader->setUniform("textureMapper", textureMapper);
+		glDrawElements(GL_TRIANGLES, (vert.size() - 2) * 3, GL_UNSIGNED_INT, 0);
+		shader->finish();
+		glBindVertexArray(0);
+		for (std::list<View*>::iterator it2 = subviews.begin(); it2 != subviews.end(); it2++) {
+			View* view = *it2;
+			view->translate(bounds.getX() - offsetPosition.getX(), bounds.getY() - offsetPosition.getY());
+			view->draw(model, p);
+			view->translate(offsetPosition.getX() - bounds.getX(), offsetPosition.getY() - bounds.getY());
+		}
+		return;
+	*/
 	std::list<Polygon> clippedPolygons = p.clipTo(poly);
 	for (std::list<Polygon>::iterator it1 = clippedPolygons.begin(); it1 != clippedPolygons.end(); it1++) {
 		Polygon clippedPolygon = *it1;
@@ -190,8 +210,75 @@ bool cgl::View::scroll(double xOffset, double yOffset, float mouseX, float mouse
 	}
 }
 
+bool cgl::View::mousePress(int button, int mods, float mouseX, float mouseY) {
+	Rectangle bounds = getBounds();
+	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
+		View* view = *it;
+		glm::mat4 model = view->getInverseTransformationMatrix();
+		glm::vec4 pos = model * glm::vec4(mouseX - bounds.getX() + offsetPosition.getX(), mouseY - bounds.getY() + offsetPosition.getY(), 0.0f, 1.0f);
+		if (view->getBounds().contains(Position(pos.x, pos.y))) {
+			if (view->mousePress(button, mods, pos.x, pos.y)) {
+				return true;
+			}
+		}
+	}
+	if (isClickable) {
+		return onMousePress(button, mods);
+	} else {
+		return false;
+	}
+}
+
+bool cgl::View::mouseRelease(int button, int mods, float mouseX, float mouseY) {
+	Rectangle bounds = getBounds();
+	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
+		View* view = *it;
+		glm::mat4 model = view->getInverseTransformationMatrix();
+		glm::vec4 pos = model * glm::vec4(mouseX - bounds.getX() + offsetPosition.getX(), mouseY - bounds.getY() + offsetPosition.getY(), 0.0f, 1.0f);
+		if (view->getBounds().contains(Position(pos.x, pos.y))) {
+			if (view->mouseRelease(button, mods, pos.x, pos.y)) {
+				return true;
+			}
+		}
+	}
+	if (isClickable) {
+		return onMouseRelease(button, mods);
+	} else {
+		return false;
+	}
+}
+
 bool cgl::View::onScroll(double xOffset, double yOffset) {
 	return false;
+}
+
+bool cgl::View::onMousePress(int button, int mods) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT) {
+		isPressed = true;
+		return true;
+	}
+	return false;
+}
+
+bool cgl::View::onMouseRelease(int button, int mods) {
+	if (isPressed) {
+		isPressed = false;
+		onClick();
+		return true;
+	}
+	return false;
+}
+
+void cgl::View::propogateMouseRelease() {
+	isPressed = false;
+	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
+		View* view = *it;
+		view->propogateMouseRelease();
+	}
+}
+
+void cgl::View::onClick() {
+	std::cout << "Hi, " << backgroundColor << " has been clicked!" << std::endl;
 }
 
 void cgl::View::translate(float x, float y) {

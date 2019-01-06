@@ -1,6 +1,8 @@
 #ifndef VIEW_H
 #define VIEW_H
 
+#include <glad/glad.h>
+#include <glfw/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -31,6 +33,8 @@ namespace cgl {
 			bool clipSubviews;
 			bool clipToParent;
 			bool isScrollable;
+			bool isClickable;
+			bool isPressed;
 			Position offsetPosition;
 		public:
 			View(float x = 0.0f, float y = 0.0f, float width = 0.0f, float height = 0.0f);
@@ -47,6 +51,9 @@ namespace cgl {
 			void setIsScrollable(bool s);
 			bool getIsScrollable() const;
 			bool scroll(double xOffset, double yOffset, float mouseX, float mouseY);
+			bool mousePress(int button, int mods, float mouseX, float mouseY);
+			bool mouseRelease(int button, int mods, float mouseX, float mouseY);
+			void propogateMouseRelease();
 			void translate(float x, float y);
 			void setTranslation(float x, float y);
 			void rotate(float radians);
@@ -60,6 +67,9 @@ namespace cgl {
 		protected:
 			void setOffsetPosition(const Position& offset);
 			virtual bool onScroll(double xOffset, double yOffset);
+			virtual bool onMousePress(int button, int mods);
+			virtual bool onMouseRelease(int button, int mods);
+			virtual void onClick();
 			Shader* shader;
 	};
 }

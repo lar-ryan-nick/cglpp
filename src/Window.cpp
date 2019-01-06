@@ -1,11 +1,8 @@
 #include "../include/Window.h"
 
 const float cgl::Window::SCROLL_SCALE = 5.0f;
-bool cgl::Window::firstCall = true;
-float cgl::Window::lastX;
-float cgl::Window::lastY;
 
-cgl::Window::Window(const std::string& windowName, int w, int h, float r, float g, float b, float a) : backgroundColor(r, g, b, a) {
+cgl::Window::Window(const std::string& windowName, int w, int h, float r, float g, float b, float a) : backgroundColor(r, g, b, a), firstCall(false) {
 	window = glfwCreateWindow(w, h, windowName.c_str(), NULL, NULL);
 	if (window == NULL) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
@@ -16,10 +13,14 @@ cgl::Window::Window(const std::string& windowName, int w, int h, float r, float 
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);
 	view = new View(0, 0, static_cast<float>(width), static_cast<float>(height));
-	glfwSetWindowUserPointer(window, view);
+}
+
+void cgl::Window::linkCallbacks() {
+	glfwSetWindowUserPointer(window, this);
 	glfwSetScrollCallback(window, scrollCallback);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-	glfwSetCursorPosCallback(window, &mouseCallback);
+	glfwSetCursorPosCallback(window, mouseMoveCallback);
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
 }
 
 cgl::Window::~Window() {
@@ -71,37 +72,53 @@ bool cgl::Window::shouldClose() {
 	return glfwWindowShouldClose(window);
 }
 
-void cgl::Window::framebufferSizeCallback(GLFWwindow* window, int w, int h) {
-	glViewport(0, 0, w, h);
-	View* view = static_cast<View*>(glfwGetWindowUserPointer(window));
-	Rectangle bounds = view->getBounds();
-	view->setBounds(0, 0, static_cast<float>(w), static_cast<float>(h));
+void cgl::Window::framebufferSizeCallback(GLFWwindow* w, int width, int height) {
+	glViewport(0, 0, width, height);
+	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
+	window->view->setBounds(0, 0, static_cast<float>(width), static_cast<float>(height));
 }
 
-void cgl::Window::scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
-	View* view = static_cast<View*>(glfwGetWindowUserPointer(window));
+void cgl::Window::scrollCallback(GLFWwindow* w, double xOffset, double yOffset) {
+	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
 	double xpos, ypos;
-	glfwGetCursorPos(window, &xpos, &ypos);
+	glfwGetCursorPos(w, &xpos, &ypos);
 	int width = 0, height = 0;
-	glfwGetWindowSize(window, &width, &height);
+	glfwGetWindowSize(w, &width, &height);
 	int frameWidth = 0, frameHeight = 0;
-	glfwGetFramebufferSize(window, &frameWidth, &frameHeight);
+	glfwGetFramebufferSize(w, &frameWidth, &frameHeight);
 	xpos *= frameWidth / width;
 	ypos *= frameHeight / height;
-	view->scroll(SCROLL_SCALE * xOffset, SCROLL_SCALE * yOffset, xpos, ypos);
+	window->view->scroll(SCROLL_SCALE * xOffset, SCROLL_SCALE * yOffset, xpos, ypos);
 }
 
-void cgl::Window::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
-	View* view = static_cast<View*>(glfwGetWindowUserPointer(window));
-	if (!firstCall) {
-		float xoffset = xpos - lastX;
-		float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
-		lastX = xpos;
-		lastY = ypos;
-		view->onMouseMove(xoffset, yoffset);
+void cgl::Window::mouseMoveCallback(GLFWwindow* w, double xpos, double ypos) {
+	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
+	if (!window->firstCall) {
+		float xoffset = xpos - window->lastX;
+		float yoffset = window->lastY - ypos; // reversed since y-coordinates range from bottom to top
+		window->lastX = xpos;
+		window->lastY = ypos;
+		window->view->onMouseMove(xoffset, yoffset);
 	} else {
-		firstCall = false;
-		lastX = xpos;
-		lastY = ypos;
+		window->firstCall = false;
+		window->lastX = xpos;
+		window->lastY = ypos;
+	}
+}
+
+void cgl::Window::mouseButtonCallback(GLFWwindow* w, int button, int action, int mods) {
+	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(w));
+	double xpos, ypos;
+	glfwGetCursorPos(w, &xpos, &ypos);
+	switch (action) {
+		case GLFW_PRESS:
+			window->view->mousePress(button, mods, xpos, ypos);
+			break;
+		case GLFW_RELEASE:
+			window->view->mouseRelease(button, mods, xpos, ypos);
+			window->view->propogateMouseRelease();
+			break;
+		default:
+			break;
 	}
 }
