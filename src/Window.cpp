@@ -2,7 +2,7 @@
 
 const float cgl::Window::SCROLL_SCALE = 5.0f;
 
-cgl::Window::Window(const std::string& windowName, int w, int h, float r, float g, float b, float a) : backgroundColor(r, g, b, a), firstCall(false) {
+cgl::Window::Window(const std::string& windowName, int w, int h, float r, float g, float b, float a) : backgroundColor(r, g, b, a), firstCall(true) {
 	window = glfwCreateWindow(w, h, windowName.c_str(), NULL, NULL);
 	if (window == NULL) {
 		std::cerr << "Failed to create GLFW window" << std::endl;

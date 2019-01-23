@@ -36,8 +36,10 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 	if (verticies.size() < 3 || p.verticies.size() < 3) {
 		return std::list<Polygon>();
 	}
+	int numNew = 0, numDel = 0;
 	std::list<VertexNode*> exitingIntersections;
 	VertexNode* clippingHead = new VertexNode(p.verticies.front());
+	numNew++;
 	VertexNode* current = clippingHead;
 	std::unordered_map<Position, std::list<VertexNode*> > intersections;
 	for (std::list<Position>::const_iterator it = verticies.cbegin(); it != verticies.cend(); it++) {
@@ -60,6 +62,7 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 			bool intersect = edge.intersects(side, intersectionPoint);
 			if (intersect) {
 				VertexNode* node = new VertexNode(intersectionPoint);
+				numNew++;
 				LineSegment intersectionSegment(intersectionPoint, *it1);
 				bool added = false;
 				for (std::list<VertexNode*>::iterator it5 = points.begin(); it5 != points.end(); it5++) {
@@ -106,12 +109,14 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 		}
 		if (it2 != p.verticies.cbegin()) {
 			current->next1 = new VertexNode(*it2);
+			numNew++;
 			current = current->next1;
 		} else {
 			current->next1 = clippingHead;
 		}
 	}
 	clippingHead = new VertexNode(verticies.front());
+	numNew++;
 	current = clippingHead;
 	for (std::list<Position>::const_iterator it1 = verticies.cbegin(); it1 != verticies.cend(); it1++) {
 		std::list<Position>::const_iterator it2 = std::next(it1);
@@ -125,6 +130,7 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 		}
 		if (it2 != verticies.begin()) {
 			current->next2 = new VertexNode(*it2);
+			numNew++;
 			current = current->next2;
 		} else {
 			current->next2 = clippingHead;
@@ -166,21 +172,29 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 				VertexNode* previous = current;
 				current = current->next1;
 				delete previous;
+				numDel++;
 			}
 			current = iterator->next2;
 			while (current->next1 == NULL) {
 				VertexNode* previous = current;
 				current = current->next2;
 				delete previous;
+				numDel++;
 			}
 			if (!first) {
 				delete iterator;
+				numDel++;
 				intersectionDeleteCount++;
 			}
 			iterator = current;
 			first = false;
 		}
 		delete iterator;
+		numDel++;
+		if (numDel != numNew) {
+			std::cout << "FUCK ME!" << std::endl;
+			std::cout << numNew - numDel << std::endl;
+		}
 	} else {
 		bool allInside = true;
 		for (std::list<Position>::const_iterator it = verticies.cbegin(); it != verticies.cend(); it++) {
