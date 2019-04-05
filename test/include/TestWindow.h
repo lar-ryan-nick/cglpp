@@ -5,6 +5,7 @@
 #include <ImageView.h>
 #include <ScrollView.h>
 #include <Window.h>
+#include <Font.h>
 
 class TestWindow : public cgl::Window {
 	private:

@@ -1,4 +1,5 @@
 #include "../include/Window.h"
+#include "Font.h"
 
 const float cgl::Window::SCROLL_SCALE = 5.0f;
 

@@ -15,9 +15,10 @@ namespace cgl {
 			static std::unordered_map<std::string, unsigned int> loadedTextures;
 			void init();
 		public:
-			Texture();
+			Texture(unsigned int tid = 0);
 			Texture(const std::string& textureSource);
 			void setTexture(const std::string& textureSource);
+			void setID(unsigned int tid);
 			void bind() const;
 			static Texture getBlackTexture();
 			static Texture getWhiteTexture();

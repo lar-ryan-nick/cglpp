@@ -6,7 +6,7 @@ std::unordered_map<std::string, unsigned int> cgl::Texture::loadedTextures;
 cgl::Texture cgl::Texture::whiteTexture;
 cgl::Texture cgl::Texture::blackTexture;
 
-cgl::Texture::Texture() : id(0) {}
+cgl::Texture::Texture(unsigned int tid) : id(tid) {}
 
 cgl::Texture::Texture(const std::string& filename) : id(0) {
 	setTexture(filename);
@@ -47,6 +47,10 @@ void cgl::Texture::setTexture(const std::string& filename) {
 		setTexture("res/img/white.jpg");
 	}
 	stbi_image_free(data);
+}
+
+void cgl::Texture::setID(unsigned int tid) {
+	id = tid;
 }
 
 void cgl::Texture::bind() const {
