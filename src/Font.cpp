@@ -73,8 +73,6 @@ cgl::Font::Font(const std::string& fontName, int fontSize) {
 }
 
 void cgl::Font::renderString(const std::string& s, int x, int y, int scale) {
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	float viewport[4];
 	glGetFloatv(GL_VIEWPORT, viewport);
 	glm::mat4 projection = glm::ortho(0.0f, viewport[2], 0.0f, viewport[3], -0.1f, 0.1f);

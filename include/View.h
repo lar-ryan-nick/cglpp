@@ -21,9 +21,6 @@ namespace cgl {
 		private:
 			static Shader* viewShader;
 			const static unsigned int MAX_VERTICIES;
-			unsigned int vao;
-			unsigned int vbo[2];
-			unsigned int ebo;
 			Rectangle bounds;
 			Color backgroundColor;
 			float rotation;
@@ -65,12 +62,15 @@ namespace cgl {
 			glm::mat4 getInverseTransformationMatrix() const;
 			virtual void onMouseMove(float xOffset, float yOffset);
 		protected:
+			unsigned int vao;
+			unsigned int vbo;
+			unsigned int ebo;
 			void setOffsetPosition(const Position& offset);
 			virtual bool onScroll(double xOffset, double yOffset);
 			virtual bool onMousePress(int button, int mods);
 			virtual bool onMouseRelease(int button, int mods);
 			virtual void onClick();
-			Shader* shader;
+			virtual void render(const cgl::Polygon& bounds, const glm::mat4& textureMapper);
 	};
 }
 

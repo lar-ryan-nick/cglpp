@@ -3,33 +3,26 @@
 cgl::Shader* cgl::View::viewShader = NULL;
 const unsigned int cgl::View::MAX_VERTICIES = 50;
 
-cgl::View::View(float x, float y, float width, float height) : bounds(x, y, width, height), backgroundColor(0.0f, 0.0f, 0.0f, 0.0f), rotation(0.0f), clipSubviews(false), clipToParent(false), isScrollable(false), isClickable(true), isPressed(false) {
+cgl::View::View(float x, float y, float width, float height) : bounds(x, y, width, height), backgroundColor(0.0f, 0.0f, 0.0f, 1.0f), rotation(0.0f), clipSubviews(false), clipToParent(false), isScrollable(false), isClickable(true), isPressed(false) {
 	if (viewShader == NULL) {
 		viewShader = new Shader("res/glsl/ViewVertexShader.glsl", "res/glsl/ViewFragmentShader.glsl");
 	}
-	shader = viewShader;
 	unsigned int indicies[(MAX_VERTICIES - 2) * 3];
 	for (int i = 0; i < (MAX_VERTICIES - 2) * 3; i += 3) {
 		indicies[i] = 0;
 		indicies[i + 1] = i / 3 + 1;
 		indicies[i + 2] = i / 3 + 2;
 	}
-	glGenBuffers(2, vbo);
+	glGenBuffers(1, &vbo);
 	glGenBuffers(1, &ebo);
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * MAX_VERTICIES, NULL, GL_STREAM_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	/*
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * MAX_VERTICIES, NULL, GL_STREAM_DRAW);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	*/
 	glBindVertexArray(0);
 }
 /* fix later
@@ -49,7 +42,7 @@ cgl::View::~View() {
 	}
 	*/
 	// buffer data deletion
-	glDeleteBuffers(2, vbo);
+	glDeleteBuffers(1, &vbo);
 	glDeleteBuffers(1, &ebo);
 	glDeleteVertexArrays(1, &vao);
 }
@@ -104,26 +97,6 @@ void cgl::View::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	float f = e * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]);
 	float h = 1 - e * verticies[0] - f * verticies[1];
 	glm::mat4 textureMapper(a, e, 0.0f, 0.0f, b, f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, d, h, 0.0f, 0.0f);
-	/*
-		std::list<Position> vert = p.getVerticies();
-		std::vector<glm::vec2> v(vert.begin(), vert.end());
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, v.size() * sizeof(glm::vec2), &v[0]);
-		shader->use();
-		shader->setUniform("backgroundColor", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
-		shader->setUniform("textureMapper", textureMapper);
-		glDrawElements(GL_TRIANGLES, (vert.size() - 2) * 3, GL_UNSIGNED_INT, 0);
-		shader->finish();
-		glBindVertexArray(0);
-		for (std::list<View*>::iterator it2 = subviews.begin(); it2 != subviews.end(); it2++) {
-			View* view = *it2;
-			view->translate(bounds.getX() - offsetPosition.getX(), bounds.getY() - offsetPosition.getY());
-			view->draw(model, p);
-			view->translate(offsetPosition.getX() - bounds.getX(), offsetPosition.getY() - bounds.getY());
-		}
-		return;
-	*/
 	std::list<Polygon> clippedPolygons = p.clipTo(poly);
 	for (std::list<Polygon>::iterator it1 = clippedPolygons.begin(); it1 != clippedPolygons.end(); it1++) {
 		Polygon clippedPolygon = *it1;
@@ -131,16 +104,7 @@ void cgl::View::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		if (vert.size() < 3) {
 			continue;
 		}
-		std::vector<glm::vec2> v(vert.begin(), vert.end());
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, v.size() * sizeof(glm::vec2), &v[0]);
-		shader->use();
-		shader->setUniform("backgroundColor", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
-		shader->setUniform("textureMapper", textureMapper);
-		glDrawElements(GL_TRIANGLES, (vert.size() - 2) * 3, GL_UNSIGNED_INT, 0);
-		shader->finish();
-		glBindVertexArray(0);
+		render(clippedPolygon, textureMapper);
 		for (std::list<View*>::iterator it2 = subviews.begin(); it2 != subviews.end(); it2++) {
 			View* view = *it2;
 			view->translate(bounds.getX() - offsetPosition.getX(), bounds.getY() - offsetPosition.getY());
@@ -152,6 +116,19 @@ void cgl::View::draw(const glm::mat4& parentModel, const Polygon& poly) {
 			view->translate(offsetPosition.getX() - bounds.getX(), offsetPosition.getY() - bounds.getY());
 		}
 	}
+}
+
+void cgl::View::render(const cgl::Polygon& bounds, const glm::mat4& textureMapper) {
+	std::list<Position> vert = bounds.getVerticies();
+	std::vector<glm::vec2> v(vert.begin(), vert.end());
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, v.size() * sizeof(glm::vec2), &v[0]);
+	viewShader->use();
+	viewShader->setUniform("backgroundColor", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
+	glDrawElements(GL_TRIANGLES, (vert.size() - 2) * 3, GL_UNSIGNED_INT, 0);
+	viewShader->finish();
+	glBindVertexArray(0);
 }
 
 void cgl::View::addSubview(View* view) {
