@@ -29,13 +29,10 @@ namespace cgl {
 			};
 			static std::unordered_map<std::string, std::vector<Glyph> > bitmaps;
 			static Glyph* getBitmap(const std::string& fontName, int fontSize = 48);
-			static unsigned int vao, vbo;
-			static Shader* shader;
 			static void init();
 			Glyph* bitmap;
 		public:
 			Font(const std::string& fontName, int fontSize = 48);
-			//void renderChar(unsigned char c);
 			void renderString(const std::string& s, int x, int y, int scale);
 	};
 }
