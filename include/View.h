@@ -55,6 +55,7 @@ namespace cgl {
 			void setTranslation(float x, float y);
 			void rotate(float radians);
 			void setRotation(float radians);
+			Size getScalar();
 			void scale(float x, float y);
 			void setScalar(float x, float y);
 			Position getOffsetPosition() const;
@@ -70,7 +71,7 @@ namespace cgl {
 			virtual bool onMousePress(int button, int mods);
 			virtual bool onMouseRelease(int button, int mods);
 			virtual void onClick();
-			virtual void render(const cgl::Polygon& bounds, const glm::mat4& textureMapper);
+			virtual void render(const cgl::Polygon& bounds, const glm::mat4& model);
 	};
 }
 

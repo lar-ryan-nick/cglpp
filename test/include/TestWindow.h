@@ -6,6 +6,7 @@
 #include <ScrollView.h>
 #include <Window.h>
 #include <Font.h>
+#include <TextView.h>
 
 class TestWindow : public cgl::Window {
 	private:
@@ -13,6 +14,7 @@ class TestWindow : public cgl::Window {
 		cgl::ImageView *subview;
 		cgl::ScrollView* scrollSubview;
 		cgl::View* subsubview;
+		cgl::TextView* textView;
 	public:
 		TestWindow();
 		virtual ~TestWindow();

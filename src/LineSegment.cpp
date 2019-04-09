@@ -22,7 +22,7 @@ bool cgl::LineSegment::intersects(const LineSegment& other, Position& point) {
 			if (((other.point1.getX() <= point1.getX() && point1.getX() <= other.point2.getX()) || (other.point2.getX() <= point1.getX() && point1.getX() <= other.point1.getX()))) {
 				float change = (other.point2.getX() - other.point1.getX()) * (point1.getX() - other.point1.getX());
 				float y = (other.point2.getY() - other.point1.getY()) / change + other.point1.getY();
-				if (point1.getY() <= y && y <= point2.getY() || point2.getY() <= y && y <= point1.getX()) {
+				if ((point1.getY() <= y && y <= point2.getY()) || (point2.getY() <= y && y <= point1.getX())) {
 					float z = (other.point2.getZ() - other.point1.getZ()) / change + other.point1.getZ();
 					float w = (other.point2.getW() - other.point1.getW()) / change + other.point1.getW();
 					point.setX(point1.getX());

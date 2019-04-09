@@ -1,25 +1,7 @@
 #include "Font.h"
 #include <iostream>
 
-cgl::Shader* cgl::Font::shader = NULL;
-unsigned int cgl::Font::vao = 0;
-unsigned int cgl::Font::vbo = 0;
 std::unordered_map<std::string, std::vector<cgl::Font::Glyph> > cgl::Font::bitmaps;
-
-void cgl::Font::init() {
-	if (shader == NULL) {
-		glGenVertexArrays(1, &vao);
-		glGenBuffers(1, &vbo);
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-		shader = new cgl::Shader("res/glsl/TextViewVertexShader.glsl", "res/glsl/TextViewFragmentShader.glsl");
-	}
-}
 
 cgl::Font::Glyph* cgl::Font::getBitmap(const std::string& fontName, int fontSize) {
 	// don't generate bitmap if it has already been generated
@@ -68,49 +50,24 @@ cgl::Font::Glyph* cgl::Font::getBitmap(const std::string& fontName, int fontSize
 }
 
 cgl::Font::Font(const std::string& fontName, int fontSize) {
-	init();
 	bitmap = getBitmap(fontName, fontSize);
+	maxHeight = findMaxHeight();
 }
 
-void cgl::Font::renderString(const std::string& s, int x, int y, int scale) {
-	float viewport[4];
-	glGetFloatv(GL_VIEWPORT, viewport);
-	glm::mat4 projection = glm::ortho(0.0f, viewport[2], 0.0f, viewport[3], -0.1f, 0.1f);
-	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(vao);
-	shader->use();
-	shader->setUniform("projection", projection);
-	// Iterate through all characters
-	for (std::string::const_iterator c = s.begin(); c != s.end(); c++) {
-		Glyph g = bitmap[static_cast<unsigned char>(*c)];
-	
-		float xpos = x + g.bearing.x * scale;
-		float ypos = y - (g.size.y - g.bearing.y) * scale;
-	
-		float w = g.size.x * scale;
-		float h = g.size.y * scale;
-		// Update VBO for each character
-		float vertices[6][4] = {
-		    { xpos,     ypos + h,   0.0, 0.0 },            
-		    { xpos,     ypos,       0.0, 1.0 },
-		    { xpos + w, ypos,       1.0, 1.0 },
-	
-		    { xpos,     ypos + h,   0.0, 0.0 },
-		    { xpos + w, ypos,       1.0, 1.0 },
-		    { xpos + w, ypos + h,   1.0, 0.0 }           
-		};
-		// Render glyph texture over quad
-		g.texture.bind();
-		// Update content of VBO memory
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		// Render quad
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-		x += (g.advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+int cgl::Font::getMaxHeight() {
+	return maxHeight;
+}
+
+cgl::Font::Glyph* cgl::Font::getBitmap() {
+	return bitmap;
+}
+
+int cgl::Font::findMaxHeight() {
+	int max = 0;
+	for (int c = 0; c < NUM_CHAR; c++) {
+		if (bitmap[c].size.y > max) {
+			max = bitmap[c].size.y;
+		}
 	}
-	shader->finish();
-	glBindVertexArray(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	return max;
 }

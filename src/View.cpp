@@ -3,7 +3,7 @@
 cgl::Shader* cgl::View::viewShader = NULL;
 const unsigned int cgl::View::MAX_VERTICIES = 50;
 
-cgl::View::View(float x, float y, float width, float height) : bounds(x, y, width, height), backgroundColor(0.0f, 0.0f, 0.0f, 1.0f), rotation(0.0f), clipSubviews(false), clipToParent(false), isScrollable(false), isClickable(true), isPressed(false) {
+cgl::View::View(float x, float y, float width, float height) : bounds(x, y, width, height), backgroundColor(0.0f, 0.0f, 0.0f, 0.0f), rotation(0.0f), clipSubviews(false), clipToParent(false), isScrollable(false), isClickable(true), isPressed(false) {
 	if (viewShader == NULL) {
 		viewShader = new Shader("res/glsl/ViewVertexShader.glsl", "res/glsl/ViewFragmentShader.glsl");
 	}
@@ -86,17 +86,8 @@ void cgl::View::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	for (int i = 0; i < 8; i += 2) {
 		glm::vec4 ver(verticies[i], verticies[i + 1], 0.0f, 1.0f);
 		glm::vec4 transformed = mvp * ver;
-		verticies[i] = transformed.x;
-		verticies[i + 1] = transformed.y;
 		p.addVertex(glm::vec2(transformed.x, transformed.y));
 	}
-	float a = (1 + (verticies[1] - verticies[5]) / (verticies[3] - verticies[1])) / (verticies[4] - verticies[0] + (verticies[5] - verticies[1]) * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]));
-	float b = (1 + a * (verticies[0] - verticies[2])) / (verticies[3] - verticies[1]);
-	float d = -a * verticies[0] - b * verticies[1];
-	float e = -1 / (verticies[4] - verticies[0] + (verticies[5] - verticies[1]) * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]));
-	float f = e * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]);
-	float h = 1 - e * verticies[0] - f * verticies[1];
-	glm::mat4 textureMapper(a, e, 0.0f, 0.0f, b, f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, d, h, 0.0f, 0.0f);
 	std::list<Polygon> clippedPolygons = p.clipTo(poly);
 	for (std::list<Polygon>::iterator it1 = clippedPolygons.begin(); it1 != clippedPolygons.end(); it1++) {
 		Polygon clippedPolygon = *it1;
@@ -104,7 +95,7 @@ void cgl::View::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		if (vert.size() < 3) {
 			continue;
 		}
-		render(clippedPolygon, textureMapper);
+		render(clippedPolygon, model);
 		for (std::list<View*>::iterator it2 = subviews.begin(); it2 != subviews.end(); it2++) {
 			View* view = *it2;
 			view->translate(bounds.getX() - offsetPosition.getX(), bounds.getY() - offsetPosition.getY());
@@ -118,7 +109,7 @@ void cgl::View::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	}
 }
 
-void cgl::View::render(const cgl::Polygon& bounds, const glm::mat4& textureMapper) {
+void cgl::View::render(const cgl::Polygon& bounds, const glm::mat4& model) {
 	std::list<Position> vert = bounds.getVerticies();
 	std::vector<glm::vec2> v(vert.begin(), vert.end());
 	glBindVertexArray(vao);
@@ -272,6 +263,10 @@ void cgl::View::rotate(float radians) {
 
 void cgl::View::setRotation(float radians) {
 	rotation = radians;
+}
+
+cgl::Size cgl::View::getScalar() {
+	return scalar;
 }
 
 void cgl::View::scale(float x, float y) {

@@ -42,6 +42,8 @@ void cgl::Window::render() {
 	glViewport(0, 0, width, height);
 	glClearColor(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 	glClear(GL_COLOR_BUFFER_BIT);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	Polygon maxPolygon;
 	maxPolygon.addVertex(glm::vec2(-1.0f, 1.0f));
 	maxPolygon.addVertex(glm::vec2(1.0f, 1.0f));

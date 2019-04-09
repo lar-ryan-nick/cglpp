@@ -20,20 +20,22 @@
 
 namespace cgl {
 	class Font {
-		private:
+		public:
 			struct Glyph {
 				Texture texture;
 				glm::ivec2 size;
 				glm::ivec2 bearing;
 				unsigned int advance;
 			};
+			Font(const std::string& fontName, int fontSize = 48);
+			Glyph* getBitmap();
+			int getMaxHeight();
+		private:
+			Glyph* bitmap;
+			int maxHeight;
 			static std::unordered_map<std::string, std::vector<Glyph> > bitmaps;
 			static Glyph* getBitmap(const std::string& fontName, int fontSize = 48);
-			static void init();
-			Glyph* bitmap;
-		public:
-			Font(const std::string& fontName, int fontSize = 48);
-			void renderString(const std::string& s, int x, int y, int scale);
+			int findMaxHeight();
 	};
 }
 

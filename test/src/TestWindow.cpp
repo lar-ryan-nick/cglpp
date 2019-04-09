@@ -17,6 +17,9 @@ TestWindow::TestWindow() {
 	scrollSubview->addSubview(subsubview);
 	scrollView->addSubview(scrollSubview);
 	getView().addSubview(scrollView);
+	textView = new cgl::TextView("But I am a dumb god", 400.0f, 250.0f, 450.0f, 50.0f);
+	textView->setBackgroundColor(cgl::Color(1.0f, 1.0f, 1.0f, 0.5f));
+	getView().addSubview(textView);
 }
 
 TestWindow::~TestWindow() {
@@ -24,9 +27,11 @@ TestWindow::~TestWindow() {
 	delete subview;
 	delete scrollSubview;
 	delete subsubview;
+	delete textView;
 }
 
 void TestWindow::render() {
 	subview->setRotation(static_cast<float>(glfwGetTime()));
+	textView->setRotation(static_cast<float>(glfwGetTime()));
 	Window::render();
 }

@@ -17,7 +17,7 @@ namespace cgl {
 			void setTexture(const Texture& texture);
 			void setTexture(const std::string& textureFilename);
 		protected:
-			virtual void render(const Polygon& bounds, const glm::mat4& textureMapper);
+			virtual void render(const Polygon& bounds, const glm::mat4& model);
 	};
 }
 

@@ -35,7 +35,7 @@ SRC = $(wildcard $(SRCDIR)*.cpp)
 OBJS = $(SRC:$(SRCDIR)%.cpp=$(BUILDDIR)%.o)
 TESTSRC = $(wildcard $(TESTSRCDIR)*.cpp)
 TESTOBJS = $(TESTSRC:$(TESTSRCDIR)%.cpp=$(TESTBUILDDIR)%.o)
-TESTMAIN = $(wildcard $(TESTMAINDIR)*.cpp)
+TESTMAIN = test/main/applicationTest.cpp #$(wildcard $(TESTMAINDIR)*.cpp)
 TESTMAINOBJS = $(TESTMAIN:$(TESTMAINDIR)%.cpp=$(TESTBUILDDIR)%.o)
 TESTEXECS = $(TESTMAIN:$(TESTMAINDIR)%.cpp=$(TESTBINDIR)%)
 
