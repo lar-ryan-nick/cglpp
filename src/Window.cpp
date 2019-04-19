@@ -1,5 +1,5 @@
+#include <stb/stb_image.h>
 #include "../include/Window.h"
-#include "Font.h"
 
 const float cgl::Window::SCROLL_SCALE = 5.0f;
 
@@ -10,6 +10,15 @@ cgl::Window::Window(const std::string& windowName, int w, int h, float r, float 
 		glfwTerminate();
 		exit(-1);
 	}
+	int wid = 0, hei, nrChannels;
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load("res/img/logo.png", &wid, &hei, &nrChannels, 0);
+	GLFWimage logo;
+	logo.width = wid;
+	logo.height = hei;
+	logo.pixels = data;
+	std::cout << wid << std::endl;
+	glfwSetWindowIcon(window, 1, &logo);
 	glfwMakeContextCurrent(window);
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);

@@ -18,7 +18,7 @@ TestWindow::TestWindow() {
 	scrollView->addSubview(scrollSubview);
 	getView().addSubview(scrollView);
 	textView = new cgl::TextView("But I am a dumb god", 400.0f, 250.0f, 450.0f, 50.0f);
-	textView->setBackgroundColor(cgl::Color(1.0f, 1.0f, 1.0f, 0.5f));
+	textView->setFont("res/fonts/Bodoni Ornaments.ttf");
 	getView().addSubview(textView);
 }
 
