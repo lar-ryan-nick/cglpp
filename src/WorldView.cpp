@@ -58,16 +58,21 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		int clipPlaneCount = 0;
 		std::list<Position>::iterator vertIt1 = vert.begin();
 		for (std::list<Position>::iterator vertIt2 = std::next(vertIt1); vertIt2 != vert.end(); vertIt2++) {
+			glm::vec3 line = glm::cross(glm::vec3(vertIt2->getX(), vertIt2->getY(), vertIt2->getW()), glm::vec3(vertIt1->getX(), vertIt1->getY(), vertIt1->getW()));
+			glm::vec4 plane(line.x, line.y, 0.0, line.z);
 			glEnable(GL_CLIP_DISTANCE0 + clipPlaneCount);
-			glm::vec4 plane = *vertIt2 - *vertIt1;
-			plane.z = 0;
-			plane /= plane.w;
 			worldViewShader->setUniform((std::string("clipPlane[") + static_cast<char>(clipPlaneCount + '0')) + ']', plane);
 			vertIt1++;
 			clipPlaneCount++;
 		}
-		worldViewShader->setUniform("numPlanes", clipPlaneCount);
+		glEnable(GL_CLIP_DISTANCE0 + clipPlaneCount);
+		std::list<Position>::iterator vertIt2 = vert.begin();
+		glm::vec3 line = glm::cross(glm::vec3(vertIt2->getX(), vertIt2->getY(), vertIt2->getW()), glm::vec3(vertIt1->getX(), vertIt1->getY(), vertIt1->getW()));
+		glm::vec4 plane(line.x, line.y, 0.0, line.z);
+		worldViewShader->setUniform((std::string("clipPlane[") + static_cast<char>(clipPlaneCount + '0')) + ']', plane);
+		clipPlaneCount++;
 
+		worldViewShader->setUniform("numPlanes", clipPlaneCount);
 		worldViewShader->setUniform("viewPos", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 		worldViewShader->setUniform("light", spotLight);
 		worldViewShader->setUniform("vp", vp);
@@ -88,6 +93,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 			actor->draw(*worldViewShader, model);
 		}
 		worldViewShader->finish();
+		glDisable(GL_CLIP_DISTANCE0);
 		for (int i = 0; i < clipPlaneCount; i++) {
 			glDisable(GL_CLIP_DISTANCE0 + i);
 		}

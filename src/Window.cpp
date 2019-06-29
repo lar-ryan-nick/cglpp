@@ -17,7 +17,7 @@ cgl::Window::Window(const std::string& windowName, int w, int h, float r, float 
 	logo.width = wid;
 	logo.height = hei;
 	logo.pixels = data;
-	std::cout << wid << std::endl;
+	//std::cout << wid << std::endl;
 	glfwSetWindowIcon(window, 1, &logo);
 	glfwMakeContextCurrent(window);
 	int width = 0, height = 0;
