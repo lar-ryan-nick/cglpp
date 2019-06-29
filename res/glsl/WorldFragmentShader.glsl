@@ -22,10 +22,10 @@ struct Material {
 struct SpotLight {
 	vec3 position;
 	vec3 direction;
+	vec3 color;
 	float ambientStrength;
 	float diffuseStrength;
 	float specularStrength;
-	vec3 color;
 	float constant;
 	float linear;
 	float quadratic;
@@ -35,7 +35,7 @@ struct SpotLight {
 
 out vec4 FragColor;
   
-in vec4 color;
+// in vec4 color;
 in vec2 texCoord;
 in vec3 normalVec;
 in vec3 fragmentPosition;
@@ -45,7 +45,7 @@ uniform Material material;
 uniform SpotLight light;
 
 void main() {
-	FragColor = color;
+	//FragColor = color;
 	vec4 ambient = texture(material.diffuseMap0, texCoord);
 	ambient += texture(material.diffuseMap1, texCoord);
 	ambient += texture(material.diffuseMap2, texCoord);
