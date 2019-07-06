@@ -6,7 +6,7 @@ float cgl::WorldView::yaw = 90.0f;
 
 cgl::WorldView::WorldView(float x, float y, float width, float height) : View(x, y, width, height), camera(glm::vec3(0.0f, 0.0f, -3.0f)) {
 	if (worldViewShader == NULL) {
-		worldViewShader = new Shader("res/glsl/WorldVertexShader.glsl", "res/glsl/WorldFragmentShader.glsl"/*, "res/glsl/WorldGeometryShader.glsl"*/);
+		worldViewShader = new Shader("res/glsl/WorldVertexShader.glsl", "res/glsl/WorldFragmentShader.glsl");
 	}
 }
 
@@ -37,7 +37,8 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		verticies[i + 1] = transformed.y;
 		p.addVertex(glm::vec2(transformed.x, transformed.y));
 	}
-	SpotLight spotLight(camera.getPosition(), camera.getDirection());
+	DirectionalLight directionalLight(camera.getDirection());
+	//SpotLight spotLight(camera.getDirection(), camera.getPosition());
 	glm::mat4 m;
 	m = glm::translate(m, glm::vec3(0.0f, 0.0f, -1.75f));
 	m = glm::scale(m, glm::vec3(0.2f, 0.2f, 0.2f));
@@ -53,7 +54,6 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		worldViewShader->use();
-
 		// set clip planes
 		int clipPlaneCount = 0;
 		std::list<Position>::iterator vertIt1 = vert.begin();
@@ -71,23 +71,12 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		glm::vec4 plane(line.x, line.y, 0.0, line.z);
 		worldViewShader->setUniform((std::string("clipPlane[") + static_cast<char>(clipPlaneCount + '0')) + ']', plane);
 		clipPlaneCount++;
-
 		worldViewShader->setUniform("numPlanes", clipPlaneCount);
-		worldViewShader->setUniform("viewPos", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
-		worldViewShader->setUniform("light", spotLight);
+		worldViewShader->setUniform("viewPosition", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
+		worldViewShader->setUniform("directionalLight", directionalLight);
+		//worldViewShader->setUniform("spotLight", spotLight);
 		worldViewShader->setUniform("vp", vp);
-		//worldViewShader->setUniform("ivp", glm::inverse(vp));
 		worldViewShader->setUniform("model", m);
-		/*
-		int i = 0;
-		for (std::list<Position>::iterator it2 = vert.begin(); it2 != vert.end(); it2++) {
-			std::stringstream ss;
-			ss << "clipRegion[" << i << "]";
-			worldViewShader->setUniform(ss.str(), static_cast<glm::vec2>(*it2));
-			i++;
-		}
-		worldViewShader->setUniform("numClipVerticies", i);
-		*/
 		for (std::list<Actor*>::iterator it2 = actors.begin(); it2 != actors.end(); it2++) {
 			Actor* actor = *it2;
 			actor->draw(*worldViewShader, model);

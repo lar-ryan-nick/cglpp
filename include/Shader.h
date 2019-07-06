@@ -10,10 +10,12 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include "TextureMap.h"
 #include "Material.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
 #include "SpotLight.h"
+#include "Color.h"
 
 namespace cgl {
 	class Shader {
@@ -49,6 +51,8 @@ namespace cgl {
 			void setUniform(const std::string& name, const glm::vec3& value);
 			void setUniform(const std::string& name, const glm::vec4& value);
 			void setUniform(const std::string& name, const glm::mat4& m, bool transpose = false);
+			void setUniform(const std::string& name, const Color& color);
+			void setUniform(const std::string& name, const TextureMap& textureMap);
 			void setUniform(const std::string& name, const Material& material);
 			void setUniform(const std::string& name, const Light& light);
 			void setUniform(const std::string& name, const DirectionalLight& light);

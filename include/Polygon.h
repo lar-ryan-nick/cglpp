@@ -27,6 +27,7 @@ namespace cgl {
 			bool contains(const glm::vec2& v) const;
 			bool contains(float x, float y) const;
 			std::list<Polygon> clipTo(const Polygon& p) const;
+			Polygon simplify(int edgeCount) const;
 			void addVertex(const glm::vec2& v);
 			void addVertex(const Position& p);
 			void addVertex(float x, float y);

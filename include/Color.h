@@ -12,7 +12,7 @@ namespace cgl {
 			void fixBlue();
 			void fixAlpha();
 		public:
-			Color(float r, float g, float b, float a = 1.0f);
+			Color(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f);
 			Color(const glm::vec3 v, float a = 1.0f);
 			Color(const glm::vec4 v);
 			// functions with same functionality as VectorContainer accessors but make more contextual sense
@@ -24,6 +24,7 @@ namespace cgl {
 			void setGreen(float green);
 			void setBlue(float blue);
 			void setAlpha(float alpha);
+			void setColor(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f);
 	};
 }
 

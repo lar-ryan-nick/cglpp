@@ -86,3 +86,10 @@ void cgl::Color::setAlpha(float alpha) {
 	setW(alpha);
 	fixAlpha();
 }
+
+void cgl::Color::setColor(float r, float g, float b, float a) {
+	setRed(r);
+	setGreen(g);
+	setBlue(b);
+	setAlpha(a);
+}

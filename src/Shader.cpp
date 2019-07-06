@@ -175,46 +175,42 @@ void cgl::Shader::setUniform(const std::string& name, const glm::mat4& m, bool t
 	glUniformMatrix4fv(location, 1, transpose, glm::value_ptr(m));
 }
 
+void cgl::Shader::setUniform(const std::string& name, const Color& color) {
+	setUniform(name, static_cast<glm::vec4>(color));
+}
+
+void cgl::Shader::setUniform(const std::string& name, const TextureMap& textureMap) {
+	textureMap.getTexture().bind();
+	setUniform(name + ".operation", textureMap.getOperation());
+	setUniform(name + ".type", textureMap.getType());
+	setUniform(name + ".strength", textureMap.getStength());
+	setUniform(name + ".uvIndex", textureMap.getUVIndex());
+}
+
 void cgl::Shader::setUniform(const std::string& name, const Material& material) {
+	setUniform(name + ".ambientColor", material.getAmbientColor());
+	setUniform(name + ".diffuseColor", material.getDiffuseColor());
+	setUniform(name + ".specularColor", material.getSpecularColor());
 	int i = 0;
-	std::list<Texture> diffuseMaps = material.getDiffuseMaps();
-	for (std::list<Texture>::iterator it = diffuseMaps.begin(); it != diffuseMaps.end(); it++) {
+	std::list<TextureMap> textureMaps = material.getTextureMaps();
+	for (std::list<TextureMap>::iterator it = textureMaps.begin(); it != textureMaps.end(); it++) {
 		std::stringstream ss;
-		ss << name << ".diffuseMap" << i;
+		ss << name << ".textureMaps[" << i << "]";
 		glActiveTexture(GL_TEXTURE0 + i);
+		setUniform(ss.str(), *it);
+		ss << ".texture";
 		setUniform(ss.str(), i);
-		it->bind();
 		i++;
 	}
-	while (i < 8) {
+	while (i < 16) {
 		std::stringstream ss;
-		ss << name << ".diffuseMap" << i;
+		ss << name << ".textureMaps[" << i << "]";
 		glActiveTexture(GL_TEXTURE0 + i);
-		setUniform(ss.str(), i);
-		Texture::getBlackTexture().bind();
+		setUniform(ss.str(), TextureMap());
 		i++;
-	}
-	int j = 0;
-	std::list<Texture> specularMaps = material.getSpecularMaps();
-	for (std::list<Texture>::iterator it = specularMaps.begin(); it != specularMaps.end(); it++) {
-		std::stringstream ss;
-		ss << name << ".specularMap" << j;
-		glActiveTexture(GL_TEXTURE0 + i);
-		setUniform(ss.str(), i);
-		it->bind();
-		i++;
-		j++;
-	}
-	while (j < 8) {
-		std::stringstream ss;
-		ss << name << ".specularMap" << j;
-		glActiveTexture(GL_TEXTURE0 + i);
-		setUniform(ss.str(), i);
-		Texture::getBlackTexture().bind();
-		i++;
-		j++;
 	}
 	setUniform(name + ".shininess", material.getShininess());
+	setUniform(name + ".opacity", material.getOpacity());
 }
 
 void cgl::Shader::setUniform(const std::string& name, const Light& light) {

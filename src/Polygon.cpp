@@ -236,6 +236,15 @@ std::list<cgl::Polygon> cgl::Polygon::clipTo(const Polygon& p) const {
 	return mappedPolygons;
 }
 
+/** Using Ramer-Douglas-Peucker algorithm
+ *
+ */
+cgl::Polygon cgl::Polygon::simplify(int edgeCount) const {
+	// find farthest point from the first point
+	// recursively call to get no more
+	return *this;
+}
+
 void cgl::Polygon::addVertex(const glm::vec2& v) {
 	addVertex(Position(v));
 }

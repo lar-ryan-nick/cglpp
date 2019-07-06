@@ -18,7 +18,6 @@ namespace cgl {
 			std::list<Mesh*> meshes;
 			void processNode(aiNode* node, const aiScene* scene, const std::string& directory);
 			void processMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory);
-			std::list<Texture> loadMaterialTextures(aiMaterial* material, aiTextureType type, const std::string& directory);
 		public:
 			Model(const std::string& path);
 			~Model();

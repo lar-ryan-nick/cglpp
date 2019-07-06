@@ -3,7 +3,8 @@
 cgl::Model::Model(const std::string& path) {
 	// read file via ASSIMP
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_Triangulate);
+	importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_GenUVCoords | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_SplitLargeMeshes | aiProcess_SortByPType | aiProcess_FindDegenerates/* | aiProcess_FlipUVs | aiProcess_CalcTangentSpace*/ | aiProcess_Triangulate);
 	// check for errors
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cerr << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
@@ -50,6 +51,8 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 		positions.push_back(Position(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
 		normals.push_back(glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
 		Position textureCoordinate;
+		// TODO: figure out how to support up to 8 different texture coordinates
+		// psuedocode is in documentation
 		if (mesh->mTextureCoords[0]) {
 			textureCoordinate = Position(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
 		}
@@ -64,22 +67,7 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 		}
 	}
 	aiMaterial* m = scene->mMaterials[mesh->mMaterialIndex];
-	std::list<Texture> diffuseMaps = loadMaterialTextures(m, aiTextureType_DIFFUSE, directory);
-	std::list<Texture> specularMaps = loadMaterialTextures(m, aiTextureType_SPECULAR, directory);
-	float shininess = 0;
-	m->Get(AI_MATKEY_SHININESS, shininess);
-	Material material(diffuseMaps, specularMaps, shininess);
-	meshes.push_back(new Mesh(positions, normals, textureCoordinates, indicies, material));
-}
-
-std::list<cgl::Texture> cgl::Model::loadMaterialTextures(aiMaterial* material, aiTextureType type, const std::string& directory) {
-	std::list<Texture> textures;
-	for (unsigned int i = 0; i < material->GetTextureCount(type); i++) {
-		aiString str;
-		material->GetTexture(type, i, &str);
-		textures.push_back(Texture(directory + str.data));
-	}
-	return textures;
+	meshes.push_back(new Mesh(positions, normals, textureCoordinates, indicies, Material::materialFromAssimp(m, scene, directory)));
 }
 
 std::list<cgl::Mesh*> cgl::Model::getMeshes() {

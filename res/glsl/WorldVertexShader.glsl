@@ -20,6 +20,6 @@ void main() {
 		gl_ClipDistance[i] = dot(gl_Position, clipPlane[i]);
 	}
 	texCoord = aTexCoord;
-	normalVec = mat3(transpose(inverse(model))) * normal;
+	normalVec = normalize(mat3(transpose(inverse(model))) * normal);
 	fragmentPosition = vec3(model * vec4(aPos, 1.0f));
 }
