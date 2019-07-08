@@ -18,18 +18,24 @@
 
 namespace cgl {
 	class Mesh {
+		public:
+			struct VertexBoneData {
+				int indicies[4];
+				float weights[4];
+			};
 		private:
 			unsigned int vao;
-			unsigned int vbo[3];
+			unsigned int vbo[4];
 			unsigned int ebo;
 			std::vector<Position> positions;
 			std::vector<glm::vec3> normals;
 			std::vector<Position> textureCoordinates;
-			std::list<unsigned int> indicies;
+			std::vector<VertexBoneData> boneData;
+			std::vector<unsigned int> indicies;
 			Material material;
-			void setupVAO(const std::vector<glm::vec3>& pos, const std::vector<glm::vec3>& norm, const std::vector<glm::vec2>& texCoord, const std::vector<unsigned int>& ind);
+			void setupVAO(const std::vector<glm::vec3>& pos, const std::vector<glm::vec2>& texCoord);
 		public:
-			Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<Position>& tc, const std::list<unsigned int>& i, const Material& m);
+			Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<Position>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m);
 			~Mesh();
 			void draw(Shader& shader, const glm::mat4& parentModel);
 			std::vector<Position> getPositions();

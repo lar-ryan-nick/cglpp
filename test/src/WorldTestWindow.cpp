@@ -7,7 +7,9 @@ WorldTestWindow::WorldTestWindow()  {
 	worldView->setBackgroundColor(cgl::Color(0.9f, 0.9f, 0.9f, 1.0f));
 	//actor = new cgl::Actor("res/models/Lamborginhi Aventador FBX/Lamborghini_Aventador.fbx");
 	//actor = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
-	actor = new cgl::Actor("res/models/maw_j_laygo.fbx");
+	//actor = new cgl::Actor("res/models/maw_j_laygo.fbx");
+	//actor = new cgl::Actor("res/models/Looking Around.fbx");
+	actor = new cgl::Actor("res/models/Samba Dancing.fbx");
 	worldView->addActor(actor);
 	getView().addSubview(worldView);
 	getView().setBackgroundColor(cgl::Color(0.0f, 0.0f, 0.0f, 1.0f));
