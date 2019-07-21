@@ -25,11 +25,16 @@ namespace cgl {
 	class Model {
 		private:
 			struct Bone {
+				std::string name;
+				int parent;
+				std::vector<int> children;
+				glm::mat4 transform;
 				glm::mat4 offsetTransform;
 				glm::mat4 finalTransform;
 			};
 			std::unordered_map<std::string, int> boneMap;
 			std::vector<Bone> bones;
+			int skeletonRoot;
 			std::list<Mesh*> meshes;
 			glm::mat4 globalInverseTransform;
 			Assimp::Importer importer;
@@ -37,9 +42,10 @@ namespace cgl {
 			glm::vec3 calcInterpolatedTranslation(float time, const aiNodeAnim* nodeAnim);
 			glm::quat calcInterpolatedRotation(float time, const aiNodeAnim* nodeAnim);
 			glm::vec3 calcInterpolatedScaling(float time, const aiNodeAnim* nodeAnim);
-			void updateAnimation(float time, const aiNode* node, const glm::mat4& parentTransform);
+			void updateAnimation(float time, int boneIndex, const glm::mat4& parentTransform);
 			void processNode(aiNode* node, const aiScene* scene, const std::string& directory);
 			void processMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory);
+			void constructSkeleton(aiNode* node, int parentIndex);
 		public:
 			Model(const std::string& path);
 			~Model();
