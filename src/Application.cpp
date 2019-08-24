@@ -1,6 +1,7 @@
 #include "../include/Application.h"
 
 cgl::Application::Application() {
+	glfwSetErrorCallback(&Application::errorCallback);
 	if (!glfwInit()) {
 		std::cerr << "Failed to initialize glfw" << std::endl;
 		exit(-1);

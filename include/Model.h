@@ -13,6 +13,7 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include "Animation.h"
 #include "Mesh.h"
 #include "Shader.h"
 #include "Position.h"
@@ -37,11 +38,8 @@ namespace cgl {
 			int skeletonRoot;
 			std::list<Mesh*> meshes;
 			glm::mat4 globalInverseTransform;
-			Assimp::Importer importer;
+			Animation animation;
 			float startTime;
-			glm::vec3 calcInterpolatedTranslation(float time, const aiNodeAnim* nodeAnim);
-			glm::quat calcInterpolatedRotation(float time, const aiNodeAnim* nodeAnim);
-			glm::vec3 calcInterpolatedScaling(float time, const aiNodeAnim* nodeAnim);
 			void updateAnimation(float time, int boneIndex, const glm::mat4& parentTransform);
 			void processNode(aiNode* node, const aiScene* scene, const std::string& directory);
 			void processMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory);

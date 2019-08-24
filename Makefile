@@ -17,9 +17,10 @@ LINKER = g++
 LIBBER = ar rcs
 CFLAGS = -c -g -Wall -Iinclude -std=c++11 -o 
 CLEANER = rm -rf
-LFLAGS = -Llib -lglfw -lglad -lpthread -ldl -lassimp -lfreetype -Lbin -lcgl -o 
+LFLAGS = -Llib -Lbin -lcgl -lglfw3 -lglad -lassimp -lfreetype -lpng -lX11 -lz -lpthread -ldl -o 
 MDFLAGS = -p
 SRCDIR = src/
+INCLUDEDIR = include/
 BUILDDIR = build/
 BINDIR = bin/
 TESTSRCDIR = test/src/
@@ -32,6 +33,7 @@ endif
 
 LIB = $(BINDIR)libcgl.a
 SRC = $(wildcard $(SRCDIR)*.cpp)
+INCLUDE = $(wildcard $(INCLUDEDIR)*.h)
 OBJS = $(SRC:$(SRCDIR)%.cpp=$(BUILDDIR)%.o)
 TESTSRC = $(wildcard $(TESTSRCDIR)*.cpp)
 TESTOBJS = $(TESTSRC:$(TESTSRCDIR)%.cpp=$(TESTBUILDDIR)%.o)
@@ -53,7 +55,7 @@ $(TESTOBJS): $(TESTBUILDDIR)%.o: $(TESTSRCDIR)%.cpp $(TESTBUILDDIR)
 $(LIB): $(OBJS) $(BINDIR)
 	$(LIBBER) $@ $(OBJS)
 
-$(OBJS): $(BUILDDIR)%.o: $(SRCDIR)%.cpp $(BUILDDIR)
+$(OBJS): $(BUILDDIR)%.o: $(SRCDIR)%.cpp $(INCLUDE) $(BUILDDIR)
 	$(CC) $< $(CFLAGS)$@
 
 $(BINDIR):

@@ -5,6 +5,7 @@ glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4 &from) {
 }
 
 cgl::Model::Model(const std::string& path) : skeletonRoot(-1) {
+	Assimp::Importer importer;
 	// read file via ASSIMP
 	importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
 	importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
@@ -21,6 +22,7 @@ cgl::Model::Model(const std::string& path) : skeletonRoot(-1) {
 	// process ASSIMP's root node recursively
 	processNode(scene->mRootNode, scene, directory);
 	constructSkeleton(scene->mRootNode, -1);
+	animation = Animation::AnimationFromAssimp(scene->mAnimations[0]);
 
 	// let's animate baby!
 	startTime = glfwGetTime();
@@ -54,87 +56,10 @@ void cgl::Model::constructSkeleton(aiNode* node, int parentIndex) {
 	}
 }
 
-glm::vec3 cgl::Model::calcInterpolatedTranslation(float time, const aiNodeAnim* nodeAnim) {
-	if (nodeAnim->mNumPositionKeys == 1) {
-		aiVector3D result = nodeAnim->mPositionKeys[0].mValue;
-		return glm::vec3(result.x, result.y, result.z);
-	}
-	int positionIndex = 0;
-	for (int i = 0; i < nodeAnim->mNumPositionKeys - 1; i++) {
-		if (time < nodeAnim->mPositionKeys[i + 1].mTime) {
-			positionIndex = i;
-			break;
-		}
-	}
-	float deltaTime = nodeAnim->mPositionKeys[positionIndex + 1].mTime - nodeAnim->mPositionKeys[positionIndex].mTime;
-	float factor = (time - nodeAnim->mPositionKeys[positionIndex].mTime) / deltaTime;
-	aiVector3D startPos = nodeAnim->mPositionKeys[positionIndex].mValue;
-	glm::vec3 startPosition(startPos.x, startPos.y, startPos.z);
-	aiVector3D endPos = nodeAnim->mPositionKeys[positionIndex + 1].mValue;
-	glm::vec3 endPosition(endPos.x, endPos.y, endPos.z);
-	return glm::lerp(startPosition, endPosition, factor);
-}
-
-glm::quat cgl::Model::calcInterpolatedRotation(float time, const aiNodeAnim* nodeAnim) {
-	if (nodeAnim->mNumRotationKeys == 1) {
-		aiQuaternion result = nodeAnim->mRotationKeys[0].mValue;
-		return glm::quat(result.w, result.x, result.y, result.z);
-	}
-	int rotationIndex = 0;
-	for (int i = 0; i < nodeAnim->mNumRotationKeys - 1; i++) {
-		if (time < nodeAnim->mRotationKeys[i + 1].mTime) {
-			rotationIndex = i;
-			break;
-		}
-	}
-	float deltaTime = nodeAnim->mRotationKeys[rotationIndex + 1].mTime - nodeAnim->mRotationKeys[rotationIndex].mTime;
-	float factor = (time - nodeAnim->mRotationKeys[rotationIndex].mTime) / deltaTime;
-	aiQuaternion startQ = nodeAnim->mRotationKeys[rotationIndex].mValue;
-	glm::quat startQuat(startQ.w, startQ.x, startQ.y, startQ.z);
-	aiQuaternion endQ = nodeAnim->mRotationKeys[rotationIndex + 1].mValue;
-	glm::quat endQuat(endQ.w, endQ.x, endQ.y, endQ.z);
-	return glm::slerp(startQuat, endQuat, factor);
-}
-
-glm::vec3 cgl::Model::calcInterpolatedScaling(float time, const aiNodeAnim* nodeAnim) {
-	if (nodeAnim->mNumScalingKeys == 1) {
-		aiVector3D result = nodeAnim->mScalingKeys[0].mValue;
-		return glm::vec3(result.x, result.y, result.z);
-	}
-	int scaleIndex = 0;
-	for (int i = 0; i < nodeAnim->mNumScalingKeys - 1; i++) {
-		if (time < nodeAnim->mScalingKeys[i + 1].mTime) {
-			scaleIndex = i;
-			break;
-		}
-	}
-	float deltaTime = nodeAnim->mScalingKeys[scaleIndex + 1].mTime - nodeAnim->mScalingKeys[scaleIndex].mTime;
-	float factor = (time - nodeAnim->mScalingKeys[scaleIndex].mTime) / deltaTime;
-	aiVector3D startS = nodeAnim->mScalingKeys[scaleIndex].mValue;
-	glm::vec3 startScale(startS.x, startS.y, startS.z);
-	aiVector3D endS = nodeAnim->mScalingKeys[scaleIndex + 1].mValue;
-	glm::vec3 endScale(endS.x, endS.y, endS.z);
-	return glm::lerp(startScale, endScale, factor);
-}
-
 void cgl::Model::updateAnimation(float time, int boneIndex, const glm::mat4& parentTransform) {
-	const aiAnimation* animation = importer.GetScene()->mAnimations[0];
-	glm::mat4 nodeTransformation(bones[boneIndex].transform);
-	const aiNodeAnim* nodeAnim = NULL;
-	for (int i = 0; i < animation->mNumChannels; i++) {
-		if (bones[boneIndex].name == animation->mChannels[i]->mNodeName.C_Str()) {
-			nodeAnim = animation->mChannels[i];
-			break;
-		}
-	}
-	if (nodeAnim != NULL) {
-		glm::vec3 scale = calcInterpolatedScaling(time, nodeAnim);
-		glm::mat4 scaleMatrix = glm::scale(glm::mat4(), scale);
-		glm::quat rotation = calcInterpolatedRotation(time, nodeAnim);
-		glm::mat4 rotationMatrix = glm::mat4_cast(rotation);
-		glm::vec3 translation = calcInterpolatedTranslation(time, nodeAnim);
-		glm::mat4 translationMatrix = glm::translate(glm::mat4(), translation);
-		nodeTransformation = translationMatrix * rotationMatrix * scaleMatrix;
+	glm::mat4 nodeTransformation;
+	if (!animation.getTransformation(bones[boneIndex].name, time, nodeTransformation)) {
+		nodeTransformation = bones[boneIndex].transform;
 	}
 	glm::mat4 globalTransformation = parentTransform * nodeTransformation;
 	bones[boneIndex].finalTransform = /*globalInverseTransform * */globalTransformation * bones[boneIndex].offsetTransform;
@@ -144,14 +69,9 @@ void cgl::Model::updateAnimation(float time, int boneIndex, const glm::mat4& par
 }
 
 void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
-	const aiScene* scene = importer.GetScene();
 	float time = glfwGetTime() - startTime;
-	if (scene->mAnimations[0]->mTicksPerSecond == 0) {
-		time *= 25.0f;
-	} else {
-		time *= scene->mAnimations[0]->mTicksPerSecond;
-	}
-	time = fmod(time, scene->mAnimations[0]->mDuration);
+	time *= animation.getTicksPerSecond();
+	time = fmod(time, animation.getDuration());
 	updateAnimation(time, skeletonRoot, glm::mat4());
 	for (int i = 0; i < bones.size(); i++) {
 		std::stringstream ss;
@@ -167,7 +87,7 @@ void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
 void cgl::Model::processNode(aiNode* node, const aiScene* scene, const std::string& directory) {
 	// process each mesh located at the current node
 	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-		// the node object only contains indices to index the actual objects in the scene. 
+		// the node object only contains indices to index the actual objects in the scene.
 		// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		processMesh(mesh, scene, directory);
