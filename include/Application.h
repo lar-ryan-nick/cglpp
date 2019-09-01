@@ -12,6 +12,8 @@ namespace cgl {
 		private:
 			std::list<Window*> windows;
 			static void errorCallback(int error, const char* description);
+			static void joystickCallback(int joystickID, int event);
+			void processGamepadInput();
 		public:
 			Application();
 			virtual ~Application();

@@ -1,11 +1,12 @@
 #include "../include/Application.h"
 
 cgl::Application::Application() {
-	glfwSetErrorCallback(&Application::errorCallback);
 	if (!glfwInit()) {
 		std::cerr << "Failed to initialize glfw" << std::endl;
 		exit(-1);
 	}
+	glfwSetErrorCallback(&Application::errorCallback);
+	glfwSetJoystickCallback(&Application::joystickCallback);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -45,9 +46,10 @@ void cgl::Application::run() {
 			} else {
 				window->processInput();
 				window->render();
-				glfwPollEvents();
 			}
 		}
+		glfwPollEvents();
+		processGamepadInput();
 	}
 	glfwTerminate();
 }
@@ -56,6 +58,25 @@ void cgl::Application::addWindow(Window* window) {
 	windows.push_back(window);
 }
 
+void cgl::Application::processGamepadInput() {
+	for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; jid++) {
+		if (glfwJoystickIsGamepad(jid)) {
+			GLFWgamepadstate state;
+			if (glfwGetGamepadState(jid, &state)) {
+			}
+		} else if (glfwJoystickPresent(jid)) {
+			// TODO: add joystick support
+		}
+	}
+}
+
 void cgl::Application::errorCallback(int error, const char* description) {
 	std::cerr << "Error Code " << error << ": " << description << std::endl;
+}
+
+void cgl::Application::joystickCallback(int joystickID, int event) {
+	std::cout << joystickID << std::endl;
+	if (event == GLFW_CONNECTED) {
+	} else if (event == GLFW_DISCONNECTED) {
+	}
 }
