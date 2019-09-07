@@ -1,7 +1,11 @@
 #include "../include/WorldTestWindow.h"
 
 WorldTestWindow::WorldTestWindow()  {
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	if (glfwRawMouseMotionSupported()) {
+		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+	}
+
 	cgl::Rectangle bounds = getView().getBounds();
 	worldView = new cgl::WorldView(0, 0, bounds.getWidth(), bounds.getHeight());
 	worldView->setBackgroundColor(cgl::Color(0.9f, 0.9f, 0.9f, 1.0f));
@@ -9,7 +13,7 @@ WorldTestWindow::WorldTestWindow()  {
 	//actor = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
 	//actor = new cgl::Actor("res/models/maw_j_laygo.fbx");
 	//actor = new cgl::Actor("res/models/Looking Around.fbx");
-	actor = new cgl::Actor("res/models/Samba Dancing.fbx");
+	//actor = new cgl::Actor("res/models/Samba Dancing.fbx");
 	worldView->addActor(actor);
 	getView().addSubview(worldView);
 	getView().setBackgroundColor(cgl::Color(0.0f, 0.0f, 0.0f, 1.0f));

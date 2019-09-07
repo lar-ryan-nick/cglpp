@@ -99,7 +99,6 @@ void cgl::WorldView::setCamera(const Camera& c) {
 }
 
 void cgl::WorldView::onMouseMove(float xOffset, float yOffset) {
-	/*
 	float sensitivity = 0.15f;
 	xOffset *= sensitivity;
 	yOffset *= sensitivity;
@@ -113,5 +112,4 @@ void cgl::WorldView::onMouseMove(float xOffset, float yOffset) {
 	if(pitch < -89.0f)
 		pitch = -89.0f;
 	camera.setRotation(pitch, yaw);
-	*/
 }

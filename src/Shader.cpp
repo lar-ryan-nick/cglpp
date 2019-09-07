@@ -175,10 +175,6 @@ void cgl::Shader::setUniform(const std::string& name, const glm::mat4& m, bool t
 	glUniformMatrix4fv(location, 1, transpose, glm::value_ptr(m));
 }
 
-void cgl::Shader::setUniform(const std::string& name, const Color& color) {
-	setUniform(name, static_cast<glm::vec4>(color));
-}
-
 void cgl::Shader::setUniform(const std::string& name, const TextureMap& textureMap) {
 	textureMap.getTexture().bind();
 	setUniform(name + ".operation", textureMap.getOperation());
@@ -188,9 +184,9 @@ void cgl::Shader::setUniform(const std::string& name, const TextureMap& textureM
 }
 
 void cgl::Shader::setUniform(const std::string& name, const Material& material) {
-	setUniform(name + ".ambientColor", material.getAmbientColor());
-	setUniform(name + ".diffuseColor", material.getDiffuseColor());
-	setUniform(name + ".specularColor", material.getSpecularColor());
+	setUniform(name + ".ambientColor", static_cast<glm::vec3>(material.getAmbientColor()));
+	setUniform(name + ".diffuseColor", static_cast<glm::vec3>(material.getDiffuseColor()));
+	setUniform(name + ".specularColor", static_cast<glm::vec3>(material.getSpecularColor()));
 	int i = 0;
 	std::list<TextureMap> textureMaps = material.getTextureMaps();
 	for (std::list<TextureMap>::iterator it = textureMaps.begin(); it != textureMaps.end(); it++) {
@@ -214,7 +210,7 @@ void cgl::Shader::setUniform(const std::string& name, const Material& material) 
 }
 
 void cgl::Shader::setUniform(const std::string& name, const Light& light) {
-	setUniform(name + ".color", light.getColor());
+	setUniform(name + ".color", static_cast<glm::vec3>(light.getColor()));
 	setUniform(name + ".ambientStrength", light.getAmbientStrength());
 	setUniform(name + ".diffuseStrength", light.getDiffuseStrength());
 	setUniform(name + ".specularStrength", light.getSpecularStrength());

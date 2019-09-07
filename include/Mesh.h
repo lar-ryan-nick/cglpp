@@ -33,7 +33,7 @@ namespace cgl {
 			std::vector<VertexBoneData> boneData;
 			std::vector<unsigned int> indicies;
 			Material material;
-			void setupVAO(const std::vector<glm::vec3>& pos, const std::vector<glm::vec2>& texCoord);
+			void setupVAO();
 		public:
 			Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<Position>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m);
 			~Mesh();

@@ -69,15 +69,15 @@ void cgl::Model::updateAnimation(float time, int boneIndex, const glm::mat4& par
 }
 
 void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
-	float time = glfwGetTime() - startTime;
-	time *= animation.getTicksPerSecond();
-	time = fmod(time, animation.getDuration());
-	updateAnimation(time, skeletonRoot, glm::mat4());
-	for (int i = 0; i < bones.size(); i++) {
-		std::stringstream ss;
-		ss << "boneTransforms[" << i << "]";
-		shader.setUniform(ss.str(), bones[i].finalTransform);
-	}
+	//float time = glfwGetTime() - startTime;
+	//time *= animation.getTicksPerSecond();
+	//time = fmod(time, animation.getDuration());
+	//updateAnimation(time, skeletonRoot, glm::mat4());
+	//for (int i = 0; i < bones.size(); i++) {
+	//	std::stringstream ss;
+	//	ss << "boneTransforms[" << i << "]";
+	//	shader.setUniform(ss.str(), bones[i].finalTransform);
+	//}
 	for (std::list<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); it++) {
 		Mesh* m = *it;
 		m->draw(shader, parentModel);

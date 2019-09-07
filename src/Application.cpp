@@ -49,7 +49,7 @@ void cgl::Application::run() {
 			}
 		}
 		glfwPollEvents();
-		processGamepadInput();
+		//processGamepadInput();
 	}
 	glfwTerminate();
 }

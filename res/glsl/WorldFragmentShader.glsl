@@ -27,7 +27,7 @@ struct TextureMap {
 	int type;
 	float strength;
 	int operation;
-	int uvIndex;
+	uint uvIndex;
 };
 
 struct Material {

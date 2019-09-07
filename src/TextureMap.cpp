@@ -69,7 +69,7 @@ cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, cons
 	aiTextureOp textureOperation(aiTextureOp_Add);
 	aiTextureMapMode textureMapMode[3] = {};
 	material->GetTexture(type, index, &str, NULL, &textureMap.uvIndex, &textureMap.strength, &textureOperation, textureMapMode);
-	std::cout << str.C_Str() << std::endl;
+	//std::cout << str.C_Str() << std::endl;
 	if (str.C_Str()[0] == '*') {
 		int embeddedTextureIndex = atoi(str.C_Str() + 1);
 		int w;
