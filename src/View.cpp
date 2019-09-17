@@ -23,6 +23,7 @@ cgl::View::View(float x, float y, float width, float height) : bounds(x, y, widt
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * MAX_VERTICIES, NULL, GL_STREAM_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 /* fix later
@@ -115,6 +116,7 @@ void cgl::View::render(const cgl::Polygon& bounds, const glm::mat4& model) {
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, v.size() * sizeof(glm::vec2), &v[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	viewShader->use();
 	viewShader->setUniform("backgroundColor", backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), backgroundColor.getAlpha());
 	glDrawElements(GL_TRIANGLES, (vert.size() - 2) * 3, GL_UNSIGNED_INT, 0);

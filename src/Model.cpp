@@ -22,9 +22,9 @@ cgl::Model::Model(const std::string& path) : skeletonRoot(-1) {
 	// process ASSIMP's root node recursively
 	processNode(scene->mRootNode, scene, directory);
 	constructSkeleton(scene->mRootNode, -1);
+	// let's animate baby!
 	animation = Animation::AnimationFromAssimp(scene->mAnimations[0]);
 
-	// let's animate baby!
 	startTime = glfwGetTime();
 }
 
@@ -69,15 +69,20 @@ void cgl::Model::updateAnimation(float time, int boneIndex, const glm::mat4& par
 }
 
 void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
-	//float time = glfwGetTime() - startTime;
-	//time *= animation.getTicksPerSecond();
-	//time = fmod(time, animation.getDuration());
-	//updateAnimation(time, skeletonRoot, glm::mat4());
-	//for (int i = 0; i < bones.size(); i++) {
-	//	std::stringstream ss;
-	//	ss << "boneTransforms[" << i << "]";
-	//	shader.setUniform(ss.str(), bones[i].finalTransform);
-	//}
+	float time = glfwGetTime() - startTime;
+	time *= animation.getTicksPerSecond();
+	time = fmod(time, animation.getDuration());
+	updateAnimation(time, skeletonRoot, glm::mat4());
+	for (int i = 0; i < bones.size(); i++) {
+		std::stringstream ss;
+		ss << "boneTransforms[" << i << "]";
+		shader.setUniform(ss.str(), bones[i].finalTransform);
+	}
+	for (int i = bones.size(); i < 100; ++i) {
+		std::stringstream ss;
+		ss << "boneTransforms[" << i << "]";
+		shader.setUniform(ss.str(), glm::mat4());
+	}
 	for (std::list<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); it++) {
 		Mesh* m = *it;
 		m->draw(shader, parentModel);
@@ -113,12 +118,12 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 		}
 		textureCoordinates.push_back(textureCoordinate);
 	}
-	std::vector<unsigned int> indicies;
 	// now wak through each of the mesh's faces (a face is a triangle) and retrieve the corresponding vertex indices.
+	std::vector<unsigned int> indicies(mesh->mNumFaces * 3);
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
 		aiFace face = mesh->mFaces[i];
 		for (unsigned int j = 0; j < face.mNumIndices; j++) {
-			indicies.push_back(face.mIndices[j]);
+			indicies[3 * i + j] = face.mIndices[j];
 		}
 	}
 	// load bones for mesh

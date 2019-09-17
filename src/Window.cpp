@@ -10,6 +10,7 @@ cgl::Window::Window(const std::string& windowName, int w, int h, float r, float 
 		glfwTerminate();
 		exit(-1);
 	}
+	/*
 	int wid = 0, hei, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load("res/img/logo.png", &wid, &hei, &nrChannels, 0);
@@ -19,6 +20,7 @@ cgl::Window::Window(const std::string& windowName, int w, int h, float r, float 
 	logo.pixels = data;
 	//std::cout << wid << std::endl;
 	glfwSetWindowIcon(window, 1, &logo);
+	*/
 	glfwMakeContextCurrent(window);
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);

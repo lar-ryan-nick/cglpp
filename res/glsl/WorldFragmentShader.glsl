@@ -82,7 +82,7 @@ uniform vec3 viewPosition;
 uniform Material material;
 uniform DirectionalLight directionalLight;
 uniform PointLight pointLight;
-uniform SpotLight spotLight;
+//uniform SpotLight spotLight;
 
 vec3 viewDirection;
 int shininessIndex = -1;
@@ -97,20 +97,31 @@ void main() {
 	vec3 ambient = material.ambientColor;
 	vec3 diffuse = material.diffuseColor;
 	vec3 specular = material.specularColor;
-	for (int i = 0; i < MAX_TEXTURE_MAPS; i++) {
-		switch (material.textureMaps[i].type) {
-			case AMBIENT_MAP:
-				ambient = calculateTextureMap(material.textureMaps[i], ambient);
-				break;
-			case DIFFUSE_MAP:
-				diffuse = calculateTextureMap(material.textureMaps[i], diffuse);
-				break;
-			case SPECULAR_MAP:
-				specular = calculateTextureMap(material.textureMaps[i], specular);
-				break;
-			default:
-				break;
-		}
+	switch (material.textureMaps[0].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[0], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[0], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[0], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[1].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[1], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[1], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[1], specular);
+			break;
+		default:
+			break;
 	}
 	vec3 result = calculateDirectionalLight(directionalLight, ambient, diffuse, specular);
 	//result += calculateSpotLight(spotLight, ambient, diffuse, specular);

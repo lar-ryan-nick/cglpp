@@ -13,7 +13,7 @@ WorldTestWindow::WorldTestWindow()  {
 	//actor = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
 	//actor = new cgl::Actor("res/models/maw_j_laygo.fbx");
 	//actor = new cgl::Actor("res/models/Looking Around.fbx");
-	//actor = new cgl::Actor("res/models/Samba Dancing.fbx");
+	actor = new cgl::Actor("res/models/Samba Dancing.fbx");
 	worldView->addActor(actor);
 	getView().addSubview(worldView);
 	getView().setBackgroundColor(cgl::Color(0.0f, 0.0f, 0.0f, 1.0f));
@@ -30,6 +30,14 @@ void WorldTestWindow::render() {
 
 void WorldTestWindow::processInput() {
 	cgl::Camera camera = worldView->getCamera();
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.moveForward(5.f);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.moveForward(-5.f);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.moveRight(-5.f);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.moveRight(5.f);
 	for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; jid++) {
 		if (glfwJoystickIsGamepad(jid)) {
 			GLFWgamepadstate state;
@@ -52,20 +60,10 @@ void WorldTestWindow::processInput() {
 				if(pitch < -89.0f)
 					pitch = -89.0f;
 				camera.setRotation(pitch, yaw);
-				worldView->setCamera(camera);
-				return;
 			}
 		} else if (glfwJoystickPresent(jid)) {
 			// TODO: add joystick support
 		}
 	}
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.moveForward(0.5f);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.moveForward(-0.5f);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.moveRight(-0.5f);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.moveRight(0.5f);
 	worldView->setCamera(camera);
 }

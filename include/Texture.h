@@ -17,6 +17,8 @@ namespace cgl {
 		public:
 			Texture(unsigned int tid = 0);
 			Texture(const std::string& textureSource);
+			Texture(unsigned char* data, int width, int height);
+			void setTexture(unsigned char* data, int width, int height);
 			void setTexture(const std::string& textureSource);
 			void setID(unsigned int tid);
 			void bind() const;

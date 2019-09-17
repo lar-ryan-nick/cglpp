@@ -82,7 +82,6 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 			actor->draw(*worldViewShader, model);
 		}
 		worldViewShader->finish();
-		glDisable(GL_CLIP_DISTANCE0);
 		for (int i = 0; i < clipPlaneCount; i++) {
 			glDisable(GL_CLIP_DISTANCE0 + i);
 		}

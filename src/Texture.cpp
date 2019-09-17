@@ -12,6 +12,18 @@ cgl::Texture::Texture(const std::string& filename) : id(0) {
 	setTexture(filename);
 }
 
+void cgl::Texture::setTexture(unsigned char* data, int width, int height) {
+	glGenTextures(1, &id);
+	glBindTexture(GL_TEXTURE_2D, id);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+}
+
 void cgl::Texture::setTexture(const std::string& filename) {
 	std::unordered_map<std::string, unsigned int>::iterator it = loadedTextures.find(filename);
 	if (it != loadedTextures.end()) {
@@ -23,20 +35,12 @@ void cgl::Texture::setTexture(const std::string& filename) {
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 4);
 	if (data != NULL) {
-		glGenTextures(1, &id);
-		glBindTexture(GL_TEXTURE_2D, id);
-		// set the texture wrapping/filtering options (on the currently bound texture object)
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		setTexture(data, width, height);
 		loadedTextures.insert(std::pair<std::string, unsigned int>(filename, id));
 	} else {
 		std::cerr << "Failed to load texture at path: " << filename << std::endl;
 		std::cerr << "Loaded a white texture instead" << std::endl;
-		setTexture("res/img/white.jpg");
+		setID(getWhiteTexture().id);
 	}
 	stbi_image_free(data);
 }
@@ -51,14 +55,16 @@ void cgl::Texture::bind() const {
 
 cgl::Texture cgl::Texture::getWhiteTexture() {
 	if (whiteTexture.id == 0) {
-		whiteTexture.setTexture("res/img/white.jpg");
+		unsigned char data[4] = {255, 255, 255, 255};
+		whiteTexture.setTexture(data, 1, 1);
 	}
 	return whiteTexture;
 }
 
 cgl::Texture cgl::Texture::getBlackTexture() {
 	if (blackTexture.id == 0) {
-		blackTexture.setTexture("res/img/black.png");
+		unsigned char data[4] = {0, 0, 0, 0};
+		blackTexture.setTexture(data, 1, 1);
 	}
 	return blackTexture;
 }

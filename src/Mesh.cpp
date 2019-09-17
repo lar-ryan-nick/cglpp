@@ -25,12 +25,13 @@ void cgl::Mesh::setupVAO() {
 	glBufferData(GL_ARRAY_BUFFER, texCoord.size() * sizeof(glm::vec2), &texCoord[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
 	glEnableVertexAttribArray(2);
-	//glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
-	//glBufferData(GL_ARRAY_BUFFER, boneData.size() * sizeof(VertexBoneData), &boneData[0], GL_STATIC_DRAW);
-	//glVertexAttribIPointer(3, 4, GL_INT, sizeof(VertexBoneData), (void*)0);
-	//glEnableVertexAttribArray(3);
-	//glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData), (void*)sizeof(int[4]));
-	//glEnableVertexAttribArray(4);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
+	glBufferData(GL_ARRAY_BUFFER, boneData.size() * sizeof(VertexBoneData), &boneData[0], GL_STATIC_DRAW);
+	glVertexAttribIPointer(3, 4, GL_INT, sizeof(VertexBoneData), (void*)0);
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData), (void*)sizeof(int[4]));
+	glEnableVertexAttribArray(4);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
