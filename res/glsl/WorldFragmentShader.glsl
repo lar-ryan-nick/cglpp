@@ -73,7 +73,7 @@ struct SpotLight {
 };
 
 out vec4 FragColor;
-  
+
 in vec2 texCoord;
 in vec3 normalVec;
 in vec3 fragmentPosition;
@@ -119,6 +119,188 @@ void main() {
 			break;
 		case SPECULAR_MAP:
 			specular = calculateTextureMap(material.textureMaps[1], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[2].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[2], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[2], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[2], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[3].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[3], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[3], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[3], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[4].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[4], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[4], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[4], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[5].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[5], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[5], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[5], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[6].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[6], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[6], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[6], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[7].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[7], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[7], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[7], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[8].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[8], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[8], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[8], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[9].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[9], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[9], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[9], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[10].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[10], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[10], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[10], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[11].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[11], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[11], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[11], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[12].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[12], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[12], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[12], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[13].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[13], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[13], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[13], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[14].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[14], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[14], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[14], specular);
+			break;
+		default:
+			break;
+	}
+	switch (material.textureMaps[15].type) {
+		case AMBIENT_MAP:
+			ambient = calculateTextureMap(material.textureMaps[15], ambient);
+			break;
+		case DIFFUSE_MAP:
+			diffuse = calculateTextureMap(material.textureMaps[15], diffuse);
+			break;
+		case SPECULAR_MAP:
+			specular = calculateTextureMap(material.textureMaps[15], specular);
 			break;
 		default:
 			break;

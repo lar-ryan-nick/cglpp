@@ -18,13 +18,10 @@ uniform vec4 clipPlane[8];
 uniform int numPlanes;
 
 void main() {
-	mat4 boneTransform;
-	for (int i = 0; i < 4; ++i) {
-		if (boneWeights[i] == 0.0f) {
-			break;
-		}
-		boneTransform += boneTransforms[boneIndicies[i]] * boneWeights[i];
-	}
+	mat4 boneTransform = boneTransforms[boneIndicies[0]] * boneWeights[0];
+	boneTransform += boneTransforms[boneIndicies[1]] * boneWeights[1];
+	boneTransform += boneTransforms[boneIndicies[2]] * boneWeights[2];
+	boneTransform += boneTransforms[boneIndicies[3]] * boneWeights[3];
 	vec4 position = model * boneTransform * vec4(aPos, 1.0f);
 	gl_Position = vp * position;
 	for (int i = 0; i < numPlanes; i++) {

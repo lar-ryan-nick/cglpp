@@ -78,11 +78,6 @@ void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
 		ss << "boneTransforms[" << i << "]";
 		shader.setUniform(ss.str(), bones[i].finalTransform);
 	}
-	for (int i = bones.size(); i < 100; ++i) {
-		std::stringstream ss;
-		ss << "boneTransforms[" << i << "]";
-		shader.setUniform(ss.str(), glm::mat4());
-	}
 	for (std::list<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); it++) {
 		Mesh* m = *it;
 		m->draw(shader, parentModel);

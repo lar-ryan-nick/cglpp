@@ -63,7 +63,7 @@ cgl::Texture cgl::Texture::getWhiteTexture() {
 
 cgl::Texture cgl::Texture::getBlackTexture() {
 	if (blackTexture.id == 0) {
-		unsigned char data[4] = {0, 0, 0, 0};
+		unsigned char data[4] = {0, 0, 0, 255};
 		blackTexture.setTexture(data, 1, 1);
 	}
 	return blackTexture;
