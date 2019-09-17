@@ -5,6 +5,8 @@ test/build/
 bin/
 build/
 lib/
+# Vim
+*.swp
 # Visual Studio
 Debug/
 Release/
