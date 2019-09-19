@@ -1,12 +1,11 @@
 #include "../include/Mesh.h"
 
-cgl::Mesh::Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<Position>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), boneData(bd), material(m) {
+cgl::Mesh::Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), boneData(bd), material(m) {
 	setupVAO();
 }
 
 void cgl::Mesh::setupVAO() {
 	std::vector<glm::vec3> pos(positions.begin(), positions.end());
-	std::vector<glm::vec2> texCoord(textureCoordinates.begin(), textureCoordinates.end());
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &ebo);
 	glGenBuffers(4, vbo);
@@ -22,7 +21,7 @@ void cgl::Mesh::setupVAO() {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 	glEnableVertexAttribArray(1);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
-	glBufferData(GL_ARRAY_BUFFER, texCoord.size() * sizeof(glm::vec2), &texCoord[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, textureCoordinates.size() * sizeof(glm::vec2), &textureCoordinates[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);

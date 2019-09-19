@@ -179,7 +179,7 @@ void cgl::Shader::setUniform(const std::string& name, const TextureMap& textureM
 	textureMap.getTexture().bind();
 	setUniform(name + ".operation", textureMap.getOperation());
 	setUniform(name + ".type", textureMap.getType());
-	setUniform(name + ".strength", textureMap.getStength());
+	setUniform(name + ".strength", textureMap.getStrength());
 	setUniform(name + ".uvIndex", textureMap.getUVIndex());
 }
 
@@ -203,6 +203,8 @@ void cgl::Shader::setUniform(const std::string& name, const Material& material) 
 		ss << name << ".textureMaps[" << i << "]";
 		glActiveTexture(GL_TEXTURE0 + i);
 		setUniform(ss.str(), TextureMap());
+		ss << ".texture";
+		setUniform(ss.str(), i);
 		i++;
 	}
 	setUniform(name + ".shininess", material.getShininess());

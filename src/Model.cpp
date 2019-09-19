@@ -101,15 +101,15 @@ void cgl::Model::processNode(aiNode* node, const aiScene* scene, const std::stri
 void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory) {
 	std::vector<Position> positions;
 	std::vector<glm::vec3> normals;
-	std::vector<Position> textureCoordinates;
+	std::vector<glm::vec2> textureCoordinates;
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		positions.push_back(Position(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
 		normals.push_back(glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
-		Position textureCoordinate;
+		glm::vec2 textureCoordinate;
 		// TODO: figure out how to support up to 8 different texture coordinates
 		// psuedocode is in documentation
 		if (mesh->mTextureCoords[0]) {
-			textureCoordinate = Position(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+			textureCoordinate = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
 		}
 		textureCoordinates.push_back(textureCoordinate);
 	}

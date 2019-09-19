@@ -2,13 +2,15 @@
 
 cgl::Material cgl::Material::materialFromAssimp(aiMaterial* m, const aiScene* scene, const std::string& directory) {
 	Material material;
-	aiColor3D color;
-	m->Get(AI_MATKEY_COLOR_AMBIENT, color);
-	material.ambientColor.setColor(color.r, color.g, color.b);
-	m->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-	material.diffuseColor.setColor(color.r, color.g, color.b);
-	m->Get(AI_MATKEY_COLOR_SPECULAR, color);
-	material.specularColor.setColor(color.r, color.g, color.b);
+	aiColor3D ambientColor;
+	m->Get(AI_MATKEY_COLOR_AMBIENT, ambientColor);
+	material.ambientColor.setColor(ambientColor.r, ambientColor.g, ambientColor.b);
+	aiColor3D diffuseColor;
+	m->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor);
+	material.diffuseColor.setColor(diffuseColor.r, diffuseColor.g, diffuseColor.b);
+	aiColor3D specularColor;
+	m->Get(AI_MATKEY_COLOR_SPECULAR, specularColor);
+	material.specularColor.setColor(specularColor.r, specularColor.g, specularColor.b);
 	loadMaterialTextureMaps(m, aiTextureType_AMBIENT, scene, directory, material.textureMaps);
 	loadMaterialTextureMaps(m, aiTextureType_DIFFUSE, scene, directory, material.textureMaps);
 	loadMaterialTextureMaps(m, aiTextureType_SPECULAR, scene, directory, material.textureMaps);

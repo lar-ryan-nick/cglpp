@@ -64,12 +64,12 @@ GLint cgl::TextureMap::mapModeFromAssimp(aiTextureMapMode assimpMapMode) {
 
 cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, const aiScene* scene, const std::string& directory, aiTextureType type, int index) {
 	TextureMap textureMap;
-	textureMap.strength = 1.0f;
 	aiString str;
+	aiTextureMapping tm;
 	aiTextureOp textureOperation(aiTextureOp_Add);
 	aiTextureMapMode textureMapMode[3] = {};
 	material->GetTexture(type, index, &str, NULL, &textureMap.uvIndex, &textureMap.strength, &textureOperation, textureMapMode);
-	//std::cout << str.C_Str() << std::endl;
+	std::cout << textureMap.strength << std::endl;
 	if (str.C_Str()[0] == '*') {
 		int embeddedTextureIndex = atoi(str.C_Str() + 1);
 		int w;
@@ -77,36 +77,25 @@ cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, cons
 		unsigned char* data = reinterpret_cast<unsigned char*>(scene->mTextures[embeddedTextureIndex]->pcData);
 		stbi_set_flip_vertically_on_load(true);
 		if (scene->mTextures[index]->mHeight == 0) {
-			data = stbi_load_from_memory(data, scene->mTextures[index]->mWidth, &w, &h, NULL, 4);
+			data = stbi_load_from_memory(data, scene->mTextures[embeddedTextureIndex]->mWidth, &w, &h, NULL, 4);
 		} else {
-			data = stbi_load_from_memory(data, scene->mTextures[index]->mWidth * scene->mTextures[index]->mHeight, &w, &h, NULL, 4);
+			data = stbi_load_from_memory(data, scene->mTextures[embeddedTextureIndex]->mWidth * scene->mTextures[embeddedTextureIndex]->mHeight, &w, &h, NULL, 4);
 		}
-		unsigned int textureId;
-		glGenTextures(1, &textureId);
-		Texture texture(textureId);
-		texture.bind();
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		// Texture specification
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		textureMap.texture = texture;
+		textureMap.texture.setTexture(data, w, h);
 		stbi_image_free(data);
 	} else {
-		textureMap.texture = Texture(directory + std::string(str.C_Str()));
+		textureMap.texture.setTexture(directory + str.C_Str());
 	}
 	textureMap.type = typeFromAssimp(type);
 	textureMap.operation = operationFromAssimp(textureOperation);
 	textureMap.texture.bind();
 	// tiling mode
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mapModeFromAssimp(textureMapMode[0]));
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mapModeFromAssimp(textureMapMode[0]));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mapModeFromAssimp(textureMapMode[1]));
 	return textureMap;
 }
 
-cgl::TextureMap::TextureMap() : type(NO_MAP), operation(NO_OP), uvIndex(0) {
-
-}
+cgl::TextureMap::TextureMap() : type(NO_MAP), operation(NO_OP), strength(0.0f), uvIndex(0) {}
 
 cgl::Texture cgl::TextureMap::getTexture() const {
 	return texture;
@@ -120,7 +109,7 @@ cgl::TextureMap::Operation cgl::TextureMap::getOperation() const {
 	return operation;
 }
 
-float cgl::TextureMap::getStength() const {
+float cgl::TextureMap::getStrength() const {
 	return strength;
 }
 

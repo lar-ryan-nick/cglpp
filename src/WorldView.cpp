@@ -43,7 +43,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	m = glm::translate(m, glm::vec3(0.0f, 0.0f, -1.75f));
 	m = glm::scale(m, glm::vec3(0.2f, 0.2f, 0.2f));
 	glm::mat4 view = camera.getViewMatrix();
-	projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 0.1f, 100.0f);
+	projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 0.1f, 1000000000.0f);
 	glm::mat4 vp = projection * view;
 	std::list<Polygon> clippedPolygons = p.clipTo(poly);
 	for (std::list<Polygon>::iterator it1 = clippedPolygons.begin(); it1 != clippedPolygons.end(); it1++) {
@@ -61,7 +61,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 			glm::vec3 line = glm::cross(glm::vec3(vertIt2->getX(), vertIt2->getY(), vertIt2->getW()), glm::vec3(vertIt1->getX(), vertIt1->getY(), vertIt1->getW()));
 			glm::vec4 plane(line.x, line.y, 0.0, line.z);
 			glEnable(GL_CLIP_DISTANCE0 + clipPlaneCount);
-			worldViewShader->setUniform((std::string("clipPlane[") + static_cast<char>(clipPlaneCount + '0')) + ']', plane);
+			worldViewShader->setUniform(("clipPlane[" + std::to_string(clipPlaneCount)) + ']', plane);
 			vertIt1++;
 			clipPlaneCount++;
 		}
@@ -69,7 +69,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		std::list<Position>::iterator vertIt2 = vert.begin();
 		glm::vec3 line = glm::cross(glm::vec3(vertIt2->getX(), vertIt2->getY(), vertIt2->getW()), glm::vec3(vertIt1->getX(), vertIt1->getY(), vertIt1->getW()));
 		glm::vec4 plane(line.x, line.y, 0.0, line.z);
-		worldViewShader->setUniform((std::string("clipPlane[") + static_cast<char>(clipPlaneCount + '0')) + ']', plane);
+		worldViewShader->setUniform(("clipPlane[" + std::to_string(clipPlaneCount)) + ']', plane);
 		clipPlaneCount++;
 		worldViewShader->setUniform("numPlanes", clipPlaneCount);
 		worldViewShader->setUniform("viewPosition", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);

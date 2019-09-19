@@ -29,13 +29,13 @@ namespace cgl {
 			unsigned int ebo;
 			std::vector<Position> positions;
 			std::vector<glm::vec3> normals;
-			std::vector<Position> textureCoordinates;
+			std::vector<glm::vec2> textureCoordinates;
 			std::vector<VertexBoneData> boneData;
 			std::vector<unsigned int> indicies;
 			Material material;
 			void setupVAO();
 		public:
-			Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<Position>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m);
+			Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m);
 			~Mesh();
 			void draw(Shader& shader, const glm::mat4& parentModel);
 			std::vector<Position> getPositions();

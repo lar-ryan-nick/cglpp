@@ -46,7 +46,7 @@ namespace cgl {
 			Texture getTexture() const;
 			Type getType() const;
 			Operation getOperation() const;
-			float getStength() const;
+			float getStrength() const;
 			unsigned int getUVIndex() const;
 	};
 }
