@@ -30,8 +30,8 @@ namespace cgl {
 			std::vector<Position> positions;
 			std::vector<glm::vec3> normals;
 			std::vector<glm::vec2> textureCoordinates;
-			std::vector<VertexBoneData> boneData;
 			std::vector<unsigned int> indicies;
+			std::vector<VertexBoneData> boneData;
 			Material material;
 			void setupVAO();
 		public:

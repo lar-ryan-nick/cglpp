@@ -23,7 +23,7 @@ cgl::Model::Model(const std::string& path) : skeletonRoot(-1) {
 	processNode(scene->mRootNode, scene, directory);
 	constructSkeleton(scene->mRootNode, -1);
 	// let's animate baby!
-	animation = Animation::AnimationFromAssimp(scene->mAnimations[0]);
+	//animation = Animation::AnimationFromAssimp(scene->mAnimations[0]);
 
 	startTime = glfwGetTime();
 }
@@ -69,10 +69,12 @@ void cgl::Model::updateAnimation(float time, int boneIndex, const glm::mat4& par
 }
 
 void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
+	/*
 	float time = glfwGetTime() - startTime;
 	time *= animation.getTicksPerSecond();
 	time = fmod(time, animation.getDuration());
 	updateAnimation(time, skeletonRoot, glm::mat4());
+	*/
 	for (int i = 0; i < bones.size(); i++) {
 		std::stringstream ss;
 		ss << "boneTransforms[" << i << "]";
@@ -141,12 +143,12 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 		while (parentBoneNode != NULL && parentBoneNode->mNumChildren > 1) {
 			std::string parentBoneName(parentBoneNode->mName.C_Str());
 			std::unordered_map<std::string, int>::iterator parentIt = boneMap.find(parentBoneName);
-			if (it == boneMap.end()) {
+			if (parentIt == boneMap.end()) {
 				bones[currentBoneIndex].parent = bones.size();
 				bones.push_back(Bone());
 				boneMap.insert(std::pair<std::string, int>(parentBoneName, bones[currentBoneIndex].parent));
 			} else {
-				bones[currentBoneIndex].parent = it->second;
+				bones[currentBoneIndex].parent = parentIt->second;
 				break;
 			}
 			currentBoneIndex = bones[currentBoneIndex].parent;

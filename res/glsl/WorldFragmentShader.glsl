@@ -136,6 +136,7 @@ void main() {
 		default:
 			break;
 	}
+	/*
 	switch (material.textureMaps[3].type) {
 		case AMBIENT_MAP:
 			calculateTextureMap(material.textureMaps[3], ambient);
@@ -305,6 +306,7 @@ void main() {
 		default:
 			break;
 	}
+	*/
 	vec3 result = calculateDirectionalLight(directionalLight, ambient, diffuse, specular);
 	//result += calculateSpotLight(spotLight, ambient, diffuse, specular);
 	FragColor = vec4(result, material.opacity);

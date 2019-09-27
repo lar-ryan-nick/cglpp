@@ -64,9 +64,9 @@ GLint cgl::TextureMap::mapModeFromAssimp(aiTextureMapMode assimpMapMode) {
 
 cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, const aiScene* scene, const std::string& directory, aiTextureType type, int index) {
 	TextureMap textureMap;
+	textureMap.strength = 1;
 	aiString str;
-	aiTextureMapping tm;
-	aiTextureOp textureOperation(aiTextureOp_Add);
+	aiTextureOp textureOperation(aiTextureOp_Multiply);
 	aiTextureMapMode textureMapMode[3] = {};
 	material->GetTexture(type, index, &str, NULL, &textureMap.uvIndex, &textureMap.strength, &textureOperation, textureMapMode);
 	std::cout << textureMap.strength << std::endl;
@@ -76,7 +76,7 @@ cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, cons
 		int h;
 		unsigned char* data = reinterpret_cast<unsigned char*>(scene->mTextures[embeddedTextureIndex]->pcData);
 		stbi_set_flip_vertically_on_load(true);
-		if (scene->mTextures[index]->mHeight == 0) {
+		if (scene->mTextures[embeddedTextureIndex]->mHeight == 0) {
 			data = stbi_load_from_memory(data, scene->mTextures[embeddedTextureIndex]->mWidth, &w, &h, NULL, 4);
 		} else {
 			data = stbi_load_from_memory(data, scene->mTextures[embeddedTextureIndex]->mWidth * scene->mTextures[embeddedTextureIndex]->mHeight, &w, &h, NULL, 4);
@@ -84,7 +84,7 @@ cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, cons
 		textureMap.texture.setTexture(data, w, h);
 		stbi_image_free(data);
 	} else {
-		textureMap.texture.setTexture(directory + str.C_Str());
+		textureMap.texture.setTexture(directory + (str.C_Str() + 2));
 	}
 	textureMap.type = typeFromAssimp(type);
 	textureMap.operation = operationFromAssimp(textureOperation);
