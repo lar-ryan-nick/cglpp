@@ -9,12 +9,12 @@ WorldTestWindow::WorldTestWindow()  {
 	cgl::Rectangle bounds = getView().getBounds();
 	worldView = new cgl::WorldView(0, 0, bounds.getWidth(), bounds.getHeight());
 	worldView->setBackgroundColor(cgl::Color(0.9f, 0.9f, 0.9f, 1.0f));
-	actor = new cgl::Actor("/Users/ryanwiener/Downloads/assimp-4.1.0/test/models/OBJ/spider.obj");
 	//actor = new cgl::Actor("res/models/Lamborginhi Aventador FBX/Lamborghini_Aventador.fbx");
 	//actor = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
 	//actor = new cgl::Actor("res/models/maw_j_laygo.fbx");
 	//actor = new cgl::Actor("res/models/Looking Around.fbx");
-	//actor = new cgl::Actor("res/models/Samba Dancing.fbx");
+	actor = new cgl::Actor("res/models/Samba Dancing.fbx");
+	//actor = new cgl::Actor("res/models/Capoeira.fbx");
 	worldView->addActor(actor);
 	getView().addSubview(worldView);
 	getView().setBackgroundColor(cgl::Color(0.0f, 0.0f, 0.0f, 1.0f));
@@ -55,7 +55,7 @@ void WorldTestWindow::processInput() {
 				if (yaw > 360.0f) {
 					yaw -= 360.0f;
 				}
-				pitch += yChange;
+				pitch -= yChange;
 				if(pitch > 89.0f)
 					pitch =  89.0f;
 				if(pitch < -89.0f)

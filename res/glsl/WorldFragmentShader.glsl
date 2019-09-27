@@ -87,6 +87,7 @@ uniform SpotLight spotLight;
 vec3 viewDirection;
 int shininessIndex = -1;
 
+// TODO: remove structs from parameters
 void calculateTextureMap(TextureMap map, inout vec3 base);
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 ambient, vec3 diffuse, vec3 specular);
 vec3 calculatePointLight(PointLight light, vec3 ambient, vec3 diffuse, vec3 specular);
@@ -136,7 +137,6 @@ void main() {
 		default:
 			break;
 	}
-	/*
 	switch (material.textureMaps[3].type) {
 		case AMBIENT_MAP:
 			calculateTextureMap(material.textureMaps[3], ambient);
@@ -306,7 +306,6 @@ void main() {
 		default:
 			break;
 	}
-	*/
 	vec3 result = calculateDirectionalLight(directionalLight, ambient, diffuse, specular);
 	//result += calculateSpotLight(spotLight, ambient, diffuse, specular);
 	FragColor = vec4(result, material.opacity);
@@ -317,16 +316,22 @@ void calculateTextureMap(TextureMap textureMap, inout vec3 base) {
 	switch (textureMap.operation) {
 		case MULT_OP:
 			base *= mapContrib;
+			break;
 		case ADD_OP:
 			base += mapContrib;
+			break;
 		case SUB_OP:
 			base -= mapContrib;
+			break;
 		case DIV_OP:
 			base /= mapContrib;
+			break;
 		case SMOOTH_OP:
 			base = (base + mapContrib) - (base * mapContrib);
+			break;
 		case SIGNED_OP:
 			base += mapContrib - .5;
+			break;
 		default:
 			break;
 	}

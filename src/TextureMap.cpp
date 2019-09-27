@@ -69,25 +69,28 @@ cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, cons
 	aiTextureOp textureOperation(aiTextureOp_Multiply);
 	aiTextureMapMode textureMapMode[3] = {};
 	material->GetTexture(type, index, &str, NULL, &textureMap.uvIndex, &textureMap.strength, &textureOperation, textureMapMode);
-	std::cout << textureMap.strength << std::endl;
+	std::cout << str.C_Str() << std::endl;
 	if (str.C_Str()[0] == '*') {
 		int embeddedTextureIndex = atoi(str.C_Str() + 1);
-		int w;
-		int h;
 		unsigned char* data = reinterpret_cast<unsigned char*>(scene->mTextures[embeddedTextureIndex]->pcData);
 		stbi_set_flip_vertically_on_load(true);
 		if (scene->mTextures[embeddedTextureIndex]->mHeight == 0) {
+			int w;
+			int h;
 			data = stbi_load_from_memory(data, scene->mTextures[embeddedTextureIndex]->mWidth, &w, &h, NULL, 4);
+			textureMap.texture.setTexture(data, w, h);
+			stbi_image_free(data);
 		} else {
-			data = stbi_load_from_memory(data, scene->mTextures[embeddedTextureIndex]->mWidth * scene->mTextures[embeddedTextureIndex]->mHeight, &w, &h, NULL, 4);
+			// TODO: fix so texture uses ARGB instead of RGBA
+			textureMap.texture.setTexture(data, scene->mTextures[embeddedTextureIndex]->mWidth, scene->mTextures[embeddedTextureIndex]->mHeight);
 		}
-		textureMap.texture.setTexture(data, w, h);
-		stbi_image_free(data);
 	} else {
-		textureMap.texture.setTexture(directory + (str.C_Str() + 2));
+		textureMap.texture.setTexture(directory + (str.C_Str()));
 	}
 	textureMap.type = typeFromAssimp(type);
 	textureMap.operation = operationFromAssimp(textureOperation);
+	std::cout << textureMap.strength << std::endl;
+	std::cout << textureMap.operation << std::endl;
 	textureMap.texture.bind();
 	// tiling mode
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mapModeFromAssimp(textureMapMode[0]));
