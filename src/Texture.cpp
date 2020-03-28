@@ -55,7 +55,7 @@ void cgl::Texture::bind() const {
 
 cgl::Texture cgl::Texture::getWhiteTexture() {
 	if (whiteTexture.id == 0) {
-		unsigned char data[4] = {255, 255, 255, 255};
+		unsigned char data[4] = {1, 1, 1, 1};
 		whiteTexture.setTexture(data, 1, 1);
 	}
 	return whiteTexture;
@@ -63,7 +63,7 @@ cgl::Texture cgl::Texture::getWhiteTexture() {
 
 cgl::Texture cgl::Texture::getBlackTexture() {
 	if (blackTexture.id == 0) {
-		unsigned char data[4] = {0, 0, 0, 255};
+		unsigned char data[4] = {0, 0, 0, 1};
 		blackTexture.setTexture(data, 1, 1);
 	}
 	return blackTexture;
