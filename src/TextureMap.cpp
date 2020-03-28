@@ -68,23 +68,22 @@ cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, cons
 	aiString str;
 	aiTextureOp textureOperation(aiTextureOp_Multiply);
 	aiTextureMapMode textureMapMode[3] = {};
-	material->GetTexture(type, index, &str, NULL, &textureMap.uvIndex, &textureMap.strength, &textureOperation, textureMapMode);
-	std::cout << textureMap.strength << std::endl;
-	if (str.C_Str()[0] == '*') {
-		int embeddedTextureIndex = atoi(str.C_Str() + 1);
+	std::cout << "GetTexture: " << material->GetTexture(type, index, &str, NULL, &textureMap.uvIndex, &textureMap.strength, &textureOperation, textureMapMode) << std::endl;
+	const aiTexture* texture = scene->GetEmbeddedTexture(str.C_Str());
+	if (texture != NULL) {
 		int w;
 		int h;
-		unsigned char* data = reinterpret_cast<unsigned char*>(scene->mTextures[embeddedTextureIndex]->pcData);
+		unsigned char* data = reinterpret_cast<unsigned char*>(texture->pcData);
 		stbi_set_flip_vertically_on_load(true);
-		if (scene->mTextures[embeddedTextureIndex]->mHeight == 0) {
-			data = stbi_load_from_memory(data, scene->mTextures[embeddedTextureIndex]->mWidth, &w, &h, NULL, 4);
+		if (texture->mHeight == 0) {
+			data = stbi_load_from_memory(data, texture->mWidth, &w, &h, NULL, 4);
 		} else {
-			data = stbi_load_from_memory(data, scene->mTextures[embeddedTextureIndex]->mWidth * scene->mTextures[embeddedTextureIndex]->mHeight, &w, &h, NULL, 4);
+			data = stbi_load_from_memory(data, texture->mWidth * texture->mHeight, &w, &h, NULL, 4);
 		}
 		textureMap.texture.setTexture(data, w, h);
 		stbi_image_free(data);
 	} else {
-		textureMap.texture.setTexture(directory + (str.C_Str() + 2));
+		textureMap.texture.setTexture(directory + (str.C_Str()));
 	}
 	textureMap.type = typeFromAssimp(type);
 	textureMap.operation = operationFromAssimp(textureOperation);
@@ -92,6 +91,15 @@ cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, cons
 	// tiling mode
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mapModeFromAssimp(textureMapMode[0]));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mapModeFromAssimp(textureMapMode[1]));
+	float blend = 0.0f;
+	std::cout << "Get TEXTBLEND: " << material->Get(AI_MATKEY_TEXBLEND(type, index), blend) << std::endl;
+	/*
+		std::cerr << "Failed to get texture strength" << std::endl;
+	} else {
+		std::cout << "It worked!" << std::endl;
+	}
+	//std::cout << blend << std::endl;
+	*/
 	return textureMap;
 }
 

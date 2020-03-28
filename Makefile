@@ -1,79 +1,69 @@
-ifeq ($(OS),Windows_NT)
-CC = cl.exe
-LINKER = link.exe
-CFLAGS = /c /EHsc /nologo /Wall /I include /Fo
-LFLAGS = /LIBPATH:lib /OUT:
-CLEANER = del
-SRCDIR = "src\\"
-BUILDDIR = "build\\"
-BINDIR = "bin\\"
-TESTSRCDIR = "test\\src\\"
-TESTMAINDIR = "test\\main\\"
-TESTBUILDDIR = "test\\build\\"
-TESTBINDIR = "test\\bin\\"
-else
-CC = g++
-LINKER = g++
+CC = g++ -std=c++11
 LIBBER = ar rcs
-CFLAGS = -c -g -Wall -Iinclude -std=c++11 -o 
+CFLAGS = -g -Wall -Iinclude
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+LFLAGS = -Llib -Lbin -lcgl -lglfw3 -lLinearMath -lBulletDynamics -lBulletCollision -lglad -lassimp -lfreetype -lpng -lz -lpthread -ldl -framework Cocoa -framework IOKit -framework CoreFoundation -framework CoreVideo
+else
+LFLAGS = -Llib -Lbin -lcgl -lglfw3 -lglad -lassimp -lfreetype -lpng -lX11 -lz -lpthread -ldl
+endif
 CLEANER = rm -rf
-MDFLAGS = -p
+MKDIR = mkdir -p
+
 SRCDIR = src/
 INCLUDEDIR = include/
 BUILDDIR = build/
 BINDIR = bin/
 TESTSRCDIR = test/src/
+TESTINCLUDEDIR = test/include/
 TESTMAINDIR = test/main/
 TESTBUILDDIR = test/build/
 TESTBINDIR = test/bin/
-.PHONY: clean
-	
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Darwin)
-LFLAGS = -Llib -Lbin -lcgl -lglfw3 -lLinearMath -lBulletDynamics -lBulletCollision -lglad -lassimp -lfreetype -lpng -lz -lpthread -ldl -framework Cocoa -framework IOKit -framework CoreFoundation -framework CoreVideo -o 
-else
-LFLAGS = -Llib -Lbin -lcgl -lglfw3 -lglad -lassimp -lfreetype -lpng -lX11 -lz -lpthread -ldl -o 
-endif
-endif
 
 LIB = $(BINDIR)libcgl.a
 SRC = $(wildcard $(SRCDIR)*.cpp)
 INCLUDE = $(wildcard $(INCLUDEDIR)*.h)
 OBJS = $(SRC:$(SRCDIR)%.cpp=$(BUILDDIR)%.o)
 TESTSRC = $(wildcard $(TESTSRCDIR)*.cpp)
-TESTOBJS = $(TESTSRC:$(TESTSRCDIR)%.cpp=$(TESTBUILDDIR)%.o)
+TESTINCLUDE = $(wildcard $(TESTINCLUDEDIR)*.h)
 TESTMAIN = $(wildcard $(TESTMAINDIR)*.cpp)
-TESTMAINOBJS = $(TESTMAIN:$(TESTMAINDIR)%.cpp=$(TESTBUILDDIR)%.o)
+TESTOBJS = $(TESTSRC:$(TESTSRCDIR)%.cpp=$(TESTBUILDDIR)%.o)
 TESTEXECS = $(TESTMAIN:$(TESTMAINDIR)%.cpp=$(TESTBINDIR)%)
 
-default: $(TESTEXECS)
+.PHONY: default clean rebuild tests
+	
+.SECONDARY: $(OBJS) $(TESTOBJS)
 
-$(TESTBINDIR)%: $(TESTBUILDDIR)%.o $(TESTOBJS) $(LIB) $(TESTBINDIR)
-	$(CC) $< $(TESTOBJS) $(LFLAGS)$@
+.NOTPARALLEL: rebuild
 
-$(TESTBUILDDIR)%.o: $(TESTMAINDIR)%.cpp $(TESTBUILDDIR)
-	$(CC) $< $(CFLAGS)$@
+default: $(LIB)
 
-$(TESTBUILDDIR)%.o: $(TESTSRCDIR)%.cpp $(TESTBUILDDIR)
-	$(CC) $< $(CFLAGS)$@
-
-$(LIB): $(OBJS) $(BINDIR)
+$(LIB): $(OBJS) | $(BINDIR)
+	$(CLEANER) $(BINDIR)*
 	$(LIBBER) $@ $(OBJS)
 
-$(BUILDDIR)%.o: $(SRCDIR)%.cpp $(INCLUDE) $(BUILDDIR)
-	$(CC) $< $(CFLAGS)$@
+$(BUILDDIR)%.o: $(SRCDIR)%.cpp $(INCLUDE) | $(BUILDDIR)
+	$(CC) -c $(CFLAGS) $< -o $@
+
+tests: $(TESTEXECS)
+
+$(TESTBINDIR)%: $(TESTMAINDIR)%.cpp $(LIB) $(TESTOBJS) | $(TESTBINDIR)
+	$(CC) $(CFLAGS) $(LFLAGS) $(TESTOBJS) $< -o $@
+
+$(TESTBUILDDIR)%.o: $(TESTSRCDIR)%.cpp $(TESTINCLUDE) $(INCLUDE) | $(TESTBUILDDIR)
+	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BINDIR):
-	mkdir $(MDFLAGS) $(BINDIR)
+	$(MKDIR) $(BINDIR)
 
 $(BUILDDIR):
-	mkdir $(MDFLAGS) $(BUILDDIR)
+	$(MKDIR) $(BUILDDIR)
 
 $(TESTBINDIR):
-	mkdir $(MDFLAGS) $(TESTBINDIR)
+	$(MKDIR) $(TESTBINDIR)
 
 $(TESTBUILDDIR):
-	mkdir $(MDFLAGS) $(TESTBUILDDIR)
+	$(MKDIR) $(TESTBUILDDIR)
 
 clean:
 	$(CLEANER) $(BUILDDIR)

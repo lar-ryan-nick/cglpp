@@ -17,15 +17,17 @@ cgl::Model::Model(const std::string& path) : skeletonRoot(-1) {
 		std::cerr << path << std::endl;
 		return;
 	}
-	//globalInverseTransform = glm::inverse(aiMatrix4x4ToGlm(scene->mRootNode->mTransformation));
+	globalInverseTransform = glm::inverse(aiMatrix4x4ToGlm(scene->mRootNode->mTransformation));
 	std::string directory = path.substr(0, path.find_last_of("/") + 1);
 	// process ASSIMP's root node recursively
 	processNode(scene->mRootNode, scene, directory);
 	constructSkeleton(scene->mRootNode, -1);
+	/*
 	// let's animate baby!
-	//animation = Animation::AnimationFromAssimp(scene->mAnimations[0]);
+	animation = Animation::AnimationFromAssimp(scene->mAnimations[0]);
 
 	startTime = glfwGetTime();
+	*/
 }
 
 cgl::Model::~Model() {
