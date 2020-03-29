@@ -82,6 +82,9 @@ void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
 		ss << "boneTransforms[" << i << "]";
 		shader.setUniform(ss.str(), bones[i].finalTransform);
 	}
+	if (bones.empty()) {
+		shader.setUniform("boneTransforms[0]", glm::mat4());
+	}
 	for (std::list<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); it++) {
 		Mesh* m = *it;
 		m->draw(shader, parentModel);
@@ -166,6 +169,11 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 					break;
 				}
 			}
+		}
+	}
+	for (int i = 0; i < boneData.size(); ++i) {
+		if (boneData[i].weights[0] == 0.0f) {
+			boneData[i].weights[0] = 1.0f;
 		}
 	}
 	aiMaterial* m = scene->mMaterials[mesh->mMaterialIndex];

@@ -38,10 +38,12 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		p.addVertex(glm::vec2(transformed.x, transformed.y));
 	}
 	DirectionalLight directionalLight(camera.getDirection());
-	//SpotLight spotLight(camera.getDirection(), camera.getPosition());
+	SpotLight spotLight(camera.getDirection(), camera.getPosition());
 	glm::mat4 m;
+	/*
 	m = glm::translate(m, glm::vec3(0.0f, 0.0f, -1.75f));
 	m = glm::scale(m, glm::vec3(0.2f, 0.2f, 0.2f));
+	*/
 	glm::mat4 view = camera.getViewMatrix();
 	projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 0.1f, 1000000000.0f);
 	glm::mat4 vp = projection * view;
@@ -74,7 +76,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		worldViewShader->setUniform("numPlanes", clipPlaneCount);
 		worldViewShader->setUniform("viewPosition", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 		worldViewShader->setUniform("directionalLight", directionalLight);
-		//worldViewShader->setUniform("spotLight", spotLight);
+		worldViewShader->setUniform("spotLight", spotLight);
 		worldViewShader->setUniform("vp", vp);
 		worldViewShader->setUniform("model", m);
 		for (std::list<Actor*>::iterator it2 = actors.begin(); it2 != actors.end(); it2++) {

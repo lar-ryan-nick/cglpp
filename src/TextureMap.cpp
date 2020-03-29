@@ -80,7 +80,6 @@ cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, cons
 		} else {
 			data = stbi_load_from_memory(data, texture->mWidth * texture->mHeight, &w, &h, NULL, 4);
 		}
-		// TODO: fix so texture uses ARGB instead of RGBA
 		textureMap.texture.setTexture(data, w, h);
 		stbi_image_free(data);
 	} else {
