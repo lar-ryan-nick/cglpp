@@ -68,7 +68,8 @@ cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, cons
 	aiString str;
 	aiTextureOp textureOperation(aiTextureOp_Multiply);
 	aiTextureMapMode textureMapMode[3] = {};
-	std::cout << "GetTexture: " << material->GetTexture(type, index, &str, NULL, &textureMap.uvIndex, &textureMap.strength, &textureOperation, textureMapMode) << std::endl;
+	// TODO: return val check?
+	material->GetTexture(type, index, &str, NULL, &textureMap.uvIndex, &textureMap.strength, &textureOperation, textureMapMode);
 	const aiTexture* texture = scene->GetEmbeddedTexture(str.C_Str());
 	if (texture != NULL) {
 		int w;
@@ -91,15 +92,6 @@ cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, cons
 	// tiling mode
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mapModeFromAssimp(textureMapMode[0]));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mapModeFromAssimp(textureMapMode[1]));
-	float blend = 0.0f;
-	std::cout << "Get TEXTBLEND: " << material->Get(AI_MATKEY_TEXBLEND(type, index), blend) << std::endl;
-	/*
-		std::cerr << "Failed to get texture strength" << std::endl;
-	} else {
-		std::cout << "It worked!" << std::endl;
-	}
-	//std::cout << blend << std::endl;
-	*/
 	return textureMap;
 }
 

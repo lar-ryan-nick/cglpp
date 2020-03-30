@@ -307,7 +307,7 @@ void main() {
 			break;
 	}
 	vec3 result = calculateDirectionalLight(directionalLight, ambient, diffuse, specular);
-	result += calculateSpotLight(spotLight, ambient, diffuse, specular);
+	//result += calculateSpotLight(spotLight, ambient, diffuse, specular);
 	FragColor = vec4(result, material.opacity);
 }
 

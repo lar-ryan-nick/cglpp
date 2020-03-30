@@ -38,17 +38,16 @@ namespace cgl {
 			int skeletonRoot;
 			std::list<Mesh*> meshes;
 			glm::mat4 globalInverseTransform;
-			Animation animation;
-			float startTime;
-			void updateAnimation(float time, int boneIndex, const glm::mat4& parentTransform);
+			void applyAnimation(const Animation& animation, float time, int boneIndex, const glm::mat4& parentTransform);
 			void processNode(aiNode* node, const aiScene* scene, const std::string& directory);
 			void processMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory);
 			void constructSkeleton(aiNode* node, int parentIndex);
 		public:
 			Model(const std::string& path);
 			~Model();
-			void draw(Shader& shader, const glm::mat4& parentModel);
 			std::list<Mesh*> getMeshes();
+			void draw(Shader& shader, const glm::mat4& parentModel);
+			void applyAnimation(const Animation& animation, float time);
 	};
 }
 

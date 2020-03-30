@@ -9,8 +9,8 @@ cgl::Model::Model(const std::string& path) : skeletonRoot(-1) {
 	// read file via ASSIMP
 	importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
 	importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
-	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_LIGHTS | aiComponent_CAMERAS);
-	const aiScene* scene = importer.ReadFile(path, aiProcess_GenUVCoords | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_SplitLargeMeshes | aiProcess_SortByPType | aiProcess_FindDegenerates | aiProcess_LimitBoneWeights/* | aiProcess_CalcTangentSpace*/ | aiProcess_ImproveCacheLocality | aiProcess_RemoveComponent | aiProcess_Triangulate);
+	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_LIGHTS | aiComponent_CAMERAS | aiComponent_ANIMATIONS);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_GenUVCoords | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_SplitLargeMeshes | aiProcess_SortByPType | aiProcess_FindDegenerates | aiProcess_LimitBoneWeights | aiProcess_CalcTangentSpace | aiProcess_ImproveCacheLocality | aiProcess_RemoveComponent | aiProcess_Triangulate | aiProcess_ValidateDataStructure | aiProcess_RemoveRedundantMaterials | aiProcess_FindInvalidData | aiProcess_FixInfacingNormals | aiProcess_JoinIdenticalVertices | aiProcess_GenSmoothNormals);
 	// check for errors
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cerr << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
@@ -22,12 +22,7 @@ cgl::Model::Model(const std::string& path) : skeletonRoot(-1) {
 	// process ASSIMP's root node recursively
 	processNode(scene->mRootNode, scene, directory);
 	constructSkeleton(scene->mRootNode, -1);
-	/*
-	// let's animate baby!
-	animation = Animation::AnimationFromAssimp(scene->mAnimations[0]);
-
-	startTime = glfwGetTime();
-	*/
+	importer.FreeScene();
 }
 
 cgl::Model::~Model() {
@@ -58,7 +53,11 @@ void cgl::Model::constructSkeleton(aiNode* node, int parentIndex) {
 	}
 }
 
-void cgl::Model::updateAnimation(float time, int boneIndex, const glm::mat4& parentTransform) {
+void cgl::Model::applyAnimation(const Animation& animation, float time) {
+	applyAnimation(animation, time, skeletonRoot, glm::mat4());
+}
+
+void cgl::Model::applyAnimation(const Animation& animation, float time, int boneIndex, const glm::mat4& parentTransform) {
 	glm::mat4 nodeTransformation;
 	if (!animation.getTransformation(bones[boneIndex].name, time, nodeTransformation)) {
 		nodeTransformation = bones[boneIndex].transform;
@@ -66,17 +65,11 @@ void cgl::Model::updateAnimation(float time, int boneIndex, const glm::mat4& par
 	glm::mat4 globalTransformation = parentTransform * nodeTransformation;
 	bones[boneIndex].finalTransform = /*globalInverseTransform * */globalTransformation * bones[boneIndex].offsetTransform;
 	for (int i = 0; i < bones[boneIndex].children.size(); i++) {
-		updateAnimation(time, bones[boneIndex].children[i], globalTransformation);
+		applyAnimation(animation, time, bones[boneIndex].children[i], globalTransformation);
 	}
 }
 
 void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
-	/*
-	float time = glfwGetTime() - startTime;
-	time *= animation.getTicksPerSecond();
-	time = fmod(time, animation.getDuration());
-	updateAnimation(time, skeletonRoot, glm::mat4());
-	*/
 	for (int i = 0; i < bones.size(); i++) {
 		std::stringstream ss;
 		ss << "boneTransforms[" << i << "]";

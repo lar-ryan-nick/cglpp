@@ -1,21 +1,21 @@
 #include "../include/WorldTestWindow.h"
 
-WorldTestWindow::WorldTestWindow()  {
+WorldTestWindow::WorldTestWindow() : animationStart(glfwGetTime()) {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	if (glfwRawMouseMotionSupported()) {
 		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 	}
-
 	cgl::Rectangle bounds = getView().getBounds();
 	worldView = new cgl::WorldView(0, 0, bounds.getWidth(), bounds.getHeight());
 	worldView->setBackgroundColor(cgl::Color(0.9f, 0.9f, 0.9f, 1.0f));
-	//actor = new cgl::Actor("/Users/ryanwiener/Downloads/assimp-4.1.0/test/models/OBJ/spider.obj");
 	//actor = new cgl::Actor("res/models/Lamborginhi Aventador FBX/Lamborghini_Aventador.fbx");
-	actor = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
+	//actor = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
 	//actor = new cgl::Actor("res/models/maw_j_laygo.fbx");
 	//actor = new cgl::Actor("res/models/Looking Around.fbx");
 	//actor = new cgl::Actor("res/models/Samba Dancing.fbx");
 	//actor = new cgl::Actor("res/models/Capoeira.fbx");
+	actor = new cgl::Actor("res/models/paladin/paladin.fbx");
+	animation = new cgl::Animation("res/animations/paladin/sword and shield idle.fbx");
 	worldView->addActor(actor);
 	getView().addSubview(worldView);
 	getView().setBackgroundColor(cgl::Color(0.0f, 0.0f, 0.0f, 1.0f));
@@ -23,10 +23,15 @@ WorldTestWindow::WorldTestWindow()  {
 
 WorldTestWindow::~WorldTestWindow() {
 	delete actor;
+	delete animation;
 	delete worldView;
 }
 
 void WorldTestWindow::render() {
+	float time = glfwGetTime() - animationStart;
+	time *= animation->getTicksPerSecond();
+	time = fmod(time, animation->getDuration());
+	actor->getModel().applyAnimation(*animation, time);
 	Window::render();
 }
 

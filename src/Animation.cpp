@@ -31,7 +31,7 @@ cgl::Animation::NodeAnimation cgl::Animation::NodeAnimation::NodeAnimationFromAs
 	return nodeAnimation;
 }
 
-glm::vec3 cgl::Animation::NodeAnimation::getInterpolatedTranslation(float time) {
+glm::vec3 cgl::Animation::NodeAnimation::getInterpolatedTranslation(float time) const {
 	if (translationKeys.size() < 2) {
 		return translationKeys[0].vector;
 	}
@@ -47,7 +47,7 @@ glm::vec3 cgl::Animation::NodeAnimation::getInterpolatedTranslation(float time) 
 	return glm::lerp(translationKeys[index].vector, translationKeys[index + 1].vector, factor);
 }
 
-glm::vec3 cgl::Animation::NodeAnimation::getInterpolatedScale(float time) {
+glm::vec3 cgl::Animation::NodeAnimation::getInterpolatedScale(float time) const {
 	if (scaleKeys.size() < 2) {
 		return scaleKeys[0].vector;
 	}
@@ -63,7 +63,7 @@ glm::vec3 cgl::Animation::NodeAnimation::getInterpolatedScale(float time) {
 	return glm::lerp(scaleKeys[index].vector, scaleKeys[index + 1].vector, factor);
 }
 
-glm::quat cgl::Animation::NodeAnimation::getInterpolatedRotation(float time) {
+glm::quat cgl::Animation::NodeAnimation::getInterpolatedRotation(float time) const {
 	if (rotationKeys.size() < 2) {
 		return rotationKeys[0].quaternion;
 	}
@@ -79,33 +79,45 @@ glm::quat cgl::Animation::NodeAnimation::getInterpolatedRotation(float time) {
 	return glm::slerp(rotationKeys[index].quaternion, rotationKeys[index + 1].quaternion, factor);
 }
 
-glm::mat4 cgl::Animation::NodeAnimation::getTransformation(float time) {
+glm::mat4 cgl::Animation::NodeAnimation::getTransformation(float time) const {
 	glm::mat4 scaleMatrix = glm::scale(glm::mat4(), getInterpolatedScale(time));
 	glm::mat4 rotationMatrix = glm::mat4_cast(getInterpolatedRotation(time));
 	glm::mat4 translationMatrix = glm::translate(glm::mat4(), getInterpolatedTranslation(time));
 	return translationMatrix * rotationMatrix * scaleMatrix;
 }
 
-cgl::Animation cgl::Animation::AnimationFromAssimp(aiAnimation* anim) {
-	Animation animation;
-	animation.ticksPerSecond = anim->mTicksPerSecond == 0.0f ? 25.0f : anim->mTicksPerSecond;
-	animation.duration = anim->mDuration;
-	for (int i = 0; i < anim->mNumChannels; i++) {
-		animation.nodeAnimations.insert(std::pair<std::string, NodeAnimation>(anim->mChannels[i]->mNodeName.C_Str(), NodeAnimation::NodeAnimationFromAssimp(anim->mChannels[i])));
+cgl::Animation::Animation(const std::string& path) : ticksPerSecond(0.0f), duration(0.0f) {
+	Assimp::Importer importer;
+	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_LIGHTS | aiComponent_CAMERAS | aiComponent_NORMALS | aiComponent_TANGENTS_AND_BITANGENTS | aiComponent_COLORS | aiComponent_TEXCOORDS | aiComponent_BONEWEIGHTS | aiComponent_TEXTURES | aiComponent_MESHES | aiComponent_MATERIALS);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_OptimizeGraph | aiProcess_RemoveComponent | aiProcess_ValidateDataStructure);
+	if (scene == nullptr) {
+		std::cerr << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
+		std::cerr << path << std::endl;
+		return;
 	}
-	return animation;
+	if (!scene->HasAnimations()) {
+		std::cerr << path << " has no animations" << std::endl;
+		return;
+	}
+	// TODO: make helper function to combine logic between this and the static constructor
+	aiAnimation* anim = scene->mAnimations[0];
+	ticksPerSecond = anim->mTicksPerSecond == 0.0f ? 25.0f : anim->mTicksPerSecond;
+	duration = anim->mDuration;
+	for (int i = 0; i < anim->mNumChannels; i++) {
+		nodeAnimations.insert(std::pair<std::string, NodeAnimation>(anim->mChannels[i]->mNodeName.C_Str(), NodeAnimation::NodeAnimationFromAssimp(anim->mChannels[i])));
+	}
 }
 
-float cgl::Animation::getTicksPerSecond() {
+float cgl::Animation::getTicksPerSecond() const {
 	return ticksPerSecond;
 }
 
-float cgl::Animation::getDuration() {
+float cgl::Animation::getDuration() const {
 	return duration;
 }
 
-bool cgl::Animation::getTransformation(const std::string& nodeName, float time, glm::mat4& transformation) {
-	std::unordered_map<std::string, NodeAnimation>::iterator it = nodeAnimations.find(nodeName);
+bool cgl::Animation::getTransformation(const std::string& nodeName, float time, glm::mat4& transformation) const {
+	std::unordered_map<std::string, NodeAnimation>::const_iterator it = nodeAnimations.find(nodeName);
 	if (it == nodeAnimations.end()) {
 		return false;
 	}
