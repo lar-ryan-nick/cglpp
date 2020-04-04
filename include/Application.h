@@ -18,9 +18,9 @@ namespace cgl {
 			Application();
 			virtual ~Application();
 			void run();
+			void addWindow(Window* window);
 		protected:
 			virtual void onCreate() = 0;
-			void addWindow(Window* window);
 	};
 }
 

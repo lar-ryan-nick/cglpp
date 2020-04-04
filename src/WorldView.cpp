@@ -37,7 +37,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		verticies[i + 1] = transformed.y;
 		p.addVertex(glm::vec2(transformed.x, transformed.y));
 	}
-	DirectionalLight directionalLight(glm::vec3(.5f, .5f, -1.0f));
+	DirectionalLight directionalLight(glm::vec3(.5f, .5f, -2.0f));
 	//SpotLight spotLight(camera.getDirection(), camera.getPosition());
 	glm::mat4 m;
 	/*

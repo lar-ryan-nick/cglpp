@@ -7,6 +7,11 @@ TESTINCLUDEDIR = test/include/
 TESTMAINDIR = test/main/
 TESTBUILDDIR = test/build/
 TESTBINDIR = test/bin/
+SAMPLESSRCDIR = samples/src/
+SAMPLESINCLUDEDIR = samples/include/
+SAMPLESMAINDIR = samples/main/
+SAMPLESBUILDDIR = samples/build/
+SAMPLESBINDIR = samples/bin/
 LIBSRCDIR = lib/src/
 LIBINCLUDEDIR = lib/include/
 LIBBUILDDIR = lib/build/
@@ -31,10 +36,17 @@ TESTINCLUDE = $(wildcard $(TESTINCLUDEDIR)*.h)
 TESTMAIN = $(wildcard $(TESTMAINDIR)*.cpp)
 TESTOBJS = $(TESTSRC:$(TESTSRCDIR)%.cpp=$(TESTBUILDDIR)%.o)
 TESTEXECS = $(TESTMAIN:$(TESTMAINDIR)%.cpp=$(TESTBINDIR)%)
+SAMPLESSRC = $(wildcard $(SAMPLESSRCDIR)*.cpp)
+SAMPLESINCLUDE = $(wildcard $(SAMPLESINCLUDEDIR)*.h)
+SAMPLESMAIN = $(wildcard $(SAMPLESMAINDIR)*.cpp)
+SAMPLESOBJS = $(SAMPLESSRC:$(SAMPLESSRCDIR)%.cpp=$(SAMPLESBUILDDIR)%.o)
+SAMPLESEXECS = $(SAMPLESMAIN:$(SAMPLESMAINDIR)%.cpp=$(SAMPLESBINDIR)%)
 
 CC = gcc
 CXX = g++ -std=c++11
 CFLAGS = -g -Wall -I$(INCLUDEDIR) -I$(LIBINCLUDEDIR)
+SAMPLESCFLAGS = $(CFLAGS) -I$(SAMPLESINCLUDEDIR)
+TESTCFLAGS = $(CFLAGS) -I$(TESTINCLUDEDIR)
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 LFLAGS = -L$(LIBBINDIR) -L$(BINDIR) -lcgl -lglfw3 -lglad -lassimp -lIrrXML -lfreetype -lpng -lbz2 -lz -lpthread -ldl -framework Cocoa -framework IOKit -framework CoreFoundation -framework CoreVideo
@@ -74,10 +86,10 @@ $(BUILDDIR):
 tests: $(TESTEXECS)
 
 $(TESTBINDIR)%: $(TESTMAINDIR)%.cpp $(CGL) $(TESTOBJS) | $(TESTBINDIR)
-	$(CXX) $(CFLAGS) $(TESTOBJS) $(LFLAGS) $< -o $@
+	$(CXX) $(TESTCFLAGS) $(TESTOBJS) $(LFLAGS) $< -o $@
 
 $(TESTBUILDDIR)%.o: $(TESTSRCDIR)%.cpp $(TESTINCLUDE) $(INCLUDE) | $(TESTBUILDDIR)
-	$(CXX) $(CFLAGS) -c $< -o $@
+	$(CXX) $(TESTCFLAGS) -c $< -o $@
 
 $(TESTBINDIR):
 	$(MKDIR) $(TESTBINDIR)
@@ -85,11 +97,25 @@ $(TESTBINDIR):
 $(TESTBUILDDIR):
 	$(MKDIR) $(TESTBUILDDIR)
 
+$(SAMPLESBINDIR)%: $(SAMPLESMAINDIR)%.cpp $(CGL) $(SAMPLESOBJS) | $(SAMPLESBINDIR)
+	$(CXX) $(SAMPLESCFLAGS) $(SAMPLESOBJS) $(LFLAGS) $< -o $@
+
+$(SAMPLESBUILDDIR)%.o: $(SAMPLESSRCDIR)%.cpp $(SAMPLESINCLUDE) $(INCLUDE) | $(SAMPLESBUILDDIR)
+	$(CXX) $(SAMPLESCFLAGS) -c $< -o $@
+
+$(SAMPLESBINDIR):
+	$(MKDIR) $(SAMPLESBINDIR)
+
+$(SAMPLESBUILDDIR):
+	$(MKDIR) $(SAMPLESBUILDDIR)
+
 clean:
 	$(RM) $(BUILDDIR)
 	$(RM) $(BINDIR)
 	$(RM) $(TESTBUILDDIR)
 	$(RM) $(TESTBINDIR)
+	$(RM) $(SAMPLESBUILDDIR)
+	$(RM) $(SAMPLESBINDIR)
 
 rebuild: clean default
 
@@ -145,3 +171,6 @@ cleanall: clean
 	$(RM) $(LIBBINDIR)
 
 rebuildall: cleanall default
+
+project0: samples/bin/project0
+	samples/bin/project0 res/models/nanosuit/nanosuit.obj
