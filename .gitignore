@@ -6,6 +6,7 @@ bin/
 build/
 lib/
 !lib/src
+packages
 # Vim
 *.swp
 # Visual Studio

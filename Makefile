@@ -173,4 +173,3 @@ cleanall: clean
 rebuildall: cleanall default
 
 project0: samples/bin/project0
-	samples/bin/project0 res/models/nanosuit/nanosuit.obj
