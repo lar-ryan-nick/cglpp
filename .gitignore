@@ -4,9 +4,8 @@ test/bin/
 test/build/
 bin/
 build/
-lib/include
-lib/bin
-lib/build
+lib/
+!lib/src
 # Vim
 *.swp
 # Visual Studio

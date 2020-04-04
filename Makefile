@@ -37,9 +37,9 @@ CXX = g++ -std=c++11
 CFLAGS = -g -Wall -I$(INCLUDEDIR) -I$(LIBINCLUDEDIR)
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
-LFLAGS = -L$(LIBBINDIR) -L$(BINDIR) -lcgl -lglfw3 -lglad -lassimp -lIrrXML -lfreetype -lbz2 -lpng -lz -lpthread -ldl -framework Cocoa -framework IOKit -framework CoreFoundation -framework CoreVideo
+LFLAGS = -L$(LIBBINDIR) -L$(BINDIR) -lcgl -lglfw3 -lglad -lassimp -lIrrXML -lfreetype -lpng -lbz2 -lz -lpthread -ldl -framework Cocoa -framework IOKit -framework CoreFoundation -framework CoreVideo
 else
-LFLAGS = -L$(LIBBINDIR) -L$(BINDIR) -lcgl -lglfw3 -lglad -lassimp -lIrrXML -lfreetype -lbz2 -lpng -lX11 -lz -lpthread -ldl
+LFLAGS = -L$(LIBBINDIR) -L$(BINDIR) -lcgl -lglfw3 -lglad -lassimp -lIrrXML -lfreetype -lpng -lX11 -lz -lpthread -ldl
 endif
 LIBBER = ar rcs
 CMAKE = cmake
@@ -62,7 +62,7 @@ $(CGL): $(OBJS) | $(BINDIR)
 	$(RM) $@
 	$(LIBBER) $@ $(OBJS)
 
-$(BUILDDIR)%.o: $(SRCDIR)%.cpp $(INCLUDE) dependencies | $(BUILDDIR)
+$(BUILDDIR)%.o: $(SRCDIR)%.cpp $(INCLUDE) $(DEPENDENCIES) | $(BUILDDIR)
 	$(CXX) $(CFLAGS) -c $< -o $@
 
 $(BINDIR):
@@ -74,7 +74,7 @@ $(BUILDDIR):
 tests: $(TESTEXECS)
 
 $(TESTBINDIR)%: $(TESTMAINDIR)%.cpp $(CGL) $(TESTOBJS) | $(TESTBINDIR)
-	$(CXX) $(CFLAGS) $(LFLAGS) $(TESTOBJS) $< -o $@
+	$(CXX) $(CFLAGS) $(TESTOBJS) $(LFLAGS) $< -o $@
 
 $(TESTBUILDDIR)%.o: $(TESTSRCDIR)%.cpp $(TESTINCLUDE) $(INCLUDE) | $(TESTBUILDDIR)
 	$(CXX) $(CFLAGS) -c $< -o $@
