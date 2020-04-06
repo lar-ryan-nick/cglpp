@@ -110,11 +110,10 @@ void main() {
 
 void calculateTextureMap(TextureMap tm, inout vec3 ambient, inout vec3 diffuse, inout vec3 specular) {
 	switch (tm.type) {
-		case AMBIENT_MAP:
-			applyTextureMap(tm, ambient);
-			break;
 		case DIFFUSE_MAP:
 			applyTextureMap(tm, diffuse);
+		case AMBIENT_MAP:
+			applyTextureMap(tm, ambient);
 			break;
 		case SPECULAR_MAP:
 			applyTextureMap(tm, specular);
