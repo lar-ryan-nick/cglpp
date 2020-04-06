@@ -87,8 +87,8 @@ vec3 viewDirection;
 int shininessIndex = -1;
 
 // TODO: remove structs from parameters
-void calculateTextureMap(int tmIndex, inout vec3 ambient, inout vec3 diffuse, inout vec3 specular);
-void applyTextureMap(int tmIndex, inout vec3 base);
+void calculateTextureMap(TextureMap tm, inout vec3 ambient, inout vec3 diffuse, inout vec3 specular);
+void applyTextureMap(TextureMap tm, inout vec3 base);
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 ambient, vec3 diffuse, vec3 specular);
 vec3 calculatePointLight(PointLight light, vec3 ambient, vec3 diffuse, vec3 specular);
 vec3 calculateSpotLight(SpotLight light, vec3 ambient, vec3 diffuse, vec3 specular);
@@ -99,30 +99,34 @@ void main() {
 	vec3 ambient = material.ambientColor;
 	vec3 diffuse = material.diffuseColor;
 	vec3 specular = material.specularColor;
+	calculateTextureMap(material.textureMaps[0], ambient, diffuse, specular);
+	calculateTextureMap(material.textureMaps[1], ambient, diffuse, specular);
+	calculateTextureMap(material.textureMaps[2], ambient, diffuse, specular);
+	calculateTextureMap(material.textureMaps[3], ambient, diffuse, specular);
 	vec3 result = calculateDirectionalLight(directionalLight, ambient, diffuse, specular);
 	//result += calculateSpotLight(spotLight, ambient, diffuse, specular);
 	FragColor = vec4(result, material.opacity);
 }
 
-void calculateTextureMap(int tmIndex, inout vec3 ambient, inout vec3 diffuse, inout vec3 specular) {
-	switch (material.textureMaps[tmIndex].type) {
+void calculateTextureMap(TextureMap tm, inout vec3 ambient, inout vec3 diffuse, inout vec3 specular) {
+	switch (tm.type) {
 		case AMBIENT_MAP:
-			applyTextureMap(tmIndex, ambient);
+			applyTextureMap(tm, ambient);
 			break;
 		case DIFFUSE_MAP:
-			applyTextureMap(tmIndex, diffuse);
+			applyTextureMap(tm, diffuse);
 			break;
 		case SPECULAR_MAP:
-			applyTextureMap(tmIndex, specular);
+			applyTextureMap(tm, specular);
 			break;
 		default:
 			break;
 	}
 }
 
-void applyTextureMap(int tmIndex, inout vec3 base) {
-	vec3 mapContrib = material.textureMaps[tmIndex].strength * texture(material.textureMaps[tmIndex].texture, texCoord).xyz;
-	switch (material.textureMaps[tmIndex].operation) {
+void applyTextureMap(TextureMap tm, inout vec3 base) {
+	vec3 mapContrib = tm.strength * texture(tm.texture, texCoord).xyz;
+	switch (tm.operation) {
 		case MULT_OP:
 			base *= mapContrib;
 			break;
