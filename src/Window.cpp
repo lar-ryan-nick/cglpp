@@ -60,7 +60,7 @@ void cgl::Window::render() {
 	maxPolygon.addVertex(glm::vec2(1.0f, 1.0f));
 	maxPolygon.addVertex(glm::vec2(1.0f, -1.0f));
 	maxPolygon.addVertex(glm::vec2(-1.0f, -1.0f));
-	view->draw(glm::mat4(), maxPolygon);
+	view->draw(glm::mat4(1.0f), maxPolygon);
 	glfwSwapBuffers(window);
 }
 

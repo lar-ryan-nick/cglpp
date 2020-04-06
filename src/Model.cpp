@@ -54,11 +54,11 @@ void cgl::Model::constructSkeleton(aiNode* node, int parentIndex) {
 }
 
 void cgl::Model::applyAnimation(const Animation& animation, float time) {
-	applyAnimation(animation, time, skeletonRoot, glm::mat4());
+	applyAnimation(animation, time, skeletonRoot, glm::mat4(1.0f));
 }
 
 void cgl::Model::applyAnimation(const Animation& animation, float time, int boneIndex, const glm::mat4& parentTransform) {
-	glm::mat4 nodeTransformation;
+	glm::mat4 nodeTransformation(1.0);
 	if (!animation.getTransformation(bones[boneIndex].name, time, nodeTransformation)) {
 		nodeTransformation = bones[boneIndex].transform;
 	}
@@ -76,7 +76,7 @@ void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
 		shader.setUniform(ss.str(), bones[i].finalTransform);
 	}
 	if (bones.empty()) {
-		shader.setUniform("boneTransforms[0]", glm::mat4());
+		shader.setUniform("boneTransforms[0]", glm::mat4(1.0f));
 	}
 	for (std::list<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); it++) {
 		Mesh* m = *it;

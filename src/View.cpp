@@ -61,7 +61,7 @@ void cgl::View::setBackgroundColor(const Color& bc) {
 }
 
 glm::mat4 cgl::View::getTransformationMatrix() const {
-	glm::mat4 model;
+	glm::mat4 model(1.0f);
 	model = glm::translate(model, static_cast<glm::vec3>(translation));
 	model = glm::translate(model, glm::vec3(bounds.getX() + bounds.getWidth() / 2, bounds.getY() + bounds.getHeight() / 2, 0.0f));
 	model = glm::rotate(model, rotation, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -149,7 +149,7 @@ bool cgl::View::getIsScrollable() const {
 }
 
 glm::mat4 cgl::View::getInverseTransformationMatrix() const {
-	glm::mat4 model;
+	glm::mat4 model(1.0f);
 	model = glm::translate(model, glm::vec3(bounds.getX() + bounds.getWidth() / 2, bounds.getY() + bounds.getHeight() / 2, 0.0f));
 	model = glm::scale(model, glm::vec3(1 / scalar.getX(), 1 / scalar.getY(), 1.0f));
 	model = glm::rotate(model, -rotation, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -165,7 +165,7 @@ bool cgl::View::scroll(double xOffset, double yOffset, float mouseX, float mouse
 		glm::mat4 model = view->getInverseTransformationMatrix();
 		glm::vec4 pos = model * glm::vec4(mouseX - bounds.getX() + offsetPosition.getX(), mouseY - bounds.getY() + offsetPosition.getY(), 0.0f, 1.0f);
 		if (view->getBounds().contains(Position(pos.x, pos.y))) {
-			model = glm::mat4();
+			model = glm::mat4(1.0f);
 			model = glm::rotate(model, -view->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
 			glm::vec4 rot = model * glm::vec4(xOffset, yOffset, 0.0f, 1.0f);
 			if (view->scroll(rot.x, rot.y, pos.x, pos.y)) {

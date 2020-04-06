@@ -80,9 +80,9 @@ glm::quat cgl::Animation::NodeAnimation::getInterpolatedRotation(float time) con
 }
 
 glm::mat4 cgl::Animation::NodeAnimation::getTransformation(float time) const {
-	glm::mat4 scaleMatrix = glm::scale(glm::mat4(), getInterpolatedScale(time));
+	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), getInterpolatedScale(time));
 	glm::mat4 rotationMatrix = glm::mat4_cast(getInterpolatedRotation(time));
-	glm::mat4 translationMatrix = glm::translate(glm::mat4(), getInterpolatedTranslation(time));
+	glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), getInterpolatedTranslation(time));
 	return translationMatrix * rotationMatrix * scaleMatrix;
 }
 
