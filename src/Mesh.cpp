@@ -7,11 +7,11 @@ cgl::Mesh::Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n,
 void cgl::Mesh::setupVAO() {
 	std::vector<glm::vec3> pos(positions.begin(), positions.end());
 	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &ebo);
-	glGenBuffers(4, vbo);
 	glBindVertexArray(vao);
+	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicies.size() * sizeof(unsigned int), &indicies[0], GL_STATIC_DRAW);
+	glGenBuffers(4, vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 	glBufferData(GL_ARRAY_BUFFER, pos.size() * sizeof(glm::vec3), &pos[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
@@ -30,8 +30,9 @@ void cgl::Mesh::setupVAO() {
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData), (void*)sizeof(int[4]));
 	glEnableVertexAttribArray(4);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 cgl::Mesh::~Mesh() {

@@ -80,11 +80,11 @@ int main() {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		shader.use();
-		glm::mat4 model;
+		glm::mat4 model(1.0f);
 		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
 		shader.setUniform("model", model, false);
 		shader.setUniform("view", camera.getViewMatrix(), false);
-		glm::mat4 projection;
+		glm::mat4 projection(1.0f);
 		projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
 		shader.setUniform("projection", projection, false);
 		glActiveTexture(GL_TEXTURE0);

@@ -55,7 +55,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shader.use();
-		glm::mat4 model;
+		glm::mat4 model(1.0f);
 		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
 		shader.setUniform("model", model, false);
 		shader.setUniform("view", camera.getViewMatrix(), false);
