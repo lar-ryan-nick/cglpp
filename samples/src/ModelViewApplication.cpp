@@ -4,7 +4,6 @@ ModelViewApplication::ModelViewApplication(const std::string& mp) : modelPath(mp
 
 void ModelViewApplication::onCreate() {
 	window = new ModelViewWindow(modelPath);
-	window->linkCallbacks();
 	addWindow(window);
 }
 

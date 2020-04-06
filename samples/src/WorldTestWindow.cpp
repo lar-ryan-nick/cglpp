@@ -2,9 +2,11 @@
 
 WorldTestWindow::WorldTestWindow() : animationStart(glfwGetTime()) {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	/*
 	if (glfwRawMouseMotionSupported()) {
 		glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 	}
+	*/
 	cgl::Rectangle bounds = getView().getBounds();
 	worldView = new cgl::WorldView(0, 0, bounds.getWidth(), bounds.getHeight());
 	worldView->setBackgroundColor(cgl::Color(0.9f, 0.9f, 0.9f, 1.0f));

@@ -21,7 +21,7 @@ namespace cgl {
 			bool firstCall;
 			float lastX;
 			float lastY;
-			const static float SCROLL_SCALE;
+			static const float SCROLL_SCALE;
 			static void framebufferSizeCallback(GLFWwindow* window, int w, int h);
 			static void scrollCallback(GLFWwindow* w, double xOffset, double yOffset);
 			static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
@@ -29,7 +29,6 @@ namespace cgl {
 		public:
 			Window(const std::string& windowName = "Application", int w = 1280, int h = 720, float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f);
 			virtual ~Window();
-			void linkCallbacks();
 			// remove virtual on input later
 			virtual void processInput();
 			virtual void render();

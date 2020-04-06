@@ -1,13 +1,12 @@
 #include "../include/WorldView.h"
 
 cgl::Shader* cgl::WorldView::worldViewShader = NULL;
-float cgl::WorldView::pitch = 0.0f;
-float cgl::WorldView::yaw = 90.0f;
 
-cgl::WorldView::WorldView(float x, float y, float width, float height) : View(x, y, width, height), camera(glm::vec3(0.0f, 0.0f, -3.0f)) {
+cgl::WorldView::WorldView(float x, float y, float width, float height) : View(x, y, width, height), camera(glm::vec3(0.0f, 0.0f, -3.0f)), pitch(0.0f), yaw(0.0f) {
 	if (worldViewShader == NULL) {
 		worldViewShader = new Shader("res/glsl/WorldVertexShader.glsl", "res/glsl/WorldFragmentShader.glsl");
 	}
+	camera.setRotation(pitch, yaw);
 }
 
 void cgl::WorldView::addActor(Actor* a) {

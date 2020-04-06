@@ -19,8 +19,8 @@ namespace cgl {
 			static Shader* worldViewShader;
 			std::list<Actor*> actors;
 			Camera camera;
-			static float pitch;
-			static float yaw;
+			float pitch;
+			float yaw;
 		public:
 			WorldView(float x, float y, float width, float height);
 			void addActor(Actor* a);
