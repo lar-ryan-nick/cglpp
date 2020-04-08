@@ -8,7 +8,8 @@
 
 class WorldTestWindow : public cgl::Window {
 	private:
-		cgl::Actor* actor;
+		cgl::Actor* actor1;
+		cgl::Actor* actor2;
 		cgl::Animation* animation;
 		cgl::WorldView* worldView;
 		float animationStart;

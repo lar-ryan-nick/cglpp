@@ -66,7 +66,7 @@ cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, cons
 	TextureMap textureMap;
 	textureMap.strength = 1;
 	aiString str;
-	aiTextureOp textureOperation(aiTextureOp_Add);
+	aiTextureOp textureOperation(aiTextureOp_SmoothAdd);
 	aiTextureMapMode textureMapMode[3] = {};
 	// TODO: return val check?
 	material->GetTexture(type, index, &str, NULL, &textureMap.uvIndex, &textureMap.strength, &textureOperation, textureMapMode);

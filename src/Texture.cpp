@@ -45,6 +45,10 @@ void cgl::Texture::setTexture(const std::string& filename) {
 	stbi_image_free(data);
 }
 
+unsigned int cgl::Texture::getID() const {
+	return id;
+}
+
 void cgl::Texture::setID(unsigned int tid) {
 	id = tid;
 }

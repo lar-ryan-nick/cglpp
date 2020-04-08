@@ -1,6 +1,6 @@
 #version 330 core
 // min number of supported sampler objects per fragment shader is 16
-const int MAX_TEXTURE_MAPS = 16;
+const int MAX_TEXTURE_MAPS = 8;
 
 const int AMBIENT_MAP = 0;
 const int DIFFUSE_MAP = 1;
@@ -76,12 +76,14 @@ out vec4 FragColor;
 in vec2 texCoord;
 in vec3 normalVec;
 in vec3 fragmentPosition;
+in vec4 fragmentLightPosition;
 
 uniform vec3 viewPosition;
 uniform Material material;
 uniform DirectionalLight directionalLight;
 uniform PointLight pointLight;
 uniform SpotLight spotLight;
+uniform sampler2D shadowMap;
 
 vec3 viewDirection;
 int shininessIndex = -1;
@@ -89,20 +91,35 @@ int shininessIndex = -1;
 // TODO: remove structs from parameters
 void calculateTextureMap(TextureMap tm, inout vec3 ambient, inout vec3 diffuse, inout vec3 specular);
 void applyTextureMap(TextureMap tm, inout vec3 base);
+float calculateShadow(vec4 fragPosLightSpace);
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 ambient, vec3 diffuse, vec3 specular);
 vec3 calculatePointLight(PointLight light, vec3 ambient, vec3 diffuse, vec3 specular);
 vec3 calculateSpotLight(SpotLight light, vec3 ambient, vec3 diffuse, vec3 specular);
 
 void main() {
-	FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	viewDirection = normalize(viewPosition - fragmentPosition);
-	vec3 ambient = material.ambientColor;
-	vec3 diffuse = material.diffuseColor;
-	vec3 specular = material.specularColor;
+	/*
+	// perform perspective divide
+	vec3 projCoords = fragmentLightPosition.xyz / fragmentLightPosition.w;
+	// transform to [0,1] range
+	projCoords = projCoords * 0.5 + 0.5;
+	// get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+	float closestDepth = texture(shadowMap, projCoords.xy).r; 
+	if (abs(projCoords.x) <= 1.0f && abs(projCoords.y) <= 1.0f && abs(projCoords.z) <= 1.0f) {
+		FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+		return;
+	}
+	*/
+	vec3 ambient = vec3(0.0f, 0.0f, 0.0f);//material.ambientColor;
+	vec3 diffuse = ambient;//material.diffuseColor;
+	vec3 specular = ambient;//material.specularColor;
 	calculateTextureMap(material.textureMaps[0], ambient, diffuse, specular);
 	calculateTextureMap(material.textureMaps[1], ambient, diffuse, specular);
 	calculateTextureMap(material.textureMaps[2], ambient, diffuse, specular);
 	calculateTextureMap(material.textureMaps[3], ambient, diffuse, specular);
+	calculateTextureMap(material.textureMaps[4], ambient, diffuse, specular);
+	calculateTextureMap(material.textureMaps[5], ambient, diffuse, specular);
+	calculateTextureMap(material.textureMaps[6], ambient, diffuse, specular);
+	calculateTextureMap(material.textureMaps[7], ambient, diffuse, specular);
 	vec3 result = calculateDirectionalLight(directionalLight, ambient, diffuse, specular);
 	//result += calculateSpotLight(spotLight, ambient, diffuse, specular);
 	FragColor = vec4(result, material.opacity);
@@ -149,12 +166,32 @@ void applyTextureMap(TextureMap tm, inout vec3 base) {
 	}
 }
 
+float calculateShadow(vec4 fragPosLightSpace) {
+	// perform perspective divide
+	vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+	// transform to [0,1] range
+	projCoords = projCoords * 0.5 + 0.5;
+	// get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+	float closestDepth = texture(shadowMap, projCoords.xy).r; 
+	// get depth of current fragment from light's perspective
+	float currentDepth = projCoords.z;
+	if (currentDepth > 1.0f) {
+		return 0.0f;
+	}
+	vec3 lightDirection = normalize(-directionalLight.direction);
+	float bias = max(0.05 * (1.0 - dot(normalVec, lightDirection)), 0.005);
+	// check whether current frag pos is in shadow
+	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+	return shadow;
+}
+
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 ambient, vec3 diffuse, vec3 specular) {
 	vec3 lightDirection = normalize(-light.direction);
 	float diff = max(dot(normalVec, lightDirection), 0.0f);
 	vec3 reflectDirection = reflect(-lightDirection, normalVec);
 	float spec = pow(max(dot(viewDirection, reflectDirection), 0.0f), material.shininess);
-	return light.color * (light.ambientStrength * ambient + light.diffuseStrength * diff * diffuse + light.specularStrength * spec * specular);
+	float shadow = calculateShadow(fragmentLightPosition);
+	return light.color * (light.ambientStrength * ambient + (1.0f - shadow) * (light.diffuseStrength * diff * diffuse + light.specularStrength * spec * specular));
 }
 
 vec3 calculatePointLight(PointLight light, vec3 ambient, vec3 diffuse, vec3 specular) {
@@ -168,7 +205,8 @@ vec3 calculatePointLight(PointLight light, vec3 ambient, vec3 diffuse, vec3 spec
 	ambient *= attenuation * light.color * light.ambientStrength;
 	diffuse *= attenuation * light.color * light.diffuseStrength * diff;
 	specular *= attenuation * light.color * light.specularStrength * spec;
-	return ambient + diffuse + specular;
+	float shadow = calculateShadow(fragmentLightPosition);
+	return ambient + (1.0f - shadow) * (diffuse + specular);
 }
 
 vec3 calculateSpotLight(SpotLight light, vec3 ambient, vec3 diffuse, vec3 specular) {
@@ -186,7 +224,8 @@ vec3 calculateSpotLight(SpotLight light, vec3 ambient, vec3 diffuse, vec3 specul
 		vec3 reflectDir = reflect(-lightDir, normalVec);
 		float spec = pow(max(dot(viewDirection, reflectDir), 0.0), material.shininess);
 		specular *= intensity * attenuation * light.color * light.specularStrength * spec;
-		return ambient + diffuse + specular;
+		float shadow = calculateShadow(fragmentLightPosition);
+		return ambient + (1.0f - shadow) * (diffuse + specular);
 	}
 	return ambient;
 }

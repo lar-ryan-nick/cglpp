@@ -198,7 +198,7 @@ void cgl::Shader::setUniform(const std::string& name, const Material& material) 
 		setUniform(ss.str(), i);
 		i++;
 	}
-	while (i < 16) {
+	while (i < 8) {
 		std::stringstream ss;
 		ss << name << ".textureMaps[" << i << "]";
 		glActiveTexture(GL_TEXTURE0 + i);

@@ -12,15 +12,18 @@
 #include "Actor.h"
 #include "Shader.h"
 #include "Camera.h"
+#include "ShadowMap.h"
 
 namespace cgl {
 	class WorldView : public View {
 		private:
 			static Shader* worldViewShader;
+			static Shader* shadowMapShader;
 			std::list<Actor*> actors;
 			Camera camera;
 			float pitch;
 			float yaw;
+			ShadowMap shadowMap;
 		public:
 			WorldView(float x, float y, float width, float height);
 			void addActor(Actor* a);

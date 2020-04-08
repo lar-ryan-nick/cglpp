@@ -10,30 +10,30 @@ WorldTestWindow::WorldTestWindow() : animationStart(glfwGetTime()) {
 	cgl::Rectangle bounds = getView().getBounds();
 	worldView = new cgl::WorldView(0, 0, bounds.getWidth(), bounds.getHeight());
 	worldView->setBackgroundColor(cgl::Color(0.9f, 0.9f, 0.9f, 1.0f));
-	//actor = new cgl::Actor("res/models/Lamborginhi Aventador FBX/Lamborghini_Aventador.fbx");
-	//actor = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
-	//actor = new cgl::Actor("res/models/maw_j_laygo.fbx");
-	//actor = new cgl::Actor("res/models/Looking Around.fbx");
-	//actor = new cgl::Actor("res/models/Samba Dancing.fbx");
-	//actor = new cgl::Actor("res/models/Capoeira.fbx");
-	actor = new cgl::Actor("res/models/paladin/paladin.fbx");
-	animation = new cgl::Animation("res/animations/paladin/sword and shield idle.fbx");
-	worldView->addActor(actor);
+	actor1 = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
+	//actor1 = new cgl::Actor("res/models/paladin/paladin.fbx");
+	//animation = new cgl::Animation("res/animations/paladin/sword and shield idle.fbx");
+	worldView->addActor(actor1);
+	actor2 = new cgl::Actor("res/models/floor/FbxFloor.fbx");
+	worldView->addActor(actor2);
 	getView().addSubview(worldView);
 	getView().setBackgroundColor(cgl::Color(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
 WorldTestWindow::~WorldTestWindow() {
-	delete actor;
+	delete actor1;
+	delete actor2;
 	delete animation;
 	delete worldView;
 }
 
 void WorldTestWindow::render() {
+	/*
 	float time = glfwGetTime() - animationStart;
 	time *= animation->getTicksPerSecond();
 	time = fmod(time, animation->getDuration());
-	actor->getModel().applyAnimation(*animation, time);
+	actor1->getModel().applyAnimation(*animation, time);
+	*/
 	Window::render();
 }
 
