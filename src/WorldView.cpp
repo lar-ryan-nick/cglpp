@@ -62,7 +62,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	float tanHalfHFOV = glm::tan(glm::radians(45.0f / 2.0f));
 	float tanHalfVFOV = glm::tan(glm::radians(45.0f * viewport[2] / viewport[3] / 2.0f));
 	float zn = 1.0f;
-	float zf = 100.0f;
+	float zf = 40.0f;
 	float xn = zn * tanHalfHFOV;
 	float xf = zf * tanHalfHFOV;
 	float yn = zn * tanHalfVFOV;
@@ -113,9 +113,9 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		glEnable(GL_DEPTH_TEST);
 
 		// Render to shadowMap
-		//glCullFace(GL_FRONT);
-		shadowMap.bindFramebuffer();
+		glCullFace(GL_FRONT);
 		glClear(GL_DEPTH_BUFFER_BIT);
+		shadowMap.bindFramebuffer();
 		shadowMapShader->use();
 		shadowMapShader->setUniform("lightVP", lightVP);
 		shadowMapShader->setUniform("model", m);
@@ -124,10 +124,10 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 			actor->draw(*shadowMapShader, m);
 		}
 		shadowMapShader->finish();
-		//glCullFace(GL_BACK);
-		shadowMap.unbindFramebuffer();
+
+		glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-		
 		glClear(GL_DEPTH_BUFFER_BIT);
 		worldViewShader->use();
 		// set clip planes

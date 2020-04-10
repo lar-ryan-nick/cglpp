@@ -51,6 +51,7 @@ namespace cgl {
 			void setUniform(const std::string& name, const glm::vec3& value);
 			void setUniform(const std::string& name, const glm::vec4& value);
 			void setUniform(const std::string& name, const glm::mat4& m, bool transpose = false);
+			void setUniform(const std::string& name, const Texture& texture);
 			void setUniform(const std::string& name, const TextureMap& textureMap);
 			void setUniform(const std::string& name, const Material& material);
 			void setUniform(const std::string& name, const Light& light);

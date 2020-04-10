@@ -48,11 +48,9 @@ void cgl::ImageView::render(const Polygon& bounds, const glm::mat4& model) {
     float h = 1 - e * verticies[0] - f * verticies[1];
     glm::mat4 textureMapper(a, e, 0.0f, 0.0f, b, f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, d, h, 0.0f, 0.0f);
 	std::list<Position> vert = bounds.getVerticies();
-	glActiveTexture(GL_TEXTURE0);
-	texture.bind();
 	glBindVertexArray(vao);
 	imageViewShader->use();
-	imageViewShader->setUniform("image", 0);
+	imageViewShader->setUniform("image", texture);
 	imageViewShader->setUniform("textureMapper", textureMapper);
 	glDrawElements(GL_TRIANGLES, (vert.size() - 2) * 3, GL_UNSIGNED_INT, 0);
 	imageViewShader->finish();

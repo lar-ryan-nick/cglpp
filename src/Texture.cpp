@@ -5,6 +5,7 @@
 std::unordered_map<std::string, unsigned int> cgl::Texture::loadedTextures;
 cgl::Texture cgl::Texture::whiteTexture;
 cgl::Texture cgl::Texture::blackTexture;
+unsigned int cgl::Texture::activeTextures(0);
 
 cgl::Texture::Texture(unsigned int tid) : id(tid) {}
 
@@ -37,12 +38,12 @@ void cgl::Texture::setTexture(const std::string& filename) {
 	if (data != NULL) {
 		setTexture(data, width, height);
 		loadedTextures.insert(std::pair<std::string, unsigned int>(filename, id));
+		stbi_image_free(data);
 	} else {
 		std::cerr << "Failed to load texture at path: " << filename << std::endl;
 		std::cerr << "Loaded a white texture instead" << std::endl;
 		setID(getWhiteTexture().id);
 	}
-	stbi_image_free(data);
 }
 
 unsigned int cgl::Texture::getID() const {
@@ -53,8 +54,19 @@ void cgl::Texture::setID(unsigned int tid) {
 	id = tid;
 }
 
-void cgl::Texture::bind() const {
+unsigned int cgl::Texture::bind() const {
+	glActiveTexture(GL_TEXTURE0 + activeTextures);
 	glBindTexture(GL_TEXTURE_2D, id);
+	return activeTextures++;
+}
+
+void cgl::Texture::unbindAll() {
+	while (activeTextures >= 0) {
+		glActiveTexture(GL_TEXTURE0 + activeTextures);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		--activeTextures;
+	}
+	activeTextures = 0;
 }
 
 cgl::Texture cgl::Texture::getWhiteTexture() {

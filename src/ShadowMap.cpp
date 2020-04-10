@@ -14,11 +14,11 @@ cgl::ShadowMap::ShadowMap(unsigned int s) : size(s) {
 	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor); 
 
-	bindFramebuffer();
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap.getID(), 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
-	unbindFramebuffer(); 
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 cgl::ShadowMap::~ShadowMap() {

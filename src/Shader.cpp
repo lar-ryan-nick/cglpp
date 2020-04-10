@@ -175,8 +175,12 @@ void cgl::Shader::setUniform(const std::string& name, const glm::mat4& m, bool t
 	glUniformMatrix4fv(location, 1, transpose, glm::value_ptr(m));
 }
 
+void setUniform(const std::string& name, const Texture& texture) {
+	setUniform(name, texture.bind());
+}
+
 void cgl::Shader::setUniform(const std::string& name, const TextureMap& textureMap) {
-	textureMap.getTexture().bind();
+	setUniform(name + ".texture", textureMap.getTexture());
 	setUniform(name + ".operation", textureMap.getOperation());
 	setUniform(name + ".type", textureMap.getType());
 	setUniform(name + ".strength", textureMap.getStrength());
@@ -192,11 +196,8 @@ void cgl::Shader::setUniform(const std::string& name, const Material& material) 
 	for (std::list<TextureMap>::iterator it = textureMaps.begin(); it != textureMaps.end(); it++) {
 		std::stringstream ss;
 		ss << name << ".textureMaps[" << i << "]";
-		glActiveTexture(GL_TEXTURE0 + i);
 		setUniform(ss.str(), *it);
-		ss << ".texture";
-		setUniform(ss.str(), i);
-		i++;
+		++i;
 	}
 	while (i < 8) {
 		std::stringstream ss;
@@ -205,7 +206,7 @@ void cgl::Shader::setUniform(const std::string& name, const Material& material) 
 		setUniform(ss.str(), TextureMap());
 		ss << ".texture";
 		setUniform(ss.str(), i);
-		i++;
+		++i;
 	}
 	setUniform(name + ".shininess", material.getShininess());
 	setUniform(name + ".opacity", material.getOpacity());
