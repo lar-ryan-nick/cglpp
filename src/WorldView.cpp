@@ -1,10 +1,11 @@
-#include "../include/WorldView.h"
+#include "WorldView.h"
 #include <limits>
+#include "ImageView.h"
 
 cgl::Shader* cgl::WorldView::worldViewShader = NULL;
 cgl::Shader* cgl::WorldView::shadowMapShader = NULL;
 
-cgl::WorldView::WorldView(float x, float y, float width, float height) : View(x, y, width, height), pitch(0.0f), yaw(-90.0f), shadowMap(4096) {
+cgl::WorldView::WorldView(float x, float y, float width, float height) : View(x, y, width, height), pitch(0.0f), yaw(-90.0f) {
 	if (worldViewShader == NULL) {
 		worldViewShader = new Shader("res/glsl/WorldVertexShader.glsl", "res/glsl/WorldFragmentShader.glsl");
 	}
@@ -41,17 +42,16 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		verticies[i + 1] = transformed.y;
 		p.addVertex(glm::vec2(transformed.x, transformed.y));
 	}
-	glm::vec3 lightDirection(0.0f, -2.0f, 1.0f);
+	glm::vec3 lightDirection(4.0f * glm::sin(glfwGetTime()), -3.0f, -4.0f * glm::cos(glfwGetTime()));
 	DirectionalLight directionalLight(lightDirection);
 	//SpotLight spotLight(camera.getDirection(), camera.getPosition());
 	glm::mat4 m(1.0f);
 	/*
-	m = glm::translate(m, glm::vec3(0.0f, 0.0f, -1.75f));
+	m = glm::translate(m, glm::vec3(30.0f, 0.0f, 30.0f));
 	m = glm::scale(m, glm::vec3(0.2f, 0.2f, 0.2f));
 	*/
-	//std::cout << Position(camera.getPosition()) << std::endl;
 	glm::mat4 view = camera.getViewMatrix();
-	projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 0.1f, 200.0f);
+	projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 1.0f, 100.0f);
 	glm::mat4 vp = projection * view;
 
 	glm::mat4 viewInv = glm::inverse(view);
@@ -61,8 +61,8 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	glm::mat4 lightView = glm::lookAt(glm::vec3(0.0f, 0.0f,  0.0f), directionalLight.getDirection(), glm::vec3(0.0f, 1.0f,  0.0f));
 	float tanHalfVFOV = glm::tan(glm::radians(45.0f / 2.0f));
 	float tanHalfHFOV = glm::tan(glm::radians(45.0f * viewport[2] / viewport[3] / 2.0f));
-	float zn = 0.1f;
-	float zf = 200.0f;
+	float zn = 1.0f;
+	float zf = 100.0f;
 	float xn = zn * tanHalfHFOV;
 	float xf = zf * tanHalfHFOV;
 	float yn = zn * tanHalfVFOV;
@@ -86,13 +86,23 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		minZ = std::min(minZ, lightFrustumCorner.z);
 		maxZ = std::max(maxZ, lightFrustumCorner.z);
 	}
+
 	std::cout << "Min x: " << minX << std::endl;
 	std::cout << "Max x: " << maxX << std::endl;
 	std::cout << "Min y: " << minY << std::endl;
 	std::cout << "Max y: " << maxY << std::endl;
 	std::cout << "Min z: " << minZ << std::endl;
 	std::cout << "Max z: " << maxZ << std::endl;
-	glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+	
+	glm::mat4 lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, -20.0f, 20.0f);
+	/*
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			std::cout << lightProjection[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
+	*/
 	glm::mat4 lightVP = lightProjection * lightView;
 
 	std::list<Polygon> clippedPolygons = p.clipTo(poly);
@@ -104,7 +114,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		glEnable(GL_DEPTH_TEST);
 
 		// Render to shadowMap
-		glCullFace(GL_FRONT);
+		//glCullFace(GL_FRONT);
 		shadowMap.bindFramebuffer();
 		glClear(GL_DEPTH_BUFFER_BIT);
 		shadowMapShader->use();
@@ -115,10 +125,10 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 			actor->draw(*shadowMapShader, m);
 		}
 		shadowMapShader->finish();
-		glCullFace(GL_BACK);
-		
+		//glCullFace(GL_BACK);
 		shadowMap.unbindFramebuffer();
 		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		
 		glClear(GL_DEPTH_BUFFER_BIT);
 		worldViewShader->use();
 		// set clip planes
@@ -155,6 +165,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 			actor->draw(*worldViewShader, m);
 		}
 		worldViewShader->finish();
+
 		for (int i = 0; i < clipPlaneCount; i++) {
 			glDisable(GL_CLIP_DISTANCE0 + i);
 		}

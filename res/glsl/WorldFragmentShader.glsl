@@ -100,15 +100,17 @@ void main() {
 	/*
 	// perform perspective divide
 	vec3 projCoords = fragmentLightPosition.xyz / fragmentLightPosition.w;
-	// transform to [0,1] range
-	projCoords = projCoords * 0.5 + 0.5;
 	// get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-	float closestDepth = texture(shadowMap, projCoords.xy).r; 
 	if (abs(projCoords.x) <= 1.0f && abs(projCoords.y) <= 1.0f && abs(projCoords.z) <= 1.0f) {
-		FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+		// transform to [0,1] range
+		projCoords = projCoords * 0.5 + 0.5;
+		float closestDepth = texture(shadowMap, projCoords.xy).r; 
+		FragColor = vec4(closestDepth, 0.0f, 0.0f, 1.0f);
 		return;
 	}
+	FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);
 	*/
+
 	vec3 ambient = vec3(0.0f, 0.0f, 0.0f);//material.ambientColor;
 	vec3 diffuse = ambient;//material.diffuseColor;
 	vec3 specular = ambient;//material.specularColor;
