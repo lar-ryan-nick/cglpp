@@ -42,7 +42,7 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		verticies[i + 1] = transformed.y;
 		p.addVertex(glm::vec2(transformed.x, transformed.y));
 	}
-	glm::vec3 lightDirection(4.0f * glm::sin(glfwGetTime()), -3.0f, -4.0f * glm::cos(glfwGetTime()));
+	glm::vec3 lightDirection(4.0f, -3.0f, -4.0f);
 	DirectionalLight directionalLight(lightDirection);
 	//SpotLight spotLight(camera.getDirection(), camera.getPosition());
 	glm::mat4 m(1.0f);
@@ -59,8 +59,8 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	minX = minY = minZ = std::numeric_limits<float>::max();
 	maxX = maxY = maxZ = std::numeric_limits<float>::lowest();
 	glm::mat4 lightView = glm::lookAt(glm::vec3(0.0f, 0.0f,  0.0f), directionalLight.getDirection(), glm::vec3(0.0f, 1.0f,  0.0f));
-	float tanHalfVFOV = glm::tan(glm::radians(45.0f / 2.0f));
-	float tanHalfHFOV = glm::tan(glm::radians(45.0f * viewport[2] / viewport[3] / 2.0f));
+	float tanHalfHFOV = glm::tan(glm::radians(45.0f / 2.0f));
+	float tanHalfVFOV = glm::tan(glm::radians(45.0f * viewport[2] / viewport[3] / 2.0f));
 	float zn = 1.0f;
 	float zf = 100.0f;
 	float xn = zn * tanHalfHFOV;
@@ -68,17 +68,22 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	float yn = zn * tanHalfVFOV;
 	float yf = zf * tanHalfVFOV;
 	glm::vec4 frustumCorners[8] = {
-		glm::vec4(xn, yn, zn, 1.0f),
-		glm::vec4(-xn, yn, zn, 1.0f),
-		glm::vec4(xn, -yn, zn, 1.0f),
-		glm::vec4(-xn, -yn, zn, 1.0f),
-		glm::vec4(xf, yf, zf, 1.0f),
-		glm::vec4(-xf, yf, zf, 1.0f),
-		glm::vec4(xf, -yf, zf, 1.0f),
+		glm::vec4(xn, yn, -zn, 1.0f),
+		glm::vec4(-xn, yn, -zn, 1.0f),
+		glm::vec4(xn, -yn, -zn, 1.0f),
+		glm::vec4(-xn, -yn, -zn, 1.0f),
+		glm::vec4(xf, yf, -zf, 1.0f),
+		glm::vec4(-xf, yf, -zf, 1.0f),
+		glm::vec4(xf, -yf, -zf, 1.0f),
 		glm::vec4(-xf, -yf, zf, 1.0f)
 	};
+	std::cout << "Camera Position: " << Position(camera.getPosition()) << std::endl;
+	std::cout << "Camera Direction: " << Position(camera.getDirection()) << std::endl;
+	std::cout << "Frustum Corners:" << std::endl;
 	for (int i = 0; i < 8; ++i) {
-		glm::vec4 lightFrustumCorner = lightView * viewInv * frustumCorners[i];
+		glm::vec4 lightFrustumCorner = viewInv * frustumCorners[i];
+		std::cout << Position(lightFrustumCorner) << std::endl;
+		lightFrustumCorner = lightView * lightFrustumCorner;
 		minX = std::min(minX, lightFrustumCorner.x);
 		maxX = std::max(maxX, lightFrustumCorner.x);
 		minY = std::min(minY, lightFrustumCorner.y);
@@ -94,16 +99,10 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	std::cout << "Min z: " << minZ << std::endl;
 	std::cout << "Max z: " << maxZ << std::endl;
 	
-	glm::mat4 lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, -20.0f, 20.0f);
-	/*
-	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < 4; ++j) {
-			std::cout << lightProjection[i][j] << " ";
-		}
-		std::cout << std::endl;
-	}
-	*/
+	glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+	//glm::mat4 lightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, -30.0f, 30.0f);
 	glm::mat4 lightVP = lightProjection * lightView;
+	//std::cout << Position(lightVP * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)) << std::endl;
 
 	std::list<Polygon> clippedPolygons = p.clipTo(poly);
 	for (std::list<Polygon>::iterator it1 = clippedPolygons.begin(); it1 != clippedPolygons.end(); it1++) {
