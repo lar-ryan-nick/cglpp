@@ -1,5 +1,4 @@
 #include "WorldView.h"
-#include <limits>
 #include "ImageView.h"
 
 cgl::Shader* cgl::WorldView::worldViewShader = NULL;
@@ -46,63 +45,29 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	DirectionalLight directionalLight(lightDirection);
 	//SpotLight spotLight(camera.getDirection(), camera.getPosition());
 	glm::mat4 m(1.0f);
-	/*
-	m = glm::translate(m, glm::vec3(30.0f, 0.0f, 30.0f));
-	m = glm::scale(m, glm::vec3(0.2f, 0.2f, 0.2f));
-	*/
 	glm::mat4 view = camera.getViewMatrix();
-	projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 1.0f, 100.0f);
+	projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 0.1f, 400.0f);
 	glm::mat4 vp = projection * view;
 
-	glm::mat4 viewInv = glm::inverse(view);
-	float minX, maxX, minY, maxY, minZ, maxZ;
-	minX = minY = minZ = std::numeric_limits<float>::max();
-	maxX = maxY = maxZ = std::numeric_limits<float>::lowest();
-	glm::mat4 lightView = glm::lookAt(glm::vec3(0.0f, 0.0f,  0.0f), directionalLight.getDirection(), glm::vec3(0.0f, 1.0f,  0.0f));
-	float tanHalfHFOV = glm::tan(glm::radians(45.0f / 2.0f));
-	float tanHalfVFOV = glm::tan(glm::radians(45.0f * viewport[2] / viewport[3] / 2.0f));
-	float zn = 1.0f;
-	float zf = 40.0f;
-	float xn = zn * tanHalfHFOV;
-	float xf = zf * tanHalfHFOV;
-	float yn = zn * tanHalfVFOV;
-	float yf = zf * tanHalfVFOV;
-	glm::vec4 frustumCorners[8] = {
-		glm::vec4(xn, yn, -zn, 1.0f),
-		glm::vec4(-xn, yn, -zn, 1.0f),
-		glm::vec4(xn, -yn, -zn, 1.0f),
-		glm::vec4(-xn, -yn, -zn, 1.0f),
-		glm::vec4(xf, yf, -zf, 1.0f),
-		glm::vec4(-xf, yf, -zf, 1.0f),
-		glm::vec4(xf, -yf, -zf, 1.0f),
-		glm::vec4(-xf, -yf, zf, 1.0f)
-	};
-	std::cout << "Camera Position: " << Position(camera.getPosition()) << std::endl;
-	std::cout << "Camera Direction: " << Position(camera.getDirection()) << std::endl;
-	std::cout << "Frustum Corners:" << std::endl;
-	for (int i = 0; i < 8; ++i) {
-		glm::vec4 lightFrustumCorner = viewInv * frustumCorners[i];
-		std::cout << Position(lightFrustumCorner) << std::endl;
-		lightFrustumCorner = lightView * lightFrustumCorner;
-		minX = std::min(minX, lightFrustumCorner.x);
-		maxX = std::max(maxX, lightFrustumCorner.x);
-		minY = std::min(minY, lightFrustumCorner.y);
-		maxY = std::max(maxY, lightFrustumCorner.y);
-		minZ = std::min(minZ, lightFrustumCorner.z);
-		maxZ = std::max(maxZ, lightFrustumCorner.z);
+	shadowMap.updateSplits(0.1f, 400.0f);
+	shadowMap.updateLightViewProjections(camera, directionalLight, glm::radians(45.0f), viewport[2] / viewport[3]);
+	glEnable(GL_DEPTH_TEST);
+	shadowMapShader->use();
+	for (int i = 0; i < shadowMap.getNumCascades(); ++i) {
+		// Render to shadowMap
+		//glCullFace(GL_FRONT);
+		shadowMap.bindFramebuffer(i);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		shadowMapShader->setUniform("lightVP", shadowMap.getLightViewProjection(i));
+		shadowMapShader->setUniform("model", m);
+		for (std::list<Actor*>::iterator it2 = actors.begin(); it2 != actors.end(); it2++) {
+			Actor* actor = *it2;
+			actor->draw(*shadowMapShader, m);
+		}
 	}
-
-	std::cout << "Min x: " << minX << std::endl;
-	std::cout << "Max x: " << maxX << std::endl;
-	std::cout << "Min y: " << minY << std::endl;
-	std::cout << "Max y: " << maxY << std::endl;
-	std::cout << "Min z: " << minZ << std::endl;
-	std::cout << "Max z: " << maxZ << std::endl;
-	
-	glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
-	//glm::mat4 lightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, -30.0f, 30.0f);
-	glm::mat4 lightVP = lightProjection * lightView;
-	//std::cout << Position(lightVP * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)) << std::endl;
+	shadowMapShader->finish();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
 	std::list<Polygon> clippedPolygons = p.clipTo(poly);
 	for (std::list<Polygon>::iterator it1 = clippedPolygons.begin(); it1 != clippedPolygons.end(); it1++) {
@@ -110,24 +75,8 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		if (vert.size() < 3) {
 			continue;
 		}
-		glEnable(GL_DEPTH_TEST);
 
-		// Render to shadowMap
-		glCullFace(GL_FRONT);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		shadowMap.bindFramebuffer();
-		shadowMapShader->use();
-		shadowMapShader->setUniform("lightVP", lightVP);
-		shadowMapShader->setUniform("model", m);
-		for (std::list<Actor*>::iterator it2 = actors.begin(); it2 != actors.end(); it2++) {
-			Actor* actor = *it2;
-			actor->draw(*shadowMapShader, m);
-		}
-		shadowMapShader->finish();
-
-		glCullFace(GL_BACK);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		//glCullFace(GL_BACK);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		worldViewShader->use();
 		// set clip planes
@@ -152,24 +101,34 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		worldViewShader->setUniform("directionalLight", directionalLight);
 		//worldViewShader->setUniform("spotLight", spotLight);
 		worldViewShader->setUniform("vp", vp);
-
-		worldViewShader->setUniform("lightVP", lightVP);
+		int i;
+		for (i = 0; i < shadowMap.getNumCascades(); ++i) {
+			worldViewShader->setUniform("lightVP[" + std::to_string(i) + "]", shadowMap.getLightViewProjection(i));
+		}
+		for (; i < shadowMap.MAX_CASCADES; ++i) {
+			worldViewShader->setUniform("lightVP[" + std::to_string(i) + "]", glm::mat4(1.0f));
+		}
+		for (i = 0; i < shadowMap.getNumCascades(); ++i) {
+			glm::vec4 projectedCascadeEnd = projection * glm::vec4(0.0, 0.0f, -shadowMap.getCascadeEnd(i), 1.0f);
+			worldViewShader->setUniform("cascadeEnds[" + std::to_string(i) + "]", projectedCascadeEnd.z);
+		}
+		for (; i < shadowMap.MAX_CASCADES; ++i) {
+			worldViewShader->setUniform("cascadeEnds[" + std::to_string(i) + "]", std::numeric_limits<float>::lowest());
+		}
 		glActiveTexture(GL_TEXTURE0 + 8);
-		shadowMap.bindTexture();
-		worldViewShader->setUniform("shadowMap", 8);
-
+		shadowMap.bindShadowMapArray();
+		worldViewShader->setUniform("cascadedShadowMap", 8);
 		worldViewShader->setUniform("model", m);
 		for (std::list<Actor*>::iterator it2 = actors.begin(); it2 != actors.end(); it2++) {
 			Actor* actor = *it2;
 			actor->draw(*worldViewShader, m);
 		}
 		worldViewShader->finish();
-
 		for (int i = 0; i < clipPlaneCount; i++) {
 			glDisable(GL_CLIP_DISTANCE0 + i);
 		}
-		glDisable(GL_DEPTH_TEST);
 	}
+	glDisable(GL_DEPTH_TEST);
 }
 
 cgl::Camera cgl::WorldView::getCamera() {

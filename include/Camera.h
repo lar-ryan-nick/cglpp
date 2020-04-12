@@ -16,9 +16,9 @@ namespace cgl {
 			glm::vec3 worldUp;
 		public:
 			Camera(const glm::vec3& pos = glm::vec3(0.0f, 0.0f, 0.0f), const glm::vec3& dir = glm::vec3(0.0f, 0.0f, 1.0f), const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));
-			glm::mat4 getViewMatrix();
-			glm::vec3 getPosition();
-			glm::vec3 getDirection();
+			glm::mat4 getViewMatrix() const;
+			glm::vec3 getPosition() const;
+			glm::vec3 getDirection() const;
 			void setPosition(const glm::vec3& pos);
 			void setRotation(float pitch, float yaw);
 			void moveForward(float amount);

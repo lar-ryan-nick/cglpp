@@ -12,7 +12,8 @@
 #include "Actor.h"
 #include "Shader.h"
 #include "Camera.h"
-#include "ShadowMap.h"
+#include "CascadedShadowMap.h"
+#include <limits>
 
 namespace cgl {
 	class WorldView : public View {
@@ -23,7 +24,7 @@ namespace cgl {
 			Camera camera;
 			float pitch;
 			float yaw;
-			ShadowMap shadowMap;
+			CascadedShadowMap shadowMap;
 		public:
 			WorldView(float x, float y, float width, float height);
 			void addActor(Actor* a);

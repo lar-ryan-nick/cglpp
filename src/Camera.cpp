@@ -2,15 +2,15 @@
 
 cgl::Camera::Camera(const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up) : position(pos), direction(dir), worldUp(up) {}
 
-glm::mat4 cgl::Camera::getViewMatrix() {
+glm::mat4 cgl::Camera::getViewMatrix() const {
 	return glm::lookAt(position, position + direction, worldUp);
 }
 
-glm::vec3 cgl::Camera::getPosition() {
+glm::vec3 cgl::Camera::getPosition() const {
 	return position;
 }
 
-glm::vec3 cgl::Camera::getDirection() {
+glm::vec3 cgl::Camera::getDirection() const {
 	return direction;
 }
 
