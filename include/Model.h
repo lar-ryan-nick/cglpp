@@ -1,5 +1,5 @@
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef CGL_MODEL_H
+#define CGL_MODEL_H
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -19,11 +19,13 @@
 #include "Position.h"
 #include "Polygon.h"
 #include "Texture.h"
+#include "Transformable.h"
 #include <cassert>
 #include <glfw/glfw3.h>
 
+// TODO: calculate center
 namespace cgl {
-	class Model {
+	class Model : public Transformable {
 		private:
 			struct Bone {
 				std::string name;

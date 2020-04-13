@@ -1,12 +1,13 @@
-#include "../include/View.h"
+#include "View.h"
 
 cgl::Shader* cgl::View::viewShader = NULL;
 const unsigned int cgl::View::MAX_VERTICIES = 50;
 
-cgl::View::View(float x, float y, float width, float height) : bounds(x, y, width, height), backgroundColor(0.0f, 0.0f, 0.0f, 0.0f), rotation(0.0f), clipSubviews(false), clipToParent(false), isScrollable(false), isClickable(true), isPressed(false) {
+cgl::View::View(float x, float y, float width, float height) : backgroundColor(0.0f, 0.0f, 0.0f, 0.0f), clipSubviews(false), clipToParent(false), isScrollable(false), isClickable(true), isPressed(false) {
 	if (viewShader == NULL) {
 		viewShader = new Shader("res/glsl/ViewVertexShader.glsl", "res/glsl/ViewFragmentShader.glsl");
 	}
+	setBounds(x, y, width, height);
 	unsigned int indicies[(MAX_VERTICIES - 2) * 3];
 	for (int i = 0; i < (MAX_VERTICIES - 2) * 3; i += 3) {
 		indicies[i] = 0;
@@ -26,7 +27,7 @@ cgl::View::View(float x, float y, float width, float height) : bounds(x, y, widt
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
-/* fix later
+/* TODO: copy buffers on copy and move on move
 View::View(const View& view) : vao(view.vao), backgroundColor(view.backgroundColor), rotation(view.rotation), translation(view.translation), scalar(view.scalar), subviews(view.subviews), clipSubviews(view.clipSubviews), clipToParent(view.clipToParent), isScrollable(view.isScrollable), offsetPosition(view.offsetPosition) {
 	viewShader = view.viewShader;
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
@@ -50,6 +51,7 @@ cgl::View::~View() {
 
 void cgl::View::setBounds(float x, float y, float width, float height) {
 	bounds = Rectangle(x, y, width, height);
+	setCenter(glm::vec3(bounds.getX() + bounds.getWidth() / 2, bounds.getY() + bounds.getHeight() / 2, 0.0f));
 }
 
 cgl::Rectangle cgl::View::getBounds() const {
@@ -58,16 +60,6 @@ cgl::Rectangle cgl::View::getBounds() const {
 
 void cgl::View::setBackgroundColor(const Color& bc) {
 	backgroundColor = bc;
-}
-
-glm::mat4 cgl::View::getTransformationMatrix() const {
-	glm::mat4 model(1.0f);
-	model = glm::translate(model, static_cast<glm::vec3>(translation));
-	model = glm::translate(model, glm::vec3(bounds.getX() + bounds.getWidth() / 2, bounds.getY() + bounds.getHeight() / 2, 0.0f));
-	model = glm::rotate(model, rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::scale(model, static_cast<glm::vec3>(scalar));
-	model = glm::translate(model, glm::vec3(-bounds.getX() - bounds.getWidth() / 2, -bounds.getY() - bounds.getHeight() / 2, 0.0f));
-	return model;
 }
 
 void cgl::View::draw(const glm::mat4& parentModel, const Polygon& poly) {
@@ -148,16 +140,6 @@ bool cgl::View::getIsScrollable() const {
 	return isScrollable;
 }
 
-glm::mat4 cgl::View::getInverseTransformationMatrix() const {
-	glm::mat4 model(1.0f);
-	model = glm::translate(model, glm::vec3(bounds.getX() + bounds.getWidth() / 2, bounds.getY() + bounds.getHeight() / 2, 0.0f));
-	model = glm::scale(model, glm::vec3(1 / scalar.getX(), 1 / scalar.getY(), 1.0f));
-	model = glm::rotate(model, -rotation, glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::translate(model, glm::vec3(-bounds.getX() - bounds.getWidth() / 2, -bounds.getY() - bounds.getHeight() / 2, 0.0f));
-	model = glm::translate(model, static_cast<glm::vec3>(-translation));
-	return model;
-}
-
 bool cgl::View::scroll(double xOffset, double yOffset, float mouseX, float mouseY) {
 	Rectangle bounds = getBounds();
 	for (std::list<View*>::iterator it = subviews.begin(); it != subviews.end(); it++) {
@@ -166,7 +148,7 @@ bool cgl::View::scroll(double xOffset, double yOffset, float mouseX, float mouse
 		glm::vec4 pos = model * glm::vec4(mouseX - bounds.getX() + offsetPosition.getX(), mouseY - bounds.getY() + offsetPosition.getY(), 0.0f, 1.0f);
 		if (view->getBounds().contains(Position(pos.x, pos.y))) {
 			model = glm::mat4(1.0f);
-			model = glm::rotate(model, -view->rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::rotate(model, -view->getRotation(), glm::vec3(0.0f, 0.0f, 1.0f));
 			glm::vec4 rot = model * glm::vec4(xOffset, yOffset, 0.0f, 1.0f);
 			if (view->scroll(rot.x, rot.y, pos.x, pos.y)) {
 				return true;
@@ -249,34 +231,6 @@ void cgl::View::propogateMouseRelease() {
 
 void cgl::View::onClick() {
 	std::cout << "Hi, " << backgroundColor << " has been clicked!" << std::endl;
-}
-
-void cgl::View::translate(float x, float y) {
-	translation += glm::vec3(x, y, 0.0f);
-}
-
-void cgl::View::setTranslation(float x, float y) {
-	translation = glm::vec3(x, y, 0.0f);
-}
-
-void cgl::View::rotate(float radians) {
-	rotation += radians;
-}
-
-void cgl::View::setRotation(float radians) {
-	rotation = radians;
-}
-
-cgl::Size cgl::View::getScalar() {
-	return scalar;
-}
-
-void cgl::View::scale(float x, float y) {
-	scalar *= glm::vec3(x, y, 0.0f);
-}
-
-void cgl::View::setScalar(float x, float y) {
-	scalar = glm::vec3(x, y, 0.0f);
 }
 
 cgl::Position cgl::View::getOffsetPosition() const {

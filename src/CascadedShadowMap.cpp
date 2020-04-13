@@ -45,11 +45,12 @@ glm::mat4 cgl::CascadedShadowMap::getLightViewProjection(int cascadeNum) const {
 }
 
 void cgl::CascadedShadowMap::updateSplits(float zNear, float zFar) {
-	// TODO: Change this
-	float splitDistance = (zFar - zNear) / numCascades;
+	float lambda = 0.5f;
+	float ratio = zFar / zNear;
 	cascadeSplits[0] = zNear;
 	for (int i = 1; i < numCascades; ++i) {
-		cascadeSplits[i] = cascadeSplits[i - 1] + splitDistance;
+		float weight = static_cast<float>(i) / numCascades;
+		cascadeSplits[i] = lambda * zNear * glm::pow(ratio, weight) + (1 - lambda) * (zNear + weight * zFar - zNear);
 	}
 	cascadeSplits[numCascades] = zFar;
 }
@@ -89,7 +90,7 @@ void cgl::CascadedShadowMap::updateLightViewProjections(const Camera& camera, co
 			maxZ = glm::max(maxZ, lightFrustumCorner.z);
 		}
 		//minZ -= 30.0f;
-		maxZ += 30.0f;
+		maxZ += 40.0f;
 		glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
 		lightViewProjections[i] = lightProjection * lightView;
 	}

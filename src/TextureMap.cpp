@@ -64,9 +64,9 @@ GLint cgl::TextureMap::mapModeFromAssimp(aiTextureMapMode assimpMapMode) {
 
 cgl::TextureMap cgl::TextureMap::textureMapFromAssimp(aiMaterial* material, const aiScene* scene, const std::string& directory, aiTextureType type, int index) {
 	TextureMap textureMap;
-	textureMap.strength = 1;
+	textureMap.strength = 1.0f;
 	aiString str;
-	aiTextureOp textureOperation(aiTextureOp_SmoothAdd);
+	aiTextureOp textureOperation(aiTextureOp_Add);
 	aiTextureMapMode textureMapMode[3] = {};
 	// TODO: return val check?
 	material->GetTexture(type, index, &str, NULL, &textureMap.uvIndex, &textureMap.strength, &textureOperation, textureMapMode);

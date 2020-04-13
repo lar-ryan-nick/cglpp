@@ -10,11 +10,13 @@ WorldTestWindow::WorldTestWindow() : animationStart(glfwGetTime()) {
 	cgl::Rectangle bounds = getView().getBounds();
 	worldView = new cgl::WorldView(0, 0, bounds.getWidth(), bounds.getHeight());
 	worldView->setBackgroundColor(cgl::Color(0.9f, 0.9f, 0.9f, 1.0f));
-	actor1 = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
-	//actor1 = new cgl::Actor("res/models/paladin/paladin.fbx");
-	//animation = new cgl::Animation("res/animations/paladin/sword and shield idle.fbx");
+	//actor1 = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
+	actor1 = new cgl::Actor("res/models/paladin/paladin.fbx");
+	actor1->getModel().scale(0.1f, 0.1f, 0.1f);
+	animation = new cgl::Animation("res/animations/paladin/sword and shield idle.fbx");
 	worldView->addActor(actor1);
 	actor2 = new cgl::Actor("res/models/floor/FbxFloor.fbx");
+	actor2->getModel().scale(2.0f, 2.0f, 2.0f);
 	worldView->addActor(actor2);
 	getView().addSubview(worldView);
 	getView().setBackgroundColor(cgl::Color(0.0f, 0.0f, 0.0f, 1.0f));
@@ -28,12 +30,10 @@ WorldTestWindow::~WorldTestWindow() {
 }
 
 void WorldTestWindow::render() {
-	/*
 	float time = glfwGetTime() - animationStart;
 	time *= animation->getTicksPerSecond();
 	time = fmod(time, animation->getDuration());
 	actor1->getModel().applyAnimation(*animation, time);
-	*/
 	Window::render();
 }
 

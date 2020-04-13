@@ -20,7 +20,6 @@ void cgl::WorldView::addActor(Actor* a) {
 
 void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	View::draw(parentModel, poly);
-	//glm::mat4 model = getTransformationMatrix();
 	Rectangle bounds = getBounds();
 	float verticies[8];
 	verticies[0] = verticies[6] = bounds.getX();
@@ -46,10 +45,10 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	//SpotLight spotLight(camera.getDirection(), camera.getPosition());
 	glm::mat4 m(1.0f);
 	glm::mat4 view = camera.getViewMatrix();
-	projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 0.1f, 400.0f);
+	projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 1.0f, 300.0f);
 	glm::mat4 vp = projection * view;
 
-	shadowMap.updateSplits(0.1f, 400.0f);
+	shadowMap.updateSplits(1.0f, 300.0f);
 	shadowMap.updateLightViewProjections(camera, directionalLight, glm::radians(45.0f), viewport[2] / viewport[3]);
 	glEnable(GL_DEPTH_TEST);
 	shadowMapShader->use();
@@ -59,7 +58,6 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		shadowMap.bindFramebuffer(i);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		shadowMapShader->setUniform("lightVP", shadowMap.getLightViewProjection(i));
-		shadowMapShader->setUniform("model", m);
 		for (std::list<Actor*>::iterator it2 = actors.begin(); it2 != actors.end(); it2++) {
 			Actor* actor = *it2;
 			actor->draw(*shadowMapShader, m);
@@ -118,7 +116,6 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		glActiveTexture(GL_TEXTURE0 + 8);
 		shadowMap.bindShadowMapArray();
 		worldViewShader->setUniform("cascadedShadowMap", 8);
-		worldViewShader->setUniform("model", m);
 		for (std::list<Actor*>::iterator it2 = actors.begin(); it2 != actors.end(); it2++) {
 			Actor* actor = *it2;
 			actor->draw(*worldViewShader, m);

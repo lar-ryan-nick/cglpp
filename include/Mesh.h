@@ -1,5 +1,5 @@
-#ifndef MESH_H
-#define MESH_H
+#ifndef CGL_MESH_H
+#define CGL_MESH_H
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -15,14 +15,20 @@
 #include "Material.h"
 #include "Shader.h"
 #include "Camera.h"
+#include "Transformable.h"
 
+// TODO: Calculate center
 namespace cgl {
-	class Mesh {
+	class Mesh : public Transformable {
 		public:
 			struct VertexBoneData {
 				int indicies[4];
 				float weights[4];
 			};
+			Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m);
+			~Mesh();
+			void draw(Shader& shader, const glm::mat4& parentModel);
+			std::vector<Position> getPositions();
 		private:
 			unsigned int vao;
 			unsigned int vbo[4];
@@ -34,11 +40,6 @@ namespace cgl {
 			std::vector<VertexBoneData> boneData;
 			Material material;
 			void setupVAO();
-		public:
-			Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m);
-			~Mesh();
-			void draw(Shader& shader, const glm::mat4& parentModel);
-			std::vector<Position> getPositions();
 	};
 }
 

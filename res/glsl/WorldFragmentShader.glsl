@@ -100,9 +100,9 @@ vec3 calculatePointLight(PointLight light, vec3 ambient, vec3 diffuse, vec3 spec
 vec3 calculateSpotLight(SpotLight light, vec3 ambient, vec3 diffuse, vec3 specular);
 
 void main() {
-	vec3 ambient = vec3(0.0f, 0.0f, 0.0f);//material.ambientColor;
-	vec3 diffuse = ambient;//material.diffuseColor;
-	vec3 specular = ambient;//material.specularColor;
+	vec3 ambient = material.ambientColor;
+	vec3 diffuse = material.diffuseColor;
+	vec3 specular = material.specularColor;
 	calculateTextureMap(material.textureMaps[0], ambient, diffuse, specular);
 	calculateTextureMap(material.textureMaps[1], ambient, diffuse, specular);
 	calculateTextureMap(material.textureMaps[2], ambient, diffuse, specular);

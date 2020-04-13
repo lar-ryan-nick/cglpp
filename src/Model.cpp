@@ -1,4 +1,4 @@
-#include "../include/Model.h"
+#include "Model.h"
 
 glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4 &from) {
 	return glm::transpose(glm::make_mat4(&from.a1));
@@ -78,9 +78,10 @@ void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
 	if (bones.empty()) {
 		shader.setUniform("boneTransforms[0]", glm::mat4(1.0f));
 	}
+	glm::mat4 model = parentModel * getTransformationMatrix();
 	for (std::list<Mesh*>::iterator it = meshes.begin(); it != meshes.end(); it++) {
 		Mesh* m = *it;
-		m->draw(shader, parentModel);
+		m->draw(shader, model);
 	}
 }
 

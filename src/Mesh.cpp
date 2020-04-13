@@ -1,4 +1,4 @@
-#include "../include/Mesh.h"
+#include "Mesh.h"
 
 cgl::Mesh::Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), boneData(bd), material(m) {
 	setupVAO();
@@ -43,6 +43,8 @@ cgl::Mesh::~Mesh() {
 }
 
 void cgl::Mesh::draw(Shader& shader, const glm::mat4& parentModel) {
+	glm::mat4 model = parentModel * getTransformationMatrix();
+	shader.setUniform("model", model);
 	shader.setUniform("material", material);
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, indicies.size(), GL_UNSIGNED_INT, 0);

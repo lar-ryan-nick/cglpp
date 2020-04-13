@@ -1,17 +1,13 @@
-#ifndef RECTANGLE_H
-#define RECTANGLE_H
+#ifndef CGL_RECTANGLE_H
+#define CGL_RECTANGLE_H
 
-#include <glad/glad.h>
 #include "Position.h"
 #include "Size.h"
 
 namespace cgl {
 	class Rectangle {
-		Position origin;
-		Size size;
-		bool isInbetween(float min, float max, float val) const;
 		public:
-			Rectangle(float xpos, float ypos, float w, float h);
+			Rectangle(float xpos = 0.0f, float ypos = 0.0f, float w = 0.0f, float h = 0.0f);
 			Rectangle(const Position& p, const Size& s);
 			Position getOrigin() const;
 			Size getSize() const;
@@ -20,6 +16,10 @@ namespace cgl {
 			float getWidth() const;
 			float getHeight() const;
 			bool contains(const Position& p) const;
+		private:
+			Position origin;
+			Size size;
+			bool isInbetween(float min, float max, float val) const;
 	};
 }
 

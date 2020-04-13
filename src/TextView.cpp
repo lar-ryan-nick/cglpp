@@ -11,14 +11,14 @@ void cgl::TextView::init() {
 cgl::TextView::TextView(const std::string& t, float x, float y, float width, float height) : View(x, y, width, height), text(t), font("res/fonts/Arial.ttf") {
 	init();
 	glGenVertexArrays(1, &textVAO);
-    glGenBuffers(1, &textVBO);
-    glBindVertexArray(textVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, textVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0); 
-    glBindVertexArray(0);
-	setScalar(1, -1);
+	glGenBuffers(1, &textVBO);
+	glBindVertexArray(textVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, textVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0); 
+	glBindVertexArray(0);
+	setScalar(glm::vec3(1.0f, -1.0f, 1.0f));
 }
 
 cgl::TextView::~TextView() {
@@ -90,7 +90,7 @@ void cgl::TextView::render(const cgl::Polygon& bounds, const glm::mat4& model) {
 		// Render quad
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-		x += (g.advance >> 6) * getScalar().getX(); // Bitshift by 6 to get value in pixels (2^6 = 64)
+		x += (g.advance >> 6) * getScalar().x; // Bitshift by 6 to get value in pixels (2^6 = 64)
 	}
 	textViewShader->finish();
 	glBindVertexArray(0);

@@ -6,7 +6,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform2.hpp>
 #include <functional>
 #include <list>
 #include "Rectangle.h"
@@ -15,17 +14,15 @@
 #include "Shader.h"
 #include "Color.h"
 #include "Polygon.h"
+#include "Transformable.h"
 
 namespace cgl {
-	class View {
+	class View : public Transformable {
 		private:
 			static Shader* viewShader;
 			const static unsigned int MAX_VERTICIES;
 			Rectangle bounds;
 			Color backgroundColor;
-			float rotation;
-			Position translation;
-			Size scalar;
 			std::list<View*> subviews;
 			bool clipSubviews;
 			bool clipToParent;
@@ -51,16 +48,7 @@ namespace cgl {
 			bool mousePress(int button, int mods, float mouseX, float mouseY);
 			bool mouseRelease(int button, int mods, float mouseX, float mouseY);
 			void propogateMouseRelease();
-			void translate(float x, float y);
-			void setTranslation(float x, float y);
-			void rotate(float radians);
-			void setRotation(float radians);
-			Size getScalar();
-			void scale(float x, float y);
-			void setScalar(float x, float y);
 			Position getOffsetPosition() const;
-			glm::mat4 getTransformationMatrix() const;
-			glm::mat4 getInverseTransformationMatrix() const;
 			virtual void onMouseMove(float xOffset, float yOffset);
 		protected:
 			unsigned int vao;
