@@ -1,11 +1,11 @@
 #include "Mesh.h"
 
-cgl::Mesh::Mesh(const std::vector<Position>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), boneData(bd), material(m) {
+cgl::Mesh::Mesh(const std::vector<glm::vec3>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), boneData(bd), material(m), minBounds(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest()), maxBounds(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()) {
 	setupVAO();
+	setupBounds();
 }
 
 void cgl::Mesh::setupVAO() {
-	std::vector<glm::vec3> pos(positions.begin(), positions.end());
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glGenBuffers(1, &ebo);
@@ -13,7 +13,7 @@ void cgl::Mesh::setupVAO() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicies.size() * sizeof(unsigned int), &indicies[0], GL_STATIC_DRAW);
 	glGenBuffers(4, vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, pos.size() * sizeof(glm::vec3), &pos[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), &positions[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
@@ -35,6 +35,17 @@ void cgl::Mesh::setupVAO() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void cgl::Mesh::setupBounds() {
+	for (int i = 0; i < positions.size(); ++i) {
+		minBounds.x = glm::min(minBounds.x, positions[i].x);
+		maxBounds.x = glm::max(maxBounds.x, positions[i].x);
+		minBounds.y = glm::min(minBounds.y, positions[i].y);
+		maxBounds.y = glm::max(maxBounds.y, positions[i].y);
+		minBounds.z = glm::min(minBounds.z, positions[i].z);
+		maxBounds.z = glm::max(maxBounds.z, positions[i].z);
+	}
+}
+
 cgl::Mesh::~Mesh() {
 	// buffer data deletion
 	glDeleteBuffers(4, vbo);
@@ -52,6 +63,14 @@ void cgl::Mesh::draw(Shader& shader, const glm::mat4& parentModel) {
 	glActiveTexture(GL_TEXTURE0);
 }
 
-std::vector<cgl::Position> cgl::Mesh::getPositions() {
+std::vector<glm::vec3> cgl::Mesh::getPositions() {
 	return positions;
+}
+
+glm::vec3 cgl::Mesh::getMinBounds() const {
+	return minBounds;
+}
+
+glm::vec3 cgl::Mesh::getMaxBounds() const {
+	return maxBounds;
 }

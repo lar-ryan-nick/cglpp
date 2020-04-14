@@ -26,6 +26,14 @@
 // TODO: calculate center
 namespace cgl {
 	class Model : public Transformable {
+		public:
+			Model(const std::string& path);
+			~Model();
+			std::list<Mesh*> getMeshes();
+			void draw(Shader& shader, const glm::mat4& parentModel);
+			void applyAnimation(const Animation& animation, float time);
+			glm::vec3 getMinBounds() const;
+			glm::vec3 getMaxBounds() const;
 		private:
 			struct Bone {
 				std::string name;
@@ -44,12 +52,6 @@ namespace cgl {
 			void processNode(aiNode* node, const aiScene* scene, const std::string& directory);
 			void processMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory);
 			void constructSkeleton(aiNode* node, int parentIndex);
-		public:
-			Model(const std::string& path);
-			~Model();
-			std::list<Mesh*> getMeshes();
-			void draw(Shader& shader, const glm::mat4& parentModel);
-			void applyAnimation(const Animation& animation, float time);
 	};
 }
 

@@ -85,6 +85,30 @@ void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
 	}
 }
 
+glm::vec3 cgl::Model::getMinBounds() const {
+	glm::vec3 minBound(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
+	for (std::list<Mesh*>::const_iterator it = meshes.cbegin(); it != meshes.cend(); it++) {
+		Mesh* m = *it;
+		glm::vec3 mb = m->getMinBounds();
+		minBound.x = glm::min(minBound.x, mb.x);
+		minBound.y = glm::min(minBound.y, mb.y);
+		minBound.z = glm::min(minBound.z, mb.z);
+	}
+	return minBound;
+}
+
+glm::vec3 cgl::Model::getMaxBounds() const {
+	glm::vec3 maxBound(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+	for (std::list<Mesh*>::const_iterator it = meshes.cbegin(); it != meshes.cend(); it++) {
+		Mesh* m = *it;
+		glm::vec3 mb = m->getMaxBounds();
+		maxBound.x = glm::max(maxBound.x, mb.x);
+		maxBound.y = glm::max(maxBound.y, mb.y);
+		maxBound.z = glm::max(maxBound.z, mb.z);
+	}
+	return maxBound;
+}
+
 void cgl::Model::processNode(aiNode* node, const aiScene* scene, const std::string& directory) {
 	// process each mesh located at the current node
 	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
@@ -100,11 +124,11 @@ void cgl::Model::processNode(aiNode* node, const aiScene* scene, const std::stri
 }
 
 void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory) {
-	std::vector<Position> positions;
+	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> textureCoordinates;
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-		positions.push_back(Position(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
+		positions.push_back(glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
 		normals.push_back(glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
 		glm::vec2 textureCoordinate;
 		// TODO: figure out how to support up to 8 different texture coordinates
