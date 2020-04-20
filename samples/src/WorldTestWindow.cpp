@@ -13,7 +13,7 @@ WorldTestWindow::WorldTestWindow() : animationStart(glfwGetTime()) {
 	//actor1 = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
 	actor1 = new cgl::Actor("res/models/paladin/paladin.fbx");
 	actor1->getModel().scale(0.1f, 0.1f, 0.1f);
-	animation = new cgl::Animation("res/animations/paladin/sword and shield idle.fbx");
+	animation = new cgl::Animation("res/models/paladin/animations/sword and shield idle.fbx");
 	worldView->addActor(actor1);
 	actor2 = new cgl::Actor("res/models/floor/FbxFloor.fbx");
 	actor2->getModel().scale(2.0f, 2.0f, 2.0f);
@@ -30,10 +30,12 @@ WorldTestWindow::~WorldTestWindow() {
 }
 
 void WorldTestWindow::render() {
+
 	float time = glfwGetTime() - animationStart;
 	time *= animation->getTicksPerSecond();
 	time = fmod(time, animation->getDuration());
 	actor1->getModel().applyAnimation(*animation, time);
+
 	Window::render();
 }
 

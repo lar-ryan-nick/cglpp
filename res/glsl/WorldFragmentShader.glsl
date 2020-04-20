@@ -2,6 +2,7 @@
 // min number of supported sampler objects per fragment shader is 16
 const int MAX_TEXTURE_MAPS = 8;
 const int MAX_SHADOW_CASCADES = 8;
+const int BLOCKER_SAMPLE_COUNT = 3;
 
 const int AMBIENT_MAP = 0;
 const int DIFFUSE_MAP = 1;
@@ -45,6 +46,7 @@ struct DirectionalLight {
 	float ambientStrength;
 	float diffuseStrength;
 	float specularStrength;
+	float diameter;
 };
 
 struct PointLight {
@@ -178,14 +180,43 @@ float calculateShadow(out int shadowCascade) {
 	if (currentDepth > 1.0f) {
 		return 0.0f;
 	}
+
+	// Blocker search
+	vec2 texelSize = 1.0f / textureSize(cascadedShadowMap, 0).xy;
 	vec3 shadowMapCoords = vec3(projCoords.xy, float(shadowCascade));
-	// get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-	float closestDepth = texture(cascadedShadowMap, shadowMapCoords).r; 
+	float depthSum = 0;
+	int numBlockers = 0;
+	for (int i = -BLOCKER_SAMPLE_COUNT; i <= BLOCKER_SAMPLE_COUNT; ++i) {
+		for (int j = -BLOCKER_SAMPLE_COUNT; j <= BLOCKER_SAMPLE_COUNT; ++j) {
+			vec3 off = vec3(i, j, 0.0f);
+			float sampleDepth = texture(cascadedShadowMap, shadowMapCoords + off * vec3(texelSize, 1.0f)).r;
+			if (sampleDepth < currentDepth) {
+				depthSum += sampleDepth;
+				++numBlockers;
+			}
+		}
+	}
+	if (numBlockers == 0) {
+		return 0.0f;
+	}
+	float blockerDepth = depthSum / float(numBlockers);
+
+	float penumbraSize = (currentDepth - blockerDepth) * directionalLight.diameter / blockerDepth;
+	int filterSize = min(int(penumbraSize), 5);
+	int percentageCloserShadow = 0;
+	//float closestDepth = texture(cascadedShadowMap, shadowMapCoords).r; 
 	vec3 lightDirection = normalize(-directionalLight.direction);
 	float bias = max(0.05 * (1.0 - dot(normalVec, lightDirection)), 0.005);
-	// check whether current frag pos is in shadow
-	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-	return shadow;
+	for (int i = -filterSize; i <= filterSize; ++i) {
+		for (int j = -filterSize; j <= filterSize; ++j) {
+			vec3 off = vec3(i, j, 0.0f);
+			float pcfDepth = texture(cascadedShadowMap, shadowMapCoords + off * vec3(texelSize, 1.0f)).r;
+			if (currentDepth - bias > pcfDepth) {
+				++percentageCloserShadow;
+			}
+		}
+	}
+	return float(percentageCloserShadow) / pow(2 * filterSize + 1, 2);
 }
 
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 ambient, vec3 diffuse, vec3 specular) {
@@ -195,6 +226,7 @@ vec3 calculateDirectionalLight(DirectionalLight light, vec3 ambient, vec3 diffus
 	float spec = pow(max(dot(viewDirection, reflectDirection), 0.0f), material.shininess);
 	int cascadeNum = -1;
 	float shadow = calculateShadow(cascadeNum);
+	/*
 	if (cascadeNum == 0) {
 		light.color = vec3(1.0f, 0.0f, 0.0f);
 	} else if (cascadeNum == 1) {
@@ -204,6 +236,7 @@ vec3 calculateDirectionalLight(DirectionalLight light, vec3 ambient, vec3 diffus
 	} else if (cascadeNum == 3) {
 		light.color = vec3(1.0f, 1.0f, 0.0f);
 	}
+	*/
 	return light.color * (light.ambientStrength * ambient + (1.0f - shadow) * (light.diffuseStrength * diff * diffuse + light.specularStrength * spec * specular));
 }
 

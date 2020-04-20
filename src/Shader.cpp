@@ -221,6 +221,9 @@ void cgl::Shader::setUniform(const std::string& name, const Light& light) {
 void cgl::Shader::setUniform(const std::string& name, const DirectionalLight& light) {
 	setUniform(name, (Light) light);
 	setUniform(name + ".direction", light.getDirection());
+
+	// TODO: AHHHHHHHHH
+	setUniform(name + ".diameter", 5.0f);
 }
 
 void cgl::Shader::setUniform(const std::string& name, const PointLight& light) {
