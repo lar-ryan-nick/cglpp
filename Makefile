@@ -182,4 +182,5 @@ cleanall: clean
 
 rebuildall: cleanall default
 
-project0: samples/bin/project0
+project1: samples/bin/applicationTest
+	samples/bin/applicationTest
