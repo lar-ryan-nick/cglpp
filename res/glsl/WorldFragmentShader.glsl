@@ -1,44 +1,7 @@
 #version 330 core
 // min number of supported sampler objects per fragment shader is 16
-const int MAX_TEXTURE_MAPS = 8;
 const int MAX_SHADOW_CASCADES = 8;
 const int BLOCKER_SAMPLE_COUNT = 3;
-
-const int AMBIENT_MAP = 0;
-const int DIFFUSE_MAP = 1;
-const int SPECULAR_MAP = 2;
-const int EMISSIVE_MAP = 3;
-const int HEIGHT_MAP = 4;
-const int NORMALS_MAP = 5;
-const int SHININESS_MAP = 6;
-const int OPACITY_MAP = 7;
-const int DISPLACEMENT_MAP = 8;
-const int LIGHT_MAP = 9;
-const int REFLECTION_MAP = 10;
-
-const int MULT_OP = 0;
-const int ADD_OP = 1;
-const int SUB_OP = 2;
-const int DIV_OP = 3;
-const int SMOOTH_OP = 4;
-const int SIGNED_OP = 5;
-
-struct TextureMap {
-	sampler2D texture;
-	int type;
-	float strength;
-	int operation;
-	uint uvIndex;
-};
-
-struct Material {
-	vec3 ambientColor;
-	vec3 diffuseColor;
-	vec3 specularColor;
-	TextureMap textureMaps[MAX_TEXTURE_MAPS];
-	float shininess;
-	float opacity;
-};
 
 struct DirectionalLight {
 	vec3 direction;
@@ -74,89 +37,61 @@ struct SpotLight {
 	float outerCutOff;
 };
 
-in vec2 texCoord;
-in vec3 normalVec;
-in float projectedDepth;
-in vec3 fragmentPosition;
-in vec4 fragmentLightPosition[MAX_SHADOW_CASCADES];
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D gTexCoord;
+uniform sampler2D gAmbient;
+uniform sampler2D gDiffuse;
+uniform sampler2D gSpecular;
+
+uniform mat4 vp;
 
 uniform vec3 viewPosition;
-uniform Material material;
 uniform DirectionalLight directionalLight;
 uniform PointLight pointLight;
 uniform SpotLight spotLight;
+
 uniform float cascadeEnds[MAX_SHADOW_CASCADES];
+uniform mat4 lightVP[MAX_SHADOW_CASCADES];
 uniform sampler2DArray cascadedShadowMap;
+
+in vec2 gCoord;
 
 out vec4 FragColor;
 
 vec3 viewDirection;
-int shininessIndex = -1;
 
-// TODO: remove structs from parameters
-void calculateTextureMap(TextureMap tm, inout vec3 ambient, inout vec3 diffuse, inout vec3 specular);
-void applyTextureMap(TextureMap tm, inout vec3 base);
+vec3 fragmentPosition;
+vec3 normalVec;
+vec2 texCoord;
+
+float projectedDepth;
+vec4 fragmentLightPositions[MAX_SHADOW_CASCADES];
+
 float calculateShadow(out int shadowCascade);
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 ambient, vec3 diffuse, vec3 specular);
 vec3 calculatePointLight(PointLight light, vec3 ambient, vec3 diffuse, vec3 specular);
 vec3 calculateSpotLight(SpotLight light, vec3 ambient, vec3 diffuse, vec3 specular);
 
 void main() {
-	vec3 ambient = material.ambientColor;
-	vec3 diffuse = material.diffuseColor;
-	vec3 specular = material.specularColor;
-	calculateTextureMap(material.textureMaps[0], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[1], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[2], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[3], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[4], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[5], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[6], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[7], ambient, diffuse, specular);
+	fragmentPosition = texture(gPosition, gCoord).xyz;
+
+	vec4 projectedPosition = vp * vec4(fragmentPosition, 1.0f);
+	projectedDepth = projectedPosition.z;
+
+	normalVec = texture(gNormal, gCoord).xyz;
+	texCoord = texture(gTexCoord, gCoord).xy;
+	for (int i = 0; i < MAX_SHADOW_CASCADES; ++i) {
+		fragmentLightPositions[i] = lightVP[i] * vec4(fragmentPosition, 1.0f);
+	}
+	viewDirection = normalize(viewPosition - fragmentPosition);
+	vec3 ambient = texture(gAmbient, gCoord).rgb;
+	vec3 diffuse = texture(gDiffuse, gCoord).rgb;
+	vec3 specular = texture(gSpecular, gCoord).rgb;
+
 	vec3 result = calculateDirectionalLight(directionalLight, ambient, diffuse, specular);
 	//result += calculateSpotLight(spotLight, ambient, diffuse, specular);
-	FragColor = vec4(result, material.opacity);
-}
-
-void calculateTextureMap(TextureMap tm, inout vec3 ambient, inout vec3 diffuse, inout vec3 specular) {
-	switch (tm.type) {
-		case DIFFUSE_MAP:
-			applyTextureMap(tm, diffuse);
-		case AMBIENT_MAP:
-			applyTextureMap(tm, ambient);
-			break;
-		case SPECULAR_MAP:
-			applyTextureMap(tm, specular);
-			break;
-		default:
-			break;
-	}
-}
-
-void applyTextureMap(TextureMap tm, inout vec3 base) {
-	vec3 mapContrib = tm.strength * texture(tm.texture, texCoord).xyz;
-	switch (tm.operation) {
-		case MULT_OP:
-			base *= mapContrib;
-			break;
-		case ADD_OP:
-			base += mapContrib;
-			break;
-		case SUB_OP:
-			base -= mapContrib;
-			break;
-		case DIV_OP:
-			base /= mapContrib;
-			break;
-		case SMOOTH_OP:
-			base = (base + mapContrib) - (base * mapContrib);
-			break;
-		case SIGNED_OP:
-			base += mapContrib - .5;
-			break;
-		default:
-			break;
-	}
+	FragColor = vec4(result, 1.0f);
 }
 
 float calculateShadow(out int shadowCascade) {
@@ -170,7 +105,7 @@ float calculateShadow(out int shadowCascade) {
 	if (shadowCascade == -1) {
 		return 0.0f;
 	}
-	vec4 fragPosLightSpace = fragmentLightPosition[shadowCascade];
+	vec4 fragPosLightSpace = fragmentLightPositions[shadowCascade];
 	// perform perspective divide
 	vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
 	// transform to [0,1] range
@@ -217,13 +152,14 @@ float calculateShadow(out int shadowCascade) {
 		}
 	}
 	return float(percentageCloserShadow) / pow(2 * filterSize + 1, 2);
+	//return 0.0f;
 }
 
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 ambient, vec3 diffuse, vec3 specular) {
 	vec3 lightDirection = normalize(-light.direction);
 	float diff = max(dot(normalVec, lightDirection), 0.0f);
 	vec3 reflectDirection = reflect(-lightDirection, normalVec);
-	float spec = pow(max(dot(viewDirection, reflectDirection), 0.0f), material.shininess);
+	float spec = pow(max(dot(viewDirection, reflectDirection), 0.0f), 32.0f);
 	int cascadeNum = -1;
 	float shadow = calculateShadow(cascadeNum);
 	/*
@@ -245,9 +181,9 @@ vec3 calculatePointLight(PointLight light, vec3 ambient, vec3 diffuse, vec3 spec
 	vec3 lightDir = normalize(difference);
 	float diff = max(dot(normalVec, lightDir), 0.0);
 	vec3 reflectDir = reflect(-lightDir, normalVec);
-	float spec = pow(max(dot(viewDirection, reflectDir), 0.0), material.shininess);
-	float distance = length(difference);
-	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
+	float spec = pow(max(dot(viewDirection, reflectDir), 0.0), 32.0f);
+	float dist = length(difference);
+	float attenuation = 1.0 / (light.constant + light.linear * dist + light.quadratic * dist * dist);
 	ambient *= attenuation * light.color * light.ambientStrength;
 	diffuse *= attenuation * light.color * light.diffuseStrength * diff;
 	specular *= attenuation * light.color * light.specularStrength * spec;
@@ -269,7 +205,7 @@ vec3 calculateSpotLight(SpotLight light, vec3 ambient, vec3 diffuse, vec3 specul
 		float diff = max(dot(normalVec, lightDir), 0.0);
 		diffuse *= intensity * attenuation * light.color * light.diffuseStrength * diff;
 		vec3 reflectDir = reflect(-lightDir, normalVec);
-		float spec = pow(max(dot(viewDirection, reflectDir), 0.0), material.shininess);
+		float spec = pow(max(dot(viewDirection, reflectDir), 0.0), 32.0f);
 		specular *= intensity * attenuation * light.color * light.specularStrength * spec;
 		int cascadeNum;
 		float shadow = calculateShadow(cascadeNum);

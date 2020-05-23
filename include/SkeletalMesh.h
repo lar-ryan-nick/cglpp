@@ -17,20 +17,18 @@
 #include "Camera.h"
 #include "Transformable.h"
 
-// TODO: Create a Mesh heirarchy (Mesh, SkeletalMesh, PlanarMesh, etc. idk)
+// TODO: Calculate center
 namespace cgl {
-	class Mesh : public Transformable {
+	class SkeletalMesh : public Transformable {
 		public:
 			struct VertexBoneData {
 				int indicies[4];
 				float weights[4];
 			};
-			Mesh(const std::vector<glm::vec3>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m);
-			~Mesh();
+			SkeletalMesh(const std::vector<glm::vec3>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m);
+			~SkeletalMesh();
 			void draw(Shader& shader, const glm::mat4& parentModel);
 			std::vector<glm::vec3> getPositions();
-			Material& getMaterial();
-			const Material& getMaterial() const;
 			glm::vec3 getMinBounds() const;
 			glm::vec3 getMaxBounds() const;
 		private:

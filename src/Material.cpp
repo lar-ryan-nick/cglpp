@@ -1,4 +1,4 @@
-#include "../include/Material.h"
+#include "Material.h"
 
 cgl::Material cgl::Material::materialFromAssimp(aiMaterial* m, const aiScene* scene, const std::string& directory) {
 	Material material;
@@ -31,12 +31,24 @@ cgl::Color cgl::Material::getAmbientColor() const {
 	return ambientColor;
 }
 
+void cgl::Material::setAmbientColor(const Color& color) {
+	ambientColor = color;
+}
+
 cgl::Color cgl::Material::getDiffuseColor() const {
 	return diffuseColor;
 }
 
+void cgl::Material::setDiffuseColor(const Color& color) {
+	diffuseColor = color;
+}
+
 cgl::Color cgl::Material::getSpecularColor() const {
 	return specularColor;
+}
+
+void cgl::Material::setSpecularColor(const Color& color) {
+	specularColor = color;
 }
 
 std::list<cgl::TextureMap> cgl::Material::getTextureMaps() const {
@@ -47,6 +59,14 @@ float cgl::Material::getShininess() const {
 	return shininess;
 }
 
+void cgl::Material::setShininess(float s) {
+	shininess = s;
+}
+
 float cgl::Material::getOpacity() const {
 	return opacity;
+}
+
+void cgl::Material::getOpacity(float o) {
+	opacity = o;
 }

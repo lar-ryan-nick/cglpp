@@ -4,6 +4,10 @@ glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4 &from) {
 	return glm::transpose(glm::make_mat4(&from.a1));
 }
 
+cgl::Model::Model(Mesh* mesh) : skeletonRoot(-1) {
+	meshes.push_back(mesh);
+}
+
 cgl::Model::Model(const std::string& path) : skeletonRoot(-1) {
 	Assimp::Importer importer;
 	// read file via ASSIMP

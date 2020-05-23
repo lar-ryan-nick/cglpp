@@ -1,11 +1,11 @@
-#include "Mesh.h"
+#include "SkeletalMesh.h"
 
-cgl::Mesh::Mesh(const std::vector<glm::vec3>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), boneData(bd), material(m), minBounds(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest()), maxBounds(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()) {
+cgl::SkeletalMesh::SkeletalMesh(const std::vector<glm::vec3>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), boneData(bd), material(m), minBounds(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest()), maxBounds(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()) {
 	setupVAO();
 	setupBounds();
 }
 
-void cgl::Mesh::setupVAO() {
+void cgl::SkeletalMesh::setupVAO() {
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glGenBuffers(1, &ebo);
@@ -35,7 +35,7 @@ void cgl::Mesh::setupVAO() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void cgl::Mesh::setupBounds() {
+void cgl::SkeletalMesh::setupBounds() {
 	for (int i = 0; i < positions.size(); ++i) {
 		minBounds.x = glm::min(minBounds.x, positions[i].x);
 		maxBounds.x = glm::max(maxBounds.x, positions[i].x);
@@ -46,14 +46,14 @@ void cgl::Mesh::setupBounds() {
 	}
 }
 
-cgl::Mesh::~Mesh() {
+cgl::SkeletalMesh::~SkeletalMesh() {
 	// buffer data deletion
 	glDeleteBuffers(4, vbo);
 	glDeleteBuffers(1, &ebo);
 	glDeleteVertexArrays(1, &vao);
 }
 
-void cgl::Mesh::draw(Shader& shader, const glm::mat4& parentModel) {
+void cgl::SkeletalMesh::draw(Shader& shader, const glm::mat4& parentModel) {
 	glm::mat4 model = parentModel * getTransformationMatrix();
 	shader.setUniform("model", model);
 	shader.setUniform("material", material);
@@ -62,22 +62,14 @@ void cgl::Mesh::draw(Shader& shader, const glm::mat4& parentModel) {
 	glBindVertexArray(0);
 }
 
-std::vector<glm::vec3> cgl::Mesh::getPositions() {
+std::vector<glm::vec3> cgl::SkeletalMesh::getPositions() {
 	return positions;
 }
 
-cgl::Material& cgl::Mesh::getMaterial() {
-	return material;
-}
-
-const cgl::Material& cgl::Mesh::getMaterial() const {
-	return material;
-}
-
-glm::vec3 cgl::Mesh::getMinBounds() const {
+glm::vec3 cgl::SkeletalMesh::getMinBounds() const {
 	return minBounds;
 }
 
-glm::vec3 cgl::Mesh::getMaxBounds() const {
+glm::vec3 cgl::SkeletalMesh::getMaxBounds() const {
 	return maxBounds;
 }

@@ -17,6 +17,7 @@ WorldTestWindow::WorldTestWindow() : animationStart(glfwGetTime()) {
 	worldView->addActor(actor1);
 	actor2 = new cgl::Actor("res/models/floor/FbxFloor.fbx");
 	actor2->getModel().scale(2.0f, 2.0f, 2.0f);
+	actor2->getModel().translate(0.0f, -0.3f, 0.0f);
 	worldView->addActor(actor2);
 	getView().addSubview(worldView);
 	getView().setBackgroundColor(cgl::Color(0.0f, 0.0f, 0.0f, 1.0f));

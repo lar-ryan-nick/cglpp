@@ -42,7 +42,7 @@ cgl::Shader::Shader(const std::string& vertexSourcePath, const std::string& frag
 	delete[] fragmentShaderSource;
 	fragmentShaderSource = NULL;
 	glCompileShader(fragmentShader);
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
 	if (!success) {
 		char infoLog[512];
 		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
@@ -55,7 +55,7 @@ cgl::Shader::Shader(const std::string& vertexSourcePath, const std::string& frag
 	if (!success) {
 		char infoLog[512];
 		glGetProgramInfoLog(id, 512, NULL, infoLog);
-		std::cerr << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n" << infoLog << std::endl;
+		std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 	}
 }
 
