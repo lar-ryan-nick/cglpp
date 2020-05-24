@@ -97,6 +97,11 @@ void cgl::Shader::setUniform(const std::string& name, float value1, float value2
 	glUniform4f(location, value1, value2, value3, value4);
 }
 
+void cgl::Shader::setUniform(const std::string& name, const std::vector<float>& value) {
+	int location = glGetUniformLocation(id, name.c_str());
+	glUniform1fv(location, value.size(), &value[0]);
+}
+
 void cgl::Shader::setUniform(const std::string& name, int value) {
 	int location = glGetUniformLocation(id, name.c_str());
 	glUniform1i(location, value);
@@ -164,6 +169,11 @@ void cgl::Shader::setUniform(const std::string& name, const glm::vec2& value) {
 
 void cgl::Shader::setUniform(const std::string& name, const glm::vec3& value) {
 	setUniform(name, value.x, value.y, value.z);
+}
+
+void cgl::Shader::setUniform(const std::string& name, const std::vector<glm::vec3>& value) {
+	int location = glGetUniformLocation(id, name.c_str());
+	glUniform3fv(location, value.size(), glm::value_ptr(value[0]));
 }
 
 void cgl::Shader::setUniform(const std::string& name, const glm::vec4& value) {

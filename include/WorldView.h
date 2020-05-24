@@ -14,6 +14,7 @@
 #include "Camera.h"
 #include "CascadedShadowMap.h"
 #include "GBuffer.h"
+#include "SSAO.h"
 #include <limits>
 
 namespace cgl {
@@ -31,6 +32,7 @@ namespace cgl {
 			static Shader* worldViewShader;
 			static Shader* shadowMapShader;
 			GBuffer gBuffer;
+			SSAO ssao;
 			std::list<Actor*> actors;
 			Camera camera;
 			float pitch;

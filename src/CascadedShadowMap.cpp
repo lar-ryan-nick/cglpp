@@ -89,7 +89,7 @@ void cgl::CascadedShadowMap::updateLightViewProjections(const Camera& camera, co
 			minZ = glm::min(minZ, lightFrustumCorner.z);
 			maxZ = glm::max(maxZ, lightFrustumCorner.z);
 		}
-		maxZ += 30.0f;
+		//maxZ += 30.0f;
 		glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
 		lightViewProjections[i] = lightProjection * lightView;
 	}

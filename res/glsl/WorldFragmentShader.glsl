@@ -44,6 +44,8 @@ uniform sampler2D gAmbient;
 uniform sampler2D gDiffuse;
 uniform sampler2D gSpecular;
 
+uniform sampler2D ssao;
+
 uniform mat4 vp;
 
 uniform vec3 viewPosition;
@@ -74,20 +76,33 @@ vec3 calculatePointLight(PointLight light, vec3 ambient, vec3 diffuse, vec3 spec
 vec3 calculateSpotLight(SpotLight light, vec3 ambient, vec3 diffuse, vec3 specular);
 
 void main() {
+	bool exists = bool(texture(gPosition, gCoord).a);
+	if (!exists) {
+		FragColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		return;
+	}
 	fragmentPosition = texture(gPosition, gCoord).xyz;
 
 	vec4 projectedPosition = vp * vec4(fragmentPosition, 1.0f);
 	projectedDepth = projectedPosition.z;
 
 	normalVec = texture(gNormal, gCoord).xyz;
-	texCoord = texture(gTexCoord, gCoord).xy;
+	//texCoord = texture(gTexCoord, gCoord).xy;
 	for (int i = 0; i < MAX_SHADOW_CASCADES; ++i) {
 		fragmentLightPositions[i] = lightVP[i] * vec4(fragmentPosition, 1.0f);
 	}
 	viewDirection = normalize(viewPosition - fragmentPosition);
+
 	vec3 ambient = texture(gAmbient, gCoord).rgb;
 	vec3 diffuse = texture(gDiffuse, gCoord).rgb;
 	vec3 specular = texture(gSpecular, gCoord).rgb;
+
+	float ambientOcclusion = texture(ssao, gCoord).r;
+	/*
+	FragColor = vec4(ambientOcclusion, ambientOcclusion, ambientOcclusion, 1.0f);
+	return;
+	*/
+	ambient *= ambientOcclusion;
 
 	vec3 result = calculateDirectionalLight(directionalLight, ambient, diffuse, specular);
 	//result += calculateSpotLight(spotLight, ambient, diffuse, specular);

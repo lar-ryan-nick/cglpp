@@ -4,7 +4,7 @@ glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4 &from) {
 	return glm::transpose(glm::make_mat4(&from.a1));
 }
 
-cgl::Model::Model(Mesh* mesh) : skeletonRoot(-1) {
+cgl::Model::Model(Mesh* mesh) : skeletonRoot(-1), globalInverseTransform(1.0f) {
 	meshes.push_back(mesh);
 }
 
@@ -90,7 +90,7 @@ void cgl::Model::draw(Shader& shader, const glm::mat4& parentModel) {
 }
 
 glm::vec3 cgl::Model::getMinBounds() const {
-	glm::vec3 minBound(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
+	glm::vec3 minBound(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
 	for (std::list<Mesh*>::const_iterator it = meshes.cbegin(); it != meshes.cend(); it++) {
 		Mesh* m = *it;
 		glm::vec3 mb = m->getMinBounds();
@@ -102,7 +102,7 @@ glm::vec3 cgl::Model::getMinBounds() const {
 }
 
 glm::vec3 cgl::Model::getMaxBounds() const {
-	glm::vec3 maxBound(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+	glm::vec3 maxBound(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
 	for (std::list<Mesh*>::const_iterator it = meshes.cbegin(); it != meshes.cend(); it++) {
 		Mesh* m = *it;
 		glm::vec3 mb = m->getMaxBounds();
@@ -151,7 +151,7 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 		}
 	}
 	// load bones for mesh
-	std::vector<Mesh::VertexBoneData> boneData(positions.size());
+	std::vector<Mesh::VertexBoneData> boneData(positions.size(), {{0, 0, 0, 0}, {1.0f, 0.0f, 0.0f, 0.0f}});
 	for (int i = 0; i < mesh->mNumBones; i++) {
 		std::string boneName(mesh->mBones[i]->mName.C_Str());
 		int boneIndex = 0;
@@ -185,7 +185,7 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 			int index = mesh->mBones[i]->mWeights[j].mVertexId;
 			float weight = mesh->mBones[i]->mWeights[j].mWeight;
 			for (int k = 0; k < 4; k++) {
-				if (boneData[index].weights[k] == 0.0f) {
+				if (boneData[index].weights[k] == 0.0f || (k == 0 && boneData[index].weights[k] == 1.0f)) {
 					boneData[index].indicies[k] = boneIndex;
 					boneData[index].weights[k] = weight;
 					break;
@@ -193,11 +193,16 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 			}
 		}
 	}
+	/* Hopefully not needed with constructor in vector constructor
 	for (int i = 0; i < boneData.size(); ++i) {
 		if (boneData[i].weights[0] == 0.0f) {
 			boneData[i].weights[0] = 1.0f;
+			for (int j = 0; j < 4; ++j) {
+				boneData[i].indicies[j] = 0;
+			}
 		}
 	}
+	*/
 	aiMaterial* m = scene->mMaterials[mesh->mMaterialIndex];
 	meshes.push_back(new Mesh(positions, normals, textureCoordinates, indicies, boneData, Material::materialFromAssimp(m, scene, directory)));
 }

@@ -40,7 +40,7 @@ struct Material {
 uniform Material material;
 //int shininessIndex = -1;
 
-layout (location = 0) out vec3 gPosition;
+layout (location = 0) out vec4 gPosition;
 layout (location = 1) out vec3 gNormal;
 layout (location = 2) out vec2 gTexCoord;
 layout (location = 3) out vec3 ambient;
@@ -51,12 +51,12 @@ in vec2 texCoord;
 in vec3 normalVec;
 in vec3 fragmentPosition;
 
-void calculateTextureMap(TextureMap tm, inout vec3 ambient, inout vec3 diffuse, inout vec3 specular);
+void calculateTextureMap(TextureMap tm);
 void applyTextureMap(TextureMap tm, inout vec3 base);
 
 void main() {
 	// store the fragment position vector in the first gbuffer texture
-	gPosition = fragmentPosition;
+	gPosition = vec4(fragmentPosition, 1.0f);
 	// also store the per-fragment normals into the gbuffer
 	gNormal = normalVec;
 	// and the texture coordinate
@@ -65,17 +65,17 @@ void main() {
 	ambient = material.ambientColor;
 	diffuse = material.diffuseColor;
 	specular = material.specularColor;
-	calculateTextureMap(material.textureMaps[0], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[1], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[2], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[3], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[4], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[5], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[6], ambient, diffuse, specular);
-	calculateTextureMap(material.textureMaps[7], ambient, diffuse, specular);
+	calculateTextureMap(material.textureMaps[0]);
+	calculateTextureMap(material.textureMaps[1]);
+	calculateTextureMap(material.textureMaps[2]);
+	calculateTextureMap(material.textureMaps[3]);
+	calculateTextureMap(material.textureMaps[4]);
+	calculateTextureMap(material.textureMaps[5]);
+	calculateTextureMap(material.textureMaps[6]);
+	calculateTextureMap(material.textureMaps[7]);
 }
 
-void calculateTextureMap(TextureMap tm, inout vec3 ambient, inout vec3 diffuse, inout vec3 specular) {
+void calculateTextureMap(TextureMap tm) {
 	switch (tm.type) {
 		case DIFFUSE_MAP:
 			applyTextureMap(tm, diffuse);

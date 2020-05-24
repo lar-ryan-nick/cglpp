@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-cgl::Mesh::Mesh(const std::vector<glm::vec3>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), boneData(bd), material(m), minBounds(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest()), maxBounds(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()) {
+cgl::Mesh::Mesh(const std::vector<glm::vec3>& p, const std::vector<glm::vec3>& n, const std::vector<glm::vec2>& tc, const std::vector<unsigned int>& i, const std::vector<VertexBoneData>& bd, const Material& m) : positions(p), normals(n), textureCoordinates(tc), indicies(i), boneData(bd), material(m), minBounds(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()), maxBounds(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest()) {
 	setupVAO();
 	setupBounds();
 }
@@ -57,6 +57,14 @@ void cgl::Mesh::draw(Shader& shader, const glm::mat4& parentModel) {
 	glm::mat4 model = parentModel * getTransformationMatrix();
 	shader.setUniform("model", model);
 	shader.setUniform("material", material);
+	/*
+	if (indicies.size() == 6) {
+		for (int i = 0; i < indicies.size(); ++i) {
+			std::cout << Position(model * glm::vec4(positions[indicies[i]], 1.0f)) << std::endl;
+		}
+		std::cout << std::endl;
+	}
+	*/
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, indicies.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

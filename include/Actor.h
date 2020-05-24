@@ -15,10 +15,13 @@ namespace cgl {
 		private:
 			Model model;
 		public:
+			// Takes ownership
+			Actor(Mesh* mesh);
 			Actor(const std::string& path);
 			virtual ~Actor();
 			virtual void draw(Shader& shader, const glm::mat4& parentModel);
 			Model& getModel();
+			const Model& getModel() const;
 	};
 }
 

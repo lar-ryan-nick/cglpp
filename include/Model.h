@@ -27,6 +27,7 @@
 namespace cgl {
 	class Model : public Transformable {
 		public:
+			// Model takes ownership
 			Model(Mesh* mesh);
 			Model(const std::string& path);
 			~Model();

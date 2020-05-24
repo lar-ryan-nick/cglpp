@@ -5,6 +5,7 @@
 #include <Window.h>
 #include <Actor.h>
 #include <Animation.h>
+#include <PlanarMesh.h>
 
 class WorldTestWindow : public cgl::Window {
 	private:
