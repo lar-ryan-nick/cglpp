@@ -16,6 +16,7 @@ float normpdf(float v) {
 
 void main() {
 	float color = texture(image, gCoord).r;
+
 	vec2 texelSize = 1.0f / textureSize(image, 0);
 	float final = 0.0f;
 	float normalization = 0.0f;

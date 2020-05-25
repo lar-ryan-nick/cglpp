@@ -98,10 +98,7 @@ void main() {
 	vec3 specular = texture(gSpecular, gCoord).rgb;
 
 	float ambientOcclusion = texture(ssao, gCoord).r;
-	/*
-	FragColor = vec4(ambientOcclusion, ambientOcclusion, ambientOcclusion, 1.0f);
-	return;
-	*/
+
 	ambient *= ambientOcclusion;
 
 	vec3 result = calculateDirectionalLight(directionalLight, ambient, diffuse, specular);
