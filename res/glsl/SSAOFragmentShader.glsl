@@ -26,6 +26,7 @@ void main() {
 	vec2 noiseScale = vec2(screenWidth / 4.0, screenHeight / 4.0);
 	vec3 fragPos = (view * vec4(texture(gPosition, gCoord).xyz, 1.0f)).xyz;
 	vec3 normal = texture(gNormal, gCoord).xyz;
+	normal = normalize(transpose(inverse(mat3(view))) * normal);
 	vec3 randomVec = texture(noise, gCoord * noiseScale).xyz;
 	vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
 	vec3 bitangent = cross(normal, tangent);

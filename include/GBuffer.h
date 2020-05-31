@@ -10,7 +10,7 @@ namespace cgl {
 			void bindBuffer();
 			void bindPositionTexture();
 			void bindNormalTexture();
-			void bindTexCoordTexture();
+			//void bindTangentTexture();
 			void bindAmbientTexture();
 			void bindDiffuseTexture();
 			void bindSpecularTexture();
@@ -18,7 +18,7 @@ namespace cgl {
 			unsigned int fbo;
 			unsigned int positionBuffer;
 			unsigned int normalBuffer;
-			unsigned int texCoordBuffer;
+			//unsigned int tangentBuffer;
 			unsigned int ambientBuffer;
 			unsigned int diffuseBuffer;
 			unsigned int specularBuffer;

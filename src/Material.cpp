@@ -25,7 +25,7 @@ void cgl::Material::loadMaterialTextureMaps(aiMaterial* material, aiTextureType 
 	}
 }
 
-cgl::Material::Material() : shininess(0.0f), opacity(1.0f) {}
+cgl::Material::Material() : shininess(0.0f), opacity(1.0f), reflectivity(0.0f) {}
 
 cgl::Color cgl::Material::getAmbientColor() const {
 	return ambientColor;
@@ -67,6 +67,14 @@ float cgl::Material::getOpacity() const {
 	return opacity;
 }
 
-void cgl::Material::getOpacity(float o) {
+void cgl::Material::setOpacity(float o) {
 	opacity = o;
+}
+
+float cgl::Material::getReflectivity() const {
+	return reflectivity;
+}
+
+void cgl::Material::setReflectivity(float r) {
+	reflectivity = r;
 }

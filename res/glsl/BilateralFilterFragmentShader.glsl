@@ -1,5 +1,5 @@
 #version 330 core
-const float RSIGMA = 0.3f;
+const float RSIGMA = 0.1f;
 const int BFK_SIZE = 7;
 
 out float FragColor;
@@ -16,7 +16,6 @@ float normpdf(float v) {
 
 void main() {
 	float color = texture(image, gCoord).r;
-
 	vec2 texelSize = 1.0f / textureSize(image, 0);
 	float final = 0.0f;
 	float normalization = 0.0f;

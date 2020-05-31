@@ -219,6 +219,7 @@ void cgl::Shader::setUniform(const std::string& name, const Material& material) 
 	}
 	setUniform(name + ".shininess", material.getShininess());
 	setUniform(name + ".opacity", material.getOpacity());
+	setUniform(name + ".reflectivity", material.getReflectivity());
 }
 
 void cgl::Shader::setUniform(const std::string& name, const Light& light) {

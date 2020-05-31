@@ -130,10 +130,12 @@ void cgl::Model::processNode(aiNode* node, const aiScene* scene, const std::stri
 void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory) {
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> normals;
+	std::vector<glm::vec3> tangents;
 	std::vector<glm::vec2> textureCoordinates;
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		positions.push_back(glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
 		normals.push_back(glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
+		tangents.push_back(glm::vec3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z));
 		glm::vec2 textureCoordinate;
 		// TODO: figure out how to support up to 8 different texture coordinates
 		// psuedocode is in documentation
@@ -204,7 +206,7 @@ void cgl::Model::processMesh(aiMesh* mesh, const aiScene* scene, const std::stri
 	}
 	*/
 	aiMaterial* m = scene->mMaterials[mesh->mMaterialIndex];
-	meshes.push_back(new Mesh(positions, normals, textureCoordinates, indicies, boneData, Material::materialFromAssimp(m, scene, directory)));
+	meshes.push_back(new Mesh(positions, normals, tangents, textureCoordinates, indicies, boneData, Material::materialFromAssimp(m, scene, directory)));
 }
 
 std::list<cgl::Mesh*> cgl::Model::getMeshes() {

@@ -11,6 +11,8 @@ namespace cgl {
 			static const std::vector<glm::vec3> PLANE_POSITIONS;
 			static const std::vector<unsigned int> PLANE_INDICIES;
 			static const std::vector<glm::vec3> PLANE_NORMALS;
+			static const std::vector<glm::vec3> PLANE_TANGENTS;
+			static const std::vector<glm::vec2> PLANE_TEXCOORDS;
 	};
 }
 

@@ -35,6 +35,7 @@ struct Material {
 	TextureMap textureMaps[MAX_TEXTURE_MAPS];
 	float shininess;
 	float opacity;
+	float reflectivity;
 };
 
 uniform Material material;
@@ -42,14 +43,17 @@ uniform Material material;
 
 layout (location = 0) out vec4 gPosition;
 layout (location = 1) out vec3 gNormal;
-layout (location = 2) out vec2 gTexCoord;
-layout (location = 3) out vec3 ambient;
-layout (location = 4) out vec3 diffuse;
-layout (location = 5) out vec3 specular;
+//layout (location = 2) out vec3 gTangent;
+layout (location = 2) out vec3 ambient;
+layout (location = 3) out vec3 diffuse;
+layout (location = 4) out vec4 specularReflect;
 
 in vec2 texCoord;
 in vec3 normalVec;
+in vec3 tangentVec;
 in vec3 fragmentPosition;
+
+vec3 specular;
 
 void calculateTextureMap(TextureMap tm);
 void applyTextureMap(TextureMap tm, inout vec3 base);
@@ -60,7 +64,7 @@ void main() {
 	// also store the per-fragment normals into the gbuffer
 	gNormal = normalVec;
 	// and the texture coordinate
-	gTexCoord = texCoord;
+	//gTangent = tangentVec;
 
 	ambient = material.ambientColor;
 	diffuse = material.diffuseColor;
@@ -73,6 +77,7 @@ void main() {
 	calculateTextureMap(material.textureMaps[5]);
 	calculateTextureMap(material.textureMaps[6]);
 	calculateTextureMap(material.textureMaps[7]);
+	specularReflect = vec4(specular, material.reflectivity);
 }
 
 void calculateTextureMap(TextureMap tm) {

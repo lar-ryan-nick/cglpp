@@ -3,6 +3,8 @@
 cgl::Shader* cgl::WorldView::gBufferShader = nullptr;
 cgl::Shader* cgl::WorldView::worldViewShader = nullptr;
 cgl::Shader* cgl::WorldView::shadowMapShader = nullptr;
+cgl::Shader* cgl::WorldView::reflectionShader = nullptr;
+cgl::Shader* cgl::WorldView::canvasShader = nullptr;
 
 cgl::WorldView::WorldView(float x, float y, float width, float height) : View(x, y, width, height), pitch(0.0f), yaw(-90.0f), shadowMap(3, 1 << 12) {
 	if (gBufferShader == nullptr) {
@@ -14,6 +16,12 @@ cgl::WorldView::WorldView(float x, float y, float width, float height) : View(x,
 	if (shadowMapShader == nullptr) {
 		shadowMapShader = new Shader("res/glsl/ShadowMapVertexShader.glsl", "res/glsl/ShadowMapFragmentShader.glsl");
 	}
+	if (reflectionShader == nullptr) {
+		reflectionShader = new Shader("res/glsl/ReflectionVertexShader.glsl", "res/glsl/ReflectionFragmentShader.glsl");
+	}
+	if (canvasShader == nullptr) {
+		canvasShader = new Shader("res/glsl/CanvasVertexShader.glsl", "res/glsl/CanvasFragmentShader.glsl");
+	}
 	camera.setRotation(pitch, yaw);
 }
 
@@ -22,6 +30,26 @@ void cgl::WorldView::addActor(Actor* a) {
 }
 
 void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+
+	geometryPass();
+	shadowPass();
+
+	glDisable(GL_DEPTH_TEST);
+
+	screenSpacePass();
+	lightingPass();
+	postProcessPass();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glEnable(GL_BLEND);
+
+	// Lighting Shader use is done below
+	View::draw(parentModel, poly);
+}
+
+void cgl::WorldView::geometryPass() {
 	float viewport[4];
 	glGetFloatv(GL_VIEWPORT, viewport);
 
@@ -33,28 +61,6 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 	glm::mat4 view = camera.getViewMatrix();
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 1.0f, 300.0f);
 	glm::mat4 vp = projection * view;
-
-	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
-
-	// Shadow map pass
-	shadowMap.updateSplits(1.0f, 300.0f);
-	shadowMap.updateLightViewProjections(camera, directionalLight, glm::radians(45.0f), viewport[2] / viewport[3]);
-	shadowMapShader->use();
-	for (int i = 0; i < shadowMap.getNumCascades(); ++i) {
-		// Render to shadowMap
-		//glCullFace(GL_FRONT);
-		shadowMap.bindFramebuffer(i);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		shadowMapShader->setUniform("lightVP", shadowMap.getLightViewProjection(i));
-		for (std::list<Actor*>::iterator it2 = actors.begin(); it2 != actors.end(); it2++) {
-			Actor* actor = *it2;
-			actor->draw(*shadowMapShader, m);
-		}
-	}
-	shadowMapShader->finish();
-	// Reset viewport
-	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
 	// GBuffer pass
 	gBuffer.bindBuffer();
@@ -68,66 +74,72 @@ void cgl::WorldView::draw(const glm::mat4& parentModel, const Polygon& poly) {
 		actor->draw(*gBufferShader, m);
 	}
 	gBufferShader->finish();
-	glDisable(GL_DEPTH_TEST);
+}
+
+void cgl::WorldView::shadowPass() {
+	float viewport[4];
+	glGetFloatv(GL_VIEWPORT, viewport);
+
+	//SpotLight spotLight(camera.getDirection(), camera.getPosition());
+	glm::vec3 lightDirection(4.0f, -6.0f, -4.0f);
+	DirectionalLight directionalLight(lightDirection);
+
+	glm::mat4 m(1.0f);
+
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	// Shadow map pass
+	shadowMap.updateSplits(1.0f, 300.0f);
+	shadowMap.updateLightViewProjections(camera, directionalLight, glm::radians(45.0f), viewport[2] / viewport[3]);
+	shadowMapShader->use();
+	for (int i = 0; i < shadowMap.getNumCascades(); ++i) {
+		// Render to shadowMap
+		shadowMap.bindFramebuffer(i);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		shadowMapShader->setUniform("lightVP", shadowMap.getLightViewProjection(i));
+		for (std::list<Actor*>::iterator it2 = actors.begin(); it2 != actors.end(); it2++) {
+			Actor* actor = *it2;
+			actor->draw(*shadowMapShader, m);
+		}
+	}
+	shadowMapShader->finish();
+
+	//glCullFace(GL_FRONT);
+	//glDisable(GL_CULL_FACE);
+	// Reset viewport
+	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+}
+
+void cgl::WorldView::screenSpacePass() {
+	float viewport[4];
+	glGetFloatv(GL_VIEWPORT, viewport);
+
+	glm::mat4 view = camera.getViewMatrix();
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 1.0f, 300.0f);
 
 	// SSAO pass
 	ssao.draw(gBuffer, view, projection);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glEnable(GL_BLEND);
-
-	// Lighting Shader use is done below
-	View::draw(parentModel, poly);
+	// SSR pass
+	ssr.draw(gBuffer, view, projection);
 }
 
-void cgl::WorldView::render(const Polygon& bounds, const glm::mat4& model) {
-	View::render(bounds, model);
-
+void cgl::WorldView::lightingPass() {
 	float viewport[4];
 	glGetFloatv(GL_VIEWPORT, viewport);
 
-	/*
-	// TODO: fix texture mapper math to prevent divide by zero
-	glm::mat4 proj = glm::ortho(0.0f, viewport[2], viewport[3], 0.0f, -0.1f, 0.1f);
-	glm::mat4 mvp = proj * model;
-	Rectangle bnds = getBounds();
-	float verticies[8];
-	verticies[0] = verticies[6] = bnds.getX();
-	verticies[1] = verticies[3] = bnds.getY();
-	verticies[2] = verticies[4] = bnds.getX() + bnds.getWidth();
-	verticies[5] = verticies[7] = bnds.getY() + bnds.getHeight();
-	for (int i = 0; i < 8; i += 2) {
-			glm::vec4 ver(verticies[i], verticies[i + 1], 0.0f, 1.0f);
-			glm::vec4 transformed = mvp * ver;
-			verticies[i] = transformed.x;
-			verticies[i + 1] = transformed.y;
-			//std::cout << "<" << transformed.x << ", " << transformed.y << ">" << std::endl;
-	}
-	float a = (1 + (verticies[1] - verticies[5]) / (verticies[3] - verticies[1])) / (verticies[4] - verticies[0] + (verticies[5] - verticies[1]) * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]));
-	float b = (1 + a * (verticies[0] - verticies[2])) / (verticies[3] - verticies[1]);
-	float d = -a * verticies[0] - b * verticies[1];
-	float e = -1 / (verticies[4] - verticies[0] + (verticies[5] - verticies[1]) * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]));
-	float f = e * (verticies[0] - verticies[2]) / (verticies[3] - verticies[1]);
-	float h = 1 - e * verticies[0] - f * verticies[1];
-	glm::mat4 textureMapper(a, e, 0.0f, 0.0f, b, f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, d, h, 0.0f, 0.0f);
-
-	//std::cout << a << ' ' << b << ' ' << d << ' ' << e << std::endl;
-	//std::cout << VectorContainer(textureMapper * glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f)) << std::endl;
-	//std::cout << VectorContainer(textureMapper * glm::vec4(-1.0f, 1.0f, 0.0f, 1.0f)) << std::endl;
-	//std::cout << VectorContainer(textureMapper * glm::vec4(1.0f, -1.0f, 0.0f, 1.0f)) << std::endl;
-	//std::cout << VectorContainer(textureMapper * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)) << std::endl;
-	*/
-
-	std::list<Position> vert = bounds.getVerticies();
-
+	//SpotLight spotLight(camera.getDirection(), camera.getPosition());
 	glm::vec3 lightDirection(4.0f, -6.0f, -4.0f);
 	DirectionalLight directionalLight(lightDirection);
+
 	glm::mat4 m(1.0f);
 	glm::mat4 view = camera.getViewMatrix();
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 1.0f, 300.0f);
+	glm::mat4 vp = projection * view;
 
+	lightingPipeline.updateSize(Size(viewport[2], viewport[3]));
+	lightingPipeline.bindFramebuffer();
 	worldViewShader->use();
-	//worldViewShader->setUniform("textureMapper", textureMapper);
 	worldViewShader->setUniform("vp", projection * view);
 	worldViewShader->setUniform("viewPosition", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 	worldViewShader->setUniform("directionalLight", directionalLight);
@@ -153,8 +165,8 @@ void cgl::WorldView::render(const Polygon& bounds, const glm::mat4& model) {
 	gBuffer.bindNormalTexture();
 	worldViewShader->setUniform("gNormal", 1);
 	glActiveTexture(GL_TEXTURE0 + 2);
-	gBuffer.bindTexCoordTexture();
-	worldViewShader->setUniform("gTexCoord", 2);
+	shadowMap.bindShadowMapArray();
+	worldViewShader->setUniform("cascadedShadowMap", 2);
 	glActiveTexture(GL_TEXTURE0 + 3);
 	gBuffer.bindAmbientTexture();
 	worldViewShader->setUniform("gAmbient", 3);
@@ -167,13 +179,44 @@ void cgl::WorldView::render(const Polygon& bounds, const glm::mat4& model) {
 	glActiveTexture(GL_TEXTURE0 + 6);
 	ssao.bindSSAO();
 	worldViewShader->setUniform("ssao", 6);
-	glActiveTexture(GL_TEXTURE0 + 7);
-	shadowMap.bindShadowMapArray();
-	worldViewShader->setUniform("cascadedShadowMap", 7);
+	VAO::getScreenVAO()->draw();
+	worldViewShader->finish();
+}
+
+void cgl::WorldView::postProcessPass() {
+	float viewport[4];
+	glGetFloatv(GL_VIEWPORT, viewport);
+	postProcessPipeline.updateSize(Size(viewport[2], viewport[3]));
+
+	postProcessPipeline.bindFramebuffer();
+	reflectionShader->use();
+	glActiveTexture(GL_TEXTURE0 + 0);
+	lightingPipeline.bindTexture();
+	reflectionShader->setUniform("scene", 0);
+	glActiveTexture(GL_TEXTURE0 + 1);
+	ssr.bindSSR();
+	reflectionShader->setUniform("ssr", 1);
+	glActiveTexture(GL_TEXTURE0 + 2);
+	gBuffer.bindSpecularTexture();
+	reflectionShader->setUniform("gSpecular", 2);
+	VAO::getScreenVAO()->draw();
+	reflectionShader->finish();
+}
+
+
+void cgl::WorldView::render(const Polygon& bounds, const glm::mat4& model) {
+	View::render(bounds, model);
+
+	std::list<Position> vert = bounds.getVerticies();
+
+	canvasShader->use();
+	glActiveTexture(GL_TEXTURE0 + 0);
+	postProcessPipeline.bindTexture();
+	canvasShader->setUniform("image", 0);
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, (vert.size() - 2) * 3, GL_UNSIGNED_INT, 0);
-	worldViewShader->finish();
 	glBindVertexArray(0);
+	canvasShader->finish();
 }
 
 cgl::Camera cgl::WorldView::getCamera() {

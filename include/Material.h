@@ -22,7 +22,9 @@ namespace cgl {
 			float getShininess() const;
 			void setShininess(float s);
 			float getOpacity() const;
-			void getOpacity(float o);
+			void setOpacity(float o);
+			float getReflectivity() const;
+			void setReflectivity(float r);
 		private:
 			Color ambientColor;
 			Color diffuseColor;
@@ -30,6 +32,7 @@ namespace cgl {
 			std::list<TextureMap> textureMaps;
 			float shininess;
 			float opacity;
+			float reflectivity;
 			static void loadMaterialTextureMaps(aiMaterial* material, aiTextureType type, const aiScene* scene, const std::string& directory, std::list<TextureMap>& textureMaps);
 	};
 }

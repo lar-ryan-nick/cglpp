@@ -12,20 +12,21 @@ WorldTestWindow::WorldTestWindow() : animationStart(glfwGetTime()) {
 	worldView->setBackgroundColor(cgl::Color(0.9f, 0.9f, 0.9f, 1.0f));
 	//actor1 = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
 	actor1 = new cgl::Actor("res/models/paladin/paladin.fbx");
-	actor1->getModel().scale(0.1f, 0.1f, 0.1f);
+	actor1->getModel().scale(0.01f, 0.01f, 0.01f);
 	animation = new cgl::Animation("res/models/paladin/animations/sword and shield idle.fbx");
 	worldView->addActor(actor1);
-	/*
 	cgl::Mesh* plane = new cgl::PlanarMesh();
 	plane->getMaterial().setAmbientColor(cgl::Color(0.4f, 0.4f, 0.4f));
 	plane->getMaterial().setDiffuseColor(cgl::Color(0.4f, 0.4f, 0.4f));
 	plane->getMaterial().setSpecularColor(cgl::Color(0.4f, 0.4f, 0.4f));
+	plane->getMaterial().setReflectivity(1.0f);
 	actor2 = new cgl::Actor(plane);
 	actor2->getModel().scale(200.0f, 1.0f, 200.0f);
-	*/
+	/*
 	actor2 = new cgl::Actor("res/models/floor/FbxFloor.fbx");
 	actor2->getModel().scale(2.0f, 2.0f, 2.0f);
-	actor2->getModel().translate(0.0f, -0.1f + actor1->getModel().getMinBounds().y, 0.0f);
+	*/
+	actor2->getModel().translate(0.0f, actor1->getModel().getMinBounds().y, 0.0f);
 	worldView->addActor(actor2);
 	getView().addSubview(worldView);
 	getView().setBackgroundColor(cgl::Color(0.0f, 0.0f, 0.0f, 1.0f));
