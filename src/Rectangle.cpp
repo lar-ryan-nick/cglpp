@@ -1,4 +1,4 @@
-#include "../include/Rectangle.h"
+#include "Rectangle.h"
 
 cgl::Rectangle::Rectangle(float x, float y, float width, float height) : origin(x, y), size(width, height) {}
 

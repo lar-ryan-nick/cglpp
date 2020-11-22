@@ -118,10 +118,10 @@ void cgl::WorldView::screenSpacePass() {
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), viewport[2] / viewport[3], 1.0f, 300.0f);
 
 	// SSAO pass
-	ssao.draw(gBuffer, view, projection);
+	//ssao.draw(gBuffer, view, projection);
 
 	// SSR pass
-	ssr.draw(gBuffer, view, projection);
+	//ssr.draw(gBuffer, view, projection);
 }
 
 void cgl::WorldView::lightingPass() {
@@ -184,10 +184,10 @@ void cgl::WorldView::lightingPass() {
 }
 
 void cgl::WorldView::postProcessPass() {
+	/*
 	float viewport[4];
 	glGetFloatv(GL_VIEWPORT, viewport);
 	postProcessPipeline.updateSize(Size(viewport[2], viewport[3]));
-
 	postProcessPipeline.bindFramebuffer();
 	reflectionShader->use();
 	glActiveTexture(GL_TEXTURE0 + 0);
@@ -201,6 +201,7 @@ void cgl::WorldView::postProcessPass() {
 	reflectionShader->setUniform("gSpecular", 2);
 	VAO::getScreenVAO()->draw();
 	reflectionShader->finish();
+	*/
 }
 
 
@@ -211,7 +212,8 @@ void cgl::WorldView::render(const Polygon& bounds, const glm::mat4& model) {
 
 	canvasShader->use();
 	glActiveTexture(GL_TEXTURE0 + 0);
-	postProcessPipeline.bindTexture();
+	lightingPipeline.bindTexture();
+	//postProcessPipeline.bindTexture();
 	canvasShader->setUniform("image", 0);
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, (vert.size() - 2) * 3, GL_UNSIGNED_INT, 0);

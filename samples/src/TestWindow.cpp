@@ -1,4 +1,4 @@
-#include "../include/TestWindow.h"
+#include "TestWindow.h"
 
 TestWindow::TestWindow() {
 	setBackgroundColor(cgl::Color(0.5f, 0.5f, 0.5f, 1.0f));

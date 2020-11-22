@@ -1,4 +1,4 @@
-#include "../include/TestApplication.h"
+#include "TestApplication.h"
 
 void TestApplication::onCreate() {
 	//window = new TestWindow(); // 2D

@@ -2,7 +2,7 @@
 #define MODELVIEWAPPLICATION_H
 
 #include <string>
-#include <Application.h>
+#include "Application.h"
 #include "ModelViewWindow.h"
 
 class ModelViewApplication : public cgl::Application {

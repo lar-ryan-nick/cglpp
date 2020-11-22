@@ -1,4 +1,4 @@
-#include "../include/VectorContainer.h"
+#include "VectorContainer.h"
 
 cgl::VectorContainer::VectorContainer(float x, float y, float z, float w) : vector(x, y, z, w) {}
 

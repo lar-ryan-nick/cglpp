@@ -1,4 +1,4 @@
-#include "../include/Camera.h"
+#include "Camera.h"
 
 cgl::Camera::Camera(const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up) : position(pos), direction(dir), worldUp(up) {}
 

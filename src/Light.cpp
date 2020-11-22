@@ -1,4 +1,4 @@
-#include "../include/Light.h"
+#include "Light.h"
 
 cgl::Light::Light(const glm::vec3& col, float ambient, float diffuse, float specular) {
 	color = col;

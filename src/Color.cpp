@@ -1,4 +1,4 @@
-#include "../include/Color.h"
+#include "Color.h"
 
 cgl::Color::Color(float r, float g, float b, float a) : VectorContainer(r, g, b, a) {
 	fixValues();

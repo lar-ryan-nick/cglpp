@@ -21,7 +21,7 @@
 #include "Texture.h"
 #include "Transformable.h"
 #include <cassert>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 // TODO: calculate center
 namespace cgl {

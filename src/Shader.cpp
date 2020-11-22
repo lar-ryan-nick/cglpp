@@ -1,4 +1,4 @@
-#include "../include/Shader.h"
+#include "Shader.h"
 
 cgl::Shader::Shader(const std::string& vertexSourcePath, const std::string& fragmentSourcePath, const std::string& geometrySourcePath) {
 	id = glCreateProgram();

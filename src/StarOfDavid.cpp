@@ -1,4 +1,4 @@
-#include "../include/StarOfDavid.h"
+#include "StarOfDavid.h"
 
 cgl::StarOfDavid::StarOfDavid() {
 	float verticies[] = {

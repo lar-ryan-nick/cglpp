@@ -1,4 +1,4 @@
-#include "../include/Position.h"
+#include "Position.h"
 
 cgl::Position::Position(float x, float y, float z, float w) : VectorContainer(x, y, z, w) {}
 

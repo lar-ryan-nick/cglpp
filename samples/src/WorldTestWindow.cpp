@@ -13,7 +13,7 @@ WorldTestWindow::WorldTestWindow() : animationStart(glfwGetTime()) {
 	//actor1 = new cgl::Actor("res/models/nanosuit/nanosuit.obj");
 	actor1 = new cgl::Actor("res/models/paladin/paladin.fbx");
 	actor1->getModel().scale(0.01f, 0.01f, 0.01f);
-	animation = new cgl::Animation("res/models/paladin/animations/sword and shield idle.fbx");
+	animation = new cgl::Animation("res/models/paladin/animations/sword_and_shield_idle.fbx");
 	worldView->addActor(actor1);
 	cgl::Mesh* plane = new cgl::PlanarMesh();
 	plane->getMaterial().setAmbientColor(cgl::Color(0.4f, 0.4f, 0.4f));

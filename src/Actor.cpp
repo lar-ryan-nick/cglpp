@@ -1,4 +1,4 @@
-#include "../include/Actor.h"
+#include "Actor.h"
 
 cgl::Actor::Actor(Mesh* mesh) : model(mesh) {
 }

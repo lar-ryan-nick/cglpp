@@ -1,4 +1,4 @@
-#include "../include/Cube.h"
+#include "Cube.h"
 
 cgl::Cube::Cube() {
 	float verticies[] = {

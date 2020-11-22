@@ -1,6 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
-#include "../include/Texture.h"
+#include "Texture.h"
 
 std::unordered_map<std::string, unsigned int> cgl::Texture::loadedTextures;
 cgl::Texture cgl::Texture::whiteTexture;

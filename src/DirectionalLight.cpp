@@ -1,4 +1,4 @@
-#include "../include/DirectionalLight.h"
+#include "DirectionalLight.h"
 
 cgl::DirectionalLight::DirectionalLight(const glm::vec3& dir, const glm::vec3& color, float ambientStrength, float diffuseStrength, float specularStrength) : Light(color, ambientStrength, diffuseStrength, specularStrength), direction(dir) {}
 
