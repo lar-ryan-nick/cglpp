@@ -1,10 +1,10 @@
 .DS_Store
 dna.txt
 # Bazel
-bazel-bin/
-bazel-testlogs/
-bazel-cglpp/
-bazel-out/
+bazel-bin/*
+bazel-testlogs/*
+bazel-cglpp/*
+bazel-out/*
 # Makefile
 test/bin/
 test/build/
