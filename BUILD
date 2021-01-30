@@ -10,15 +10,6 @@ cc_library(
 )
 
 cmake_external(
-	name = "glfw",
-	cache_entries = {
-	},
-	lib_source = "@glfw//:all",
-	static_libraries = ["libglfw3.a"],
-	linkopts = ["-lpng", "-lX11", "-lz", "-lpthread", "-ldl"],
-)
-
-cmake_external(
 	name = "assimp",
 	cache_entries = {
 		"ASSIMP_BUILD_ASSIMP_TOOLS": "OFF",
@@ -45,8 +36,8 @@ cc_library(
 	hdrs = glob(["include/*.h"]),
 	srcs = glob(["src/*.cpp"]),
 	deps = [
-		#"@glfw//:glfw",
-		":glfw",
+		"@glfw//:glfw",
+		#":glfw",
 		"@glad//:glad",
 		"@glm//:glm",
 		#"@assimp//:assimp",
