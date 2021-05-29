@@ -1,7 +1,13 @@
 load("@rules_foreign_cc//tools/build_defs:cmake.bzl", "cmake_external")
+load("cmake_macro.bzl", "cmake_library")
 
 package(
 	default_visibility = ["//visibility:public"]
+)
+
+filegroup(
+	name ="glfw_test",
+	srcs = ["@glfw//:glfw_test"],
 )
 
 cc_library(
@@ -20,6 +26,15 @@ cmake_external(
 	make_commands = ["make -j4", "make install"],
 	static_libraries = ["libIrrXML.a"],
 	shared_libraries = ["libassimp.so", "libassimp.so.5", "libassimp.so.5.0.0"],
+)
+
+cmake_external(
+	name = "glfw",
+	cache_entries = {
+	},
+	lib_source = "@glfw//:all",
+	static_libraries = ["libglfw3.a"],
+	linkopts = ["-lpng", "-lX11", "-lz", "-lpthread", "-ldl"],
 )
 
 cmake_external(
@@ -46,7 +61,7 @@ cc_library(
 		":stb_image",
 	],
 	# TODO: replace <> includes with "" unless they are system includes (i.e. <string>, "glad/glad.h").
-	includes = ["external/glm", "external/glfw/include", "external/glad/include", "external/stb_image/file"],
+	includes = ["external/glfw/include", "external/glm", "external/glad/include", "external/stb_image/file"],
 	strip_include_prefix = "include",
 	data = glob(["res/**/*"]),
 )
@@ -63,4 +78,11 @@ cc_binary(
 	name = "application_test",
 	srcs = ["samples/main/applicationTest.cpp"],
 	deps = [":sample", ":cglpp"],
+)
+
+cc_binary(
+  name = "vulkan_test",
+  srcs = ["samples/main/VulkanTest.cpp"],
+  deps = ["@glfw//:glfw", "@vulkan_sdk//:vulkan"],
+  #includes = ["external/glfw/include"],
 )

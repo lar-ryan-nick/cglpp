@@ -2,9 +2,10 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 
 http_archive(
-	name = "rules_foreign_cc",
-	strip_prefix = "rules_foreign_cc-master",
-	url = "https://github.com/bazelbuild/rules_foreign_cc/archive/master.zip",
+   name = "rules_foreign_cc",
+   sha256 = "c2cdcf55ffaf49366725639e45dedd449b8c3fe22b54e31625eb80ce3a240f1e",
+   strip_prefix = "rules_foreign_cc-0.1.0",
+   url = "https://github.com/bazelbuild/rules_foreign_cc/archive/0.1.0.zip",
 )
 
 load("@rules_foreign_cc//:workspace_definitions.bzl", "rules_foreign_cc_dependencies")
@@ -20,7 +21,6 @@ http_archive(
 	sha256 = "08a33a512f29d7dbf78eab39bd7858576adcc95228c9efe8e4bc5f0f3261efc7",
 	build_file = "@//:glfw.BUILD",
 	strip_prefix = "glfw-3.3.2",
-	#build_file_content = all_content,
 )
 
 http_archive(
@@ -60,3 +60,26 @@ new_local_repository(
 	path = "third_party/glad",
 	build_file = "glad.BUILD",
 )
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "com_github_zaucy_rules_7zip",
+    strip_prefix = "rules_7zip-e95ba876db445cf2c925c02c4bc18ed37a503fd8",
+    url = "https://github.com/zaucy/rules_7zip/archive/e95ba876db445cf2c925c02c4bc18ed37a503fd8.zip",
+    sha256 = "b66e1c712577b0c029d4c94228dba9c8aacdcdeb88c3b1eeeffd00247ba5a856",
+)
+
+load("@com_github_zaucy_rules_7zip//:setup.bzl", "setup_7zip")
+setup_7zip()
+
+http_archive(
+    name = "com_github_zaucy_rules_vulkan",
+    strip_prefix = "rules_vulkan-56fcc35f4def06de53ba36b2c5bd3ff20fcb43cf",
+    url = "https://github.com/zaucy/rules_vulkan/archive/56fcc35f4def06de53ba36b2c5bd3ff20fcb43cf.zip",
+    sha256 = "bc4b3aa29e30f11144fbc3254b86bb1fb735e01fbe6dfce5857fcb6fdf5b6952",
+)
+
+load("@com_github_zaucy_rules_vulkan//:repo.bzl", "vulkan_repos")
+vulkan_repos()
+

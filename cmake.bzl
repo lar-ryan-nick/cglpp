@@ -4,8 +4,10 @@ def _cmake_cc_library_impl(ctx):
   ctx.actions.run(
     inputs = ctx.files.src,
     executable = "cmake",
-    arguments = ["-DINSTALL_PREFIX=" + temp_dir.dirname],
+    arguments = ["-DINSTALL_PREFIX=" + temp_dir.dirname,
+                 "-S external/glfw", "-B external/glfw/build"],
     progress_message = "running cmake",
+    outputs = [temp_dir],
   )
 
   ctx.actions.run(
