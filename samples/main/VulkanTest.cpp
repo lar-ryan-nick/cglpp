@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
     int j = 0;
     for (; j < availableLayers.size(); ++j) {
       if (strcmp(validationLayer, availableLayers[j].layerName) == 0) {
-        continue;
+        break;
       }
     }
     if (j >= availableLayers.size()) {
@@ -60,9 +60,9 @@ int main(int argc, char** argv) {
   createInfo.pApplicationInfo = &appInfo;
   createInfo.enabledExtensionCount = requiredExtensionCount;
   createInfo.ppEnabledExtensionNames = requiredExtensions;
-  createInfo.enabledLayerCount = 0;//static_cast<uint32_t>(validationLayers.size());
-  //createInfo.ppEnabledLayerNames = validationLayers.data();
-  //createInfo.pNext = &debugMessengerCreateInfo;
+  createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+  createInfo.ppEnabledLayerNames = validationLayers.data();
+  createInfo.pNext = &debugMessengerCreateInfo;
 
   VkInstance instance;
   VkResult instanceCreationResult = vkCreateInstance(&createInfo, nullptr, &instance);
@@ -75,6 +75,13 @@ int main(int argc, char** argv) {
   std::vector<VkPhysicalDevice> availablePhysicalDevices(availablePhysicalDeviceCount);
   vkEnumeratePhysicalDevices(instance, &availablePhysicalDeviceCount, availablePhysicalDevices.data());
 
+  VkDebugUtilsMessengerEXT debugMessenger;
+  auto createDebugMessenger = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+  VkResult debugUtilsCreationResult = createDebugMessenger(instance, &debugMessengerCreateInfo, nullptr, &debugMessenger);
+  if (debugUtilsCreationResult != VK_SUCCESS) {
+    return -1;
+  }
+
   std::cout << availablePhysicalDeviceCount << " physical devices available" << std::endl;
 
   for (const VkPhysicalDevice& physicalDevice : availablePhysicalDevices) {
@@ -82,15 +89,6 @@ int main(int argc, char** argv) {
     vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
     std::cout << "Physical device: " << physicalDeviceProperties.deviceName << std::endl;
   }
-
-  /*
-  VkDebugUtilsMessengerEXT debugMessenger;
-  auto createDebugMessenger = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-  VkResult debugUtilsCreationResult = createDebugMessenger(instance, &debugMessengerCreateInfo, nullptr, &debugMessenger);
-  if (debugUtilsCreationResult != VK_SUCCESS) {
-    return -1;
-  }
-  */
   
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
