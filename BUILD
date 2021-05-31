@@ -85,7 +85,8 @@ cc_binary(
   srcs = ["samples/main/VulkanTest.cpp"],
   deps = ["@glfw//:glfw", "@vulkan_sdk//:vulkan"],
   env = {
-	  "VULKAN_SDK": "extenal/vulkan_sdk_windows",
-	  "VK_LAYER_PATH": "extenal/vulkan_sdk_windows/Bin",
+	  "VULKAN_SDK": "G:/ryanl/Documents/Programs/cglpp/bazel-cglpp/external/vulkan_sdk_windows",
+	  "VK_SDK_PATH": "G:/ryanl/Documents/Programs/cglpp/bazel-cglpp/external/vulkan_sdk_windows",
+	  "VK_LAYER_PATH": "G:/ryanl/Documents/Programs/cglpp/bazel-cglpp/external/vulkan_sdk_windows/Bin",
   }
 )

@@ -12,7 +12,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBits
 int main(int argc, char** argv) {
   glfwInit();
 
-  VkApplicationInfo appInfo;
+  VkApplicationInfo appInfo{};
   appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
   appInfo.pApplicationName = "Vulkan Test";
   appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -27,13 +27,13 @@ int main(int argc, char** argv) {
 
   uint32_t requiredExtensionCount = 0;
   const char** requiredExtensions = glfwGetRequiredInstanceExtensions(&requiredExtensionCount);
+  std::vector<const char*> extensions(requiredExtensions, requiredExtensions + requiredExtensionCount);
+  extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
   uint32_t availableLayerCount;
   vkEnumerateInstanceLayerProperties(&availableLayerCount, nullptr);
   std::vector<VkLayerProperties> availableLayers(availableLayerCount);
   vkEnumerateInstanceLayerProperties(&availableLayerCount, availableLayers.data());
-
-  std::cout << availableLayerCount << " available layers" << std::endl;
 
   std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
       }
     }
     if (j >= availableLayers.size()) {
-      std::cout << "Could not find validation layer: " << validationLayer << std::endl;
+      std::cerr << "Could not find validation layer: " << validationLayer << std::endl;
     }
   }
 
@@ -58,8 +58,8 @@ int main(int argc, char** argv) {
   VkInstanceCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   createInfo.pApplicationInfo = &appInfo;
-  createInfo.enabledExtensionCount = requiredExtensionCount;
-  createInfo.ppEnabledExtensionNames = requiredExtensions;
+  createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+  createInfo.ppEnabledExtensionNames = extensions.data();
   createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
   createInfo.ppEnabledLayerNames = validationLayers.data();
   createInfo.pNext = &debugMessengerCreateInfo;
@@ -67,6 +67,19 @@ int main(int argc, char** argv) {
   VkInstance instance;
   VkResult instanceCreationResult = vkCreateInstance(&createInfo, nullptr, &instance);
   if (instanceCreationResult != VK_SUCCESS) {
+    std::cerr << "Failed to create vulkan instance" << std::endl;
+    return -1;
+  }
+
+  VkDebugUtilsMessengerEXT debugMessenger;
+  auto createDebugMessenger = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+  if (createDebugMessenger == nullptr) {
+    std::cerr << "Failed to find debug messenger creation function" << std::endl;
+    return -1;
+  }
+  VkResult debugUtilsCreationResult = createDebugMessenger(instance, &debugMessengerCreateInfo, nullptr, &debugMessenger);
+  if (debugUtilsCreationResult != VK_SUCCESS) {
+    std::cerr << "Failed to create vulkan debug messenger" << std::endl;
     return -1;
   }
 
@@ -74,13 +87,6 @@ int main(int argc, char** argv) {
   vkEnumeratePhysicalDevices(instance, &availablePhysicalDeviceCount, nullptr);
   std::vector<VkPhysicalDevice> availablePhysicalDevices(availablePhysicalDeviceCount);
   vkEnumeratePhysicalDevices(instance, &availablePhysicalDeviceCount, availablePhysicalDevices.data());
-
-  VkDebugUtilsMessengerEXT debugMessenger;
-  auto createDebugMessenger = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-  VkResult debugUtilsCreationResult = createDebugMessenger(instance, &debugMessengerCreateInfo, nullptr, &debugMessenger);
-  if (debugUtilsCreationResult != VK_SUCCESS) {
-    return -1;
-  }
 
   std::cout << availablePhysicalDeviceCount << " physical devices available" << std::endl;
 
@@ -99,6 +105,11 @@ int main(int argc, char** argv) {
   }
 
   glfwDestroyWindow(window);
+
+  auto destroyDebugMessenger = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+  if (destroyDebugMessenger != nullptr) {
+    destroyDebugMessenger(instance, debugMessenger, nullptr);
+  }
 
   vkDestroyInstance(instance, nullptr);
 
