@@ -1,4 +1,4 @@
-# This BUILD file is taken from pbellis/bazel-glfw
+# This BUILD file is taken from pbellis/bazel-glfw and has been modified slightly.
 package(
 	default_visibility = ["//visibility:private"],
 )
